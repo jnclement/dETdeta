@@ -54,6 +54,11 @@ int build_events()
   TTree* simt = simf->Get<TTree>("ttree");
   TH1F* hist = new TH1F("hist","",394,0,394);
   TH1F* centclass[10][3];
+  TH1F* etdata = new TH1F("etdata","",100,0,500);
+  TH1F* etsim  = new TH1F("etsim","",100,0,500);
+  TH1F* sedist = new TH1F("sedist","",1000,0,50);
+  TH1F* dedist = new TH1F("dedist","",1000,0,50);
+  TH1F* mthist = new TH1F("mthist","",100,-50,50);
   for(int i=0; i<10; ++i)
     {
       centclass[i][0] = new TH1F(("centhiste" + to_string(i)).c_str(),"",96,-1.1,1.1);
@@ -67,10 +72,10 @@ int build_events()
   int nih[10][24] = {0};
   int noh[10][24] = {0};
   int tpn = 0;
-  float tpe[5000] = {0};
-  float tpet[5000] = {0};
-  float tpph[5000] = {0};
-  int tpem[5000] = {0};
+  float tpe[25000] = {0};
+  float tpet[25000] = {0};
+  float tpph[25000] = {0};
+  int tpem[25000] = {0};
   int npart = 0;
   int ncoll = 0;
   float bimp = 0;
@@ -235,7 +240,7 @@ int build_events()
   for(int i=0; i<simt->GetEntries()/fractouse; ++i)
     {
       mbdsum = 0;
-      
+      float sime = 0;
       simt->GetEntry(i);
       mbdsum = npart;
       //cout << mbdsum << endl;
@@ -248,9 +253,12 @@ int build_events()
 	      int etabin;
 	      for(int k=0; k<ssectorem; ++k)
 		{
+		  etabin = semcalet[k];
+		  sedist->Fill(semcalen[k]*sin(2*atan(exp(-(etabin-48)*0.024))));
 		  if(semcalen[k] < 0) continue;
-		  etabin = semcalet[k];//floor(emcalet[k]/0.023)+48;
+		  //floor(emcalet[k]/0.023)+48;
 		  detacente[j][etabin] += semcalen[k]*sin(2*atan(exp(-(etabin-48)*0.024)));//-emcalet[k])));
+		  sime += semcalen[k]*sin(2*atan(exp(-(etabin-48)*0.024)));
 		  //cout << j << "etabin" << etabin << " detacente " << detacente[j][etabin] << endl;
 		  //cout << emcalen[k] << endl;
 		  if(semcalen[k] > 0)
@@ -263,6 +271,7 @@ int build_events()
 		  if(sihcalen[k] < 0) continue;
 		  etabin = sihcalet[k];//floor(ihcalet[k]/0.092)+12;
 		  detacenti[j][etabin] += sihcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));//-ihcalet[k])));
+		  //sime += 1.3*sihcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));
 		  nih[j][etabin]++;
 		}
 	      for(int k=0; k<ssectoroh; ++k)
@@ -275,12 +284,14 @@ int build_events()
 		      noh[j][etabin]++;
 		    }
 		}
-	      cout << detacenti[j][12] << endl;
+	      etsim->Fill(sime);
+	      //cout << detacenti[j][12] << endl;
 	      break;
 	    }
 	}
     }
   cout << detacenti[5][12] << endl;
+  /*
   for(int i=0; i<10; ++i)
     {
       for(int j=0; j<96; ++j)
@@ -298,6 +309,7 @@ int build_events()
 	    }
 	}
     }
+  */
   cout << "test5" << endl;
   for(int i=0; i<10; ++i)
     {
@@ -305,10 +317,14 @@ int build_events()
 	{
 	  //cout << i << " " << j << " " << detacente[i][j] << endl;
 	  centclass[i][0]->SetBinContent(j+1,detacente[i][j]);
+	  detacente[i][j] = 0;
+	  if(j<8) centclass[i][0]->SetBinContent(j+1,centclass[i][0]->Integral()/(2.2*92/centclass[i][0]->GetNbinsX()));
 	  if(j<24)
 	    {
 	      centclass[i][1]->SetBinContent(j+1,detacenti[i][j]);
 	      centclass[i][2]->SetBinContent(j+1,detacento[i][j]);
+	      detacento[i][j] = 0;
+	      detacenti[i][j] = 0;
 	    }
 	}
     }
@@ -332,43 +348,49 @@ int build_events()
   c2->SetTicks(1);
   for(int j=0; j<3; ++j)
     {
+      float min = 999999999;
+      float max = 0;
+      for(int i=0; i<10; ++i)
+	{
+	  if(centclass[i][j]->GetMaximum() > max)
+	    {
+	      max = centclass[i][j]->GetMaximum();
+	    }
+	  if(centclass[i][j]->GetMinimum() < min)
+	    {
+	      min = centclass[i][j]->GetMinimum();
+	    }
+	}
+      for(int i=0; i<10; ++i)
+	{
+	  for(int k=0; k<8; ++k)
+	    {
+	      centclass[i][0]->SetBinContent(k+1,0);
+	    }
+	}
       for(int i=0; i<10; ++i)
 	{
 	  c2->cd();
 	  if(i==0)
 	    {
+	      centclass[i][j]->GetYaxis()->SetRangeUser(min/2,max*2);
 	      centclass[i][j]->Draw();
 	    }
 	  else centclass[i][j]->Draw("SAME");
 	}
       c2->SaveAs(("centdETdeta"+to_string(j)+".pdf").c_str());
     }
-  /*
-  for(int i=0; i<simt->GetEntries(); ++i)
-    {
-      float emee = 0;
-      float emea = 0;
-      float emed = 0;
-      simt->GetEntry(i);
-      for(int j=0; j<tpn; ++j)
-	{
-	  emea += tpe[j]*sin(2*atan(exp(-tpet[j])));
-	  if(tpem[j])
-	    {
-	      emee += tpe[j]*sin(2*atan(exp(-tpet[j])));
-	    }
-	}
-      for(int j=0; j<ssectorem; ++j)
-	{
-	  emed += semcalen[j]*sin(2*atan(exp(-(semcalet[j]-48)*0.024)));
-	}
-      ectee->Fill(emed, emee);
-      ectea->Fill(emed, emea);
-    }
+
+  float date = 0;
   for(int i=0; i<tree->GetEntries()/fractouse; ++i)
     {
+      float zvtx = 0;
       mbdsum = 0;
-      
+      float mbdtn = 0;
+      float mbdts = 0;
+      int mbdnn = 0;
+      int mbdns = 0;
+      date=0;
       tree->GetEntry(i);
       for(int j=0; j<sectormb; ++j)
 	{
@@ -383,48 +405,110 @@ int build_events()
 		  mbdsum += mbenrgy[j]*gaincorr[mbdchan[j]];
 		}
 	    }
+	  else
+	    {
+	      if(mbdside[j] == 1 && mbenrgy[j-8] > 10)
+		{
+		  mbdnn++;
+		  mbdtn += mbenrgy[j]*9./5000-tq_t0_offsets[mbdchan[j]+64];
+		}
+	      else if(mbdside[j] == 0 && mbenrgy[j-8] > 10)
+		{
+		  mbdns++;
+		  mbdts += mbenrgy[j]*9./5000-tq_t0_offsets[mbdchan[j]];
+		}
+	    }
+	}
+      mbdts /= mbdns;
+      mbdtn /= mbdnn;
+      if(isnan(mbdtn-mbdts)) continue;
+      if(abs(mbdtn-mbdts)>10) continue;
+      else
+	{
+	  mthist->Fill(mbdtn-mbdts);
+	  //cout << mbdtn - mbdts << endl;
 	}
       //cout << mbdsum << endl;
-      for(int j=0; j<10; ++j)
+      //for(int j=0; j<10; ++j)
 	{
-	  if(mbdsum < cents[j+1])
+	  //if(mbdsum < cents[j+1])
 	    {
 	      //cout <<sectorem << endl;
 	      //cout << j << endl;
 	      int etabin;
+	      float subtr = 0.018;
 	      for(int k=0; k<sectorem; ++k)
 		{
-		  etabin = emcalet[k];//floor(emcalet[k]/0.023)+48;
-		  detacente[j][etabin] += emcalen[k]*sin(2*atan(exp(-(etabin-48)*0.024)));//-emcalet[k])));
+		  etabin = emcalet[k];
+		  dedist->Fill((emcalen[k]-subtr)*sin(2*atan(exp(-(etabin-48)*0.024))));
+		  if(emcalen[k] < 0) continue;
+		  //floor(emcalet[k]/0.023)+48;
+		  //detacente[j][etabin] += emcalen[k]*sin(2*atan(exp(-(etabin-48)*0.024)));//-emcalet[k])));
+		  date += (emcalen[k]-subtr)*sin(2*atan(exp(-(etabin-48)*0.024)));//-emcalet[k])));
 		  //cout << j << "etabin" << etabin << " detacente " << detacente[j][etabin] << endl;
 		  //cout << emcalen[k] << endl;
-		  if(emcalen[k] > 0)
-		    {
-		      nem[j][etabin]++;
-		    }
+		  //if(emcalen[k] > 0)
+		  //{
+		  //nem[j][etabin]++;
+		  //}
 		}
 	      for(int k=0; k<sectorih; ++k)
 		{
 		  etabin = ihcalet[k];//floor(ihcalet[k]/0.092)+12;
-		  detacenti[j][etabin] += ihcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));//-ihcalet[k])));
-		  if(ihcalen[k] > 0)
-		    {
-		      nih[j][etabin]++;
-		    }
+		  //detacenti[j][etabin] += ihcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));//-ihcalet[k])));
+		  //date += ihcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));
+		  //if(ihcalen[k] > 0)
+		  //{
+		  //nih[j][etabin]++;
+		  //}
 		}
 	      for(int k=0; k<sectoroh; ++k)
 		{
 		  etabin = ohcalet[k];//floor(ohcalet[k]/0.092)+12;
-		  detacento[j][etabin] += ohcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));//-ohcalet[k])));
-		  if(ohcalen[k] > 0)
-		    {
-		      noh[j][etabin]++;
-		    }
+		  //detacento[j][etabin] += ohcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));//-ohcalet[k])));
+		  //if(ohcalen[k] > 0)
+		  //{
+		  //noh[j][etabin]++;
+		  //}
 		}
-	      break;
+	      etdata->Fill(date);
+	      //break;
 	    }
 	}
+	
     }
+  c2->cd();
+  etdata->Scale(1./etdata->Integral());
+  etsim->Scale(1./etsim->Integral());
+  etdata->SetLineColor(kRed);
+  etsim->SetLineColor(kBlue);
+  float maxval = max(etdata->GetMaximum(),etsim->GetMaximum());
+  float minval = min(etdata->GetBinContent(etdata->FindLastBinAbove(0,1)),etsim->GetBinContent(etsim->FindLastBinAbove(0,1)));
+  etdata->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
+  etdata->GetYaxis()->SetLabelSize(0.025);
+  etdata->GetXaxis()->SetLabelSize(0.025);
+  etdata->GetYaxis()->SetTitle("Counts");
+  etdata->GetXaxis()->SetTitle("E_{T,total IHCal} [GeV]");
+  etdata->Draw();
+  etsim->Draw("SAME");
+  drawText("#bf{sPHENIX} internal", 0.85, 0.93, 1, kBlack, 0.04);
+  drawText("Red: data",0.85,0.79,1,kBlack,0.025);
+  drawText("Blue: sim",0.85,0.76,1,kBlack,0.025);
+  drawText("Sim X scaled 1.3",0.85,0.82,1,kBlack,0.025);
+  drawText("Area normed to 1",0.85,0.85,1,kBlack,0.025);
+  c2->SaveAs("simanddata.pdf");
+  dedist->Scale(1./dedist->Integral());
+  sedist->Scale(1./sedist->Integral());
+  dedist->SetLineColor(kRed);
+  sedist->SetLineColor(kBlue);
+  maxval = max(dedist->GetMaximum(),sedist->GetMaximum());
+  minval = min(dedist->GetBinContent(dedist->FindLastBinAbove(0,1)),sedist->GetBinContent(sedist->FindLastBinAbove(0,1)));
+  dedist->GetXaxis()->SetRangeUser(0,10);
+  dedist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
+  dedist->Draw();
+  sedist->Draw("SAME");
+  c2->SaveAs("etdists.pdf");
+  /*
   for(int i=0; i<10; ++i)
     {
       for(int j=0; j<96; ++j)
@@ -441,7 +525,9 @@ int build_events()
 	    }
 	}
     }
+  */
   cout << "test5" << endl;
+  /*
   for(int i=0; i<10; ++i)
     {
       for(int j=0; j<96; ++j)
@@ -455,10 +541,11 @@ int build_events()
 	    }
 	}
     }
-  hist->GetXaxis()->SetTitle("MBD Charge Channel Sum [???]");
+  */
+  hist->GetXaxis()->SetTitle("N_{Part}");
   hist->GetYaxis()->SetTitle("Counts");
   cout << "test2" << endl;
-  TCanvas *c1 = new TCanvas("c1","c1",1000,500);
+  //TCanvas *c1 = new TCanvas("c1","c1",1000,500);
   c1->SetLogy();
   c1->cd();
   c1->SetTicks(1);
@@ -470,7 +557,7 @@ int build_events()
   //drawText("centrality, with most central at right",0.85,0.725,1,kBlack,0.04);
   for(int i=0; i<10; ++i) lines[i]->Draw();
   c1->SaveAs("cent_edep.png");
-  TCanvas* c2 = new TCanvas("c2","c2",1000,1000);
+  //TCanvas* c2 = new TCanvas("c2","c2",1000,1000);
   c2->SetLogy();
   c2->SetTicks(1);
   for(int i=0; i<10; ++i)
@@ -479,15 +566,18 @@ int build_events()
       centclass[i][0]->Draw();
       centclass[i][1]->Draw("SAME");
       centclass[i][2]->Draw("SAME");
-      c2->SaveAs(("centdETdeta"+to_string(i)+".pdf").c_str());
+      c2->SaveAs(("centdETdeta_data_"+to_string(i)+".pdf").c_str());
     }
-  */
   TCanvas* c3 = new TCanvas("c3","c3",1000,500);
   c3->Divide(2,1);
   c3->cd(1);
   ectee->Draw("COLZ");
   c3->cd(2);
   ectea->Draw("COLZ");
-  c3->SaveAs("emvsallemcal.pdf");
+  c3->SaveAs("emcalemvsall.pdf");
+  TCanvas* c4 = new TCanvas("c4","c4");
+  c4->cd();
+  mthist->Draw();
+  c4->SaveAs("mthist.pdf");
   return 0;
 }
