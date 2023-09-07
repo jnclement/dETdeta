@@ -7,7 +7,7 @@
 //#include "tdrstyle.C"   // std::clock()
 
 
-void setcolorcent(TH1F* hist, int kcodes[12], int kColor, int bins, int i)
+void setcolorcent(TH1* hist, int kcodes[12], int kColor, int bins, int i)
 {
   if(i < 9)
     {
@@ -479,5 +479,28 @@ void MakeTextPrint(vector<string> lines, double x, double y, double dy){
   for (int i = 0; i < s; i++){
     drawText(lines.at(i).c_str(), x, y - i*dy, 0, kBlack, 0.03, 42);
   }
+}
+
+void drawTempText(string sc, string sub)
+{
+  drawText("Red: data",0.85,0.76,1,kBlack,0.025);
+  drawText("Blue: sim",0.85,0.73,1,kBlack,0.025);
+  drawText(("Sim scaled "+sc).c_str(),0.85,0.79,1,kBlack,0.025);
+  drawText("Area normed to 1",0.85,0.82,1,kBlack,0.025);
+  drawText("|z|<10cm",0.85,0.7,1,kBlack,0.025);
+  drawText((sub+" MeV subtracted from each tower").c_str(),0.85,0.85,1,kBlack,0.025);
+}
+
+void doPlot(TCanvas* ca, TH1* hist1, TH1* hist2, string sc, string sub, int logy, string title)
+{
+  ca->cd();
+  if(logy) gPad->SetLogy();
+  gPad->SetTicks(1);
+  if(hist2) hist1->Draw();
+  else hist1->Draw("P");
+  if(hist2) hist2->Draw("SAME");
+  if(hist2) drawTempText(sc, sub);
+  drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
+  ca->SaveAs(title.c_str());
 }
 #endif
