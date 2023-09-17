@@ -30,5 +30,8 @@
 void plothists(TCanvas* ca, TH1* histarr, int nhist, string* text, int ntext, int logy)
 {
   ca->cd();
-  if(logy) gPad->SetLogy();
+}
+
+int plot(string histfile = "savedhists_subtr_0.000000_minE_0.000000_scale_1.300000.root", string tree = "ttree", string datdir = "/home/jocl/datatemp", string plotdir = "/home/jocl/datatemp/plots")
+{
   

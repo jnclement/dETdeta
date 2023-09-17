@@ -28,11 +28,12 @@
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
-float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist)
+float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, TH1* zhist)
 {
   float mbsum, ucmbd;
   int mbdnn, mbdns;
   float mbdtn, mbdts;
+  float zvtx;
   mbdnn=0;
   mbdns=0;
   mbdtn=0;
@@ -69,6 +70,7 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
     }
   mbdts/=mbdns;
   mbdtn/=mbdnn;
+  zvtx = (mbdtn-mbdts)*15+12
   if(mbsum <=0)
     {
       return -1;
@@ -78,7 +80,8 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
     {
       return -1;
     }
-  if(abs(mbdtn-mbdts) > 10)
+  if(zhist) zhist->Fill(zvtx);
+  if(abs(zvtx) > zcut)
     {
       return -1;
     }
@@ -277,6 +280,8 @@ int build_hists()
   tree[0]->SetBranchAddress("sectorem",&sector[0][0]);
   tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
+
+  TH1D* zhist = new TH1D("zhist","",200,-100,100);
   float subtr = 0;//0.018;
   float scale[2];
   scale[0] = 1.3;
@@ -285,7 +290,8 @@ int build_hists()
   int frac[2];
   frac[0] = 1;
   frac[1] = 1;
-  string outname = "savedhists_subtr_" + to_string(subtr) + "_minE_" + to_string(mine)+ "_scale_" + to_string(scale[0]) + ".root";
+  float zcut = 10;
+  string outname = "/home/jocl/datatemp/savedhists_subtr_" + to_string(subtr) + "_minE_" + to_string(mine)+ "_scale_" + to_string(scale[0]) + "_" + to_string(zcut) + ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   TTree* outt = new TTree("ttree","");
   float dummy;
@@ -311,7 +317,7 @@ int build_hists()
     {
       if(i%toprint == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1]);
+      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, zhist);
     }
   cout << "Done filling data MBD hist." << endl;
   cout << "Done filling all MBD hists." << endl;
@@ -376,7 +382,8 @@ int build_hists()
 
   cout << "Saving hists to " << outname << endl;
 
-    for(int h=0; h<2; ++h)
+  outf->WriteObject(zhist, zhist->GetName());
+  for(int h=0; h<2; ++h)
     {
       for(int i=0; i<3; ++i)
 	{
