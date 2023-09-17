@@ -418,6 +418,7 @@ int build_hists()
   outt->Branch("mine",&mine,"mine/F");
   int nccb = centbins;
   outt->Branch("cbin",&nccb,"cbin/I");
+  outt->Branch("zcut",&zcut,"zcut/F");
   outt->Fill();
   outf->WriteObject(outt,outt->GetName());
   cout << "Done writing parameters to file" << endl;
