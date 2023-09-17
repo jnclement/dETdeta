@@ -131,7 +131,7 @@ void sphenixtext()
   drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
 }
 
-void multitext(string* texts, int ntext, float xp, float ytop, bool rightalign, int textColor = kBlack, double textsize = 0.025)
+void multitext(string* texts, int ntext, float xp = 0.85, float ytop = 0.85, bool rightalign = 1, int textColor = kBlack, double textsize = 0.025)
 {
   for(int i=0; i<ntext; ++i)
     {
