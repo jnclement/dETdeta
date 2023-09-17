@@ -70,7 +70,7 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
     }
   mbdts/=mbdns;
   mbdtn/=mbdnn;
-  zvtx = (mbdtn-mbdts)*15+12
+  zvtx = (mbdtn-mbdts)*15+12;
   if(mbsum <=0)
     {
       return -1;
@@ -334,7 +334,7 @@ int build_hists()
 	  set_em_combined_towers_0(towercomb);
 	  tree[h]->GetEntry(i);
 	  if(h==0) mbsum = npart;
-	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL);
+	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, NULL);
 	  if(mbsum < 0) continue;
 	  for(int j=0; j<centbins; ++j)
 	  {

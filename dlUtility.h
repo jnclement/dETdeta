@@ -110,18 +110,7 @@ void SetPadStyle(){
   gStyle->SetPadTopMargin(0.10);
 }
 
-void sphenixtext()
-{
-  drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
-}
 
-void multitext(string* texts, int ntext, float xp, float ytop, bool rightalign, int textColor = kBlack, double textsize = 0.025)
-{
-  for(int i=0; i<ntext; ++i)
-    {
-      drawText(texts[i].c_str(), xp, ytop-i*(textsize+0.05), rightalign, kBlack, textsize);
-    }
-}
 
 void drawText(const char *text, float xp, float yp, bool isRightAlign=0, int textColor=kBlack, double textSize=0.04, int textFont = 42, bool isNDC=true){
   // when textfont 42, textSize=0.04
@@ -136,6 +125,20 @@ void drawText(const char *text, float xp, float yp, bool isRightAlign=0, int tex
   if(isRightAlign) tex->SetTextAlign(31);
   tex->Draw();
 }
+
+void sphenixtext()
+{
+  drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
+}
+
+void multitext(string* texts, int ntext, float xp, float ytop, bool rightalign, int textColor = kBlack, double textsize = 0.025)
+{
+  for(int i=0; i<ntext; ++i)
+    {
+      drawText(texts[i].c_str(), xp, ytop-i*(textsize+0.05), rightalign, kBlack, textsize);
+    }
+}
+
 void jumSun(Double_t x1=0,Double_t y1=0,Double_t x2=1,Double_t y2=1,Int_t color=1, Double_t width=1)
 {
   TLine* t1 = new TLine(x1,y1,x2,y2);
