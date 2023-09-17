@@ -291,7 +291,7 @@ int build_hists()
   int frac[2];
   frac[0] = 1;
   frac[1] = 1;
-  float zcut = 10;
+  float zcut = 30;
   const int par = 4;
   float parval[par];
   float mult[par];
