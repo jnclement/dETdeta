@@ -291,7 +291,7 @@ int build_hists()
   frac[0] = 1;
   frac[1] = 1;
   float zcut = 10;
-  string outname = "/home/jocl/datatemp/savedhists_subtr_" + to_string(subtr) + "_minE_" + to_string(mine)+ "_scale_" + to_string(scale[0]) + "_" + to_string(zcut) + ".root";
+  string outname = "/home/jocl/datatemp/savedhists_subtr_" + to_string(subtr) + "_minE_" + to_string(mine)+ "_scale_" + to_string(scale[0]) + "_zcut_" + to_string(zcut) + ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   TTree* outt = new TTree("ttree","");
   float dummy;
