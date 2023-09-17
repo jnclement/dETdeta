@@ -71,7 +71,7 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
     }
   mbdts/=mbdns;
   mbdtn/=mbdnn;
-  zvtx = (mbdtn-mbdts)*15+12;
+  zvtx = (mbdtn-mbdts)*15;
   if(mbsum <=0)
     {
       return -1;
