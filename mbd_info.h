@@ -2,7 +2,7 @@
 #define MBD_INFO_H
 
 #include "TH2Poly.h"
-
+#include "sstream"
 double a = 28.0/17.0;
 double r = a*cos(30*3.141592/180);
 double width = 28.0/2;
@@ -89,7 +89,7 @@ float gaincorr[128] = { 0 };
 float tq_t0_offsets[128] = { 0 };
 
 void get_mbd_corrections() {
-    std::ifstream gainfile( "gainfile.calib" );
+    std::ifstream gainfile( "/home/jocl/Documents/main/physics/projects/dETdeta/gainfile.calib" );
 
     int ch;
     float integ, integerr;
@@ -103,7 +103,7 @@ void get_mbd_corrections() {
 
     gainfile.close();
 
-    std::ifstream tfile( "/sphenix/user/samfred/commissioning/macros/calib/bbc_tq_t0.calib" );
+    std::ifstream tfile( "/home/jocl/Documents/main/physics/projects/dETdeta/bbc_tq_t0.calib" );
 
     int pmtnum;
     float meanerr;

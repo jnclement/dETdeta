@@ -30,7 +30,7 @@
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
-void plotcentet(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int logy, string cal, string sc, string sub, string run)
+void plotcentet(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int percent2, int logy, string cal, string sc, string sub, string run)
 {
   ca->cd();
   if(logy) gPad->SetLogy();
@@ -55,12 +55,20 @@ void plotcentet(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int logy, stri
   drawText(("Sim scaled "+sc).c_str(),0.85,0.79,1,kBlack,0.025);
   drawText("Area normed to 1",0.85,0.82,1,kBlack,0.025);
   drawText("|z|<10cm",0.85,0.7,1,kBlack,0.025);
-  drawText(("Run " + run + " " + to_string(10*percent) +"-"+to_string(10*(percent+1))+"% centrality").c_str(),0.85,0.67,1,kBlack,0.025);
+  drawText(("Run " + run + " " + to_string(10*percent) +"-"+to_string(10*(percent2))+"% centrality").c_str(),0.85,0.67,1,kBlack,0.025);
   drawText((sub+" MeV subtracted from each tower").c_str(),0.85,0.85,1,kBlack,0.025);
-  ca->SaveAs(("dcentet" + cal + "_" + sc + "_cent" + to_string(10*percent) + ".png").c_str());
+  ca->SaveAs(("dcentet" + cal + "_" + sc + "_cent" + to_string(10*percent) +"-"+to_string(10*(percent2)) + ".png").c_str());
+  hist1->Divide(hist2);
+  hist1->GetYaxis()->SetTitle("Data/Sim");
+  hist1->GetYaxis()->SetRangeUser(0.01,10);
+  hist1->Draw();
+  drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
+  drawText(("Run " + run + " " + to_string(10*percent) +"-"+to_string(10*(percent2))+"% centrality").c_str(),0.85,0.85,1,kBlack,0.025);
+  ca->SaveAs(("ratio_dcentet" + cal + "_" + sc + "_cent" + to_string(10*percent) +"-"+to_string(10*(percent2)) + ".png").c_str());
+  
 }
 
-void plotcenttow(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int logy, string cal, string sc, string sub, string run)
+void plotcenttow(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int percent2, int logy, string cal, string sc, string sub, string run)
 {
   ca->cd();
   if(logy) gPad->SetLogy();
@@ -85,9 +93,16 @@ void plotcenttow(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int logy, str
   drawText(("Sim scaled "+sc).c_str(),0.85,0.79,1,kBlack,0.025);
   drawText("Area normed to 1",0.85,0.82,1,kBlack,0.025);
   drawText("|z|<10cm",0.85,0.7,1,kBlack,0.025);
-  drawText(("Run " + run+ " " + to_string(10*percent) +"-"+to_string(10*(percent+1))+"% centrality").c_str(),0.85,0.67,1,kBlack,0.025);
+  drawText(("Run " + run+ " " + to_string(10*percent) +"-"+to_string(10*(percent2))+"% centrality").c_str(),0.85,0.67,1,kBlack,0.025);
   drawText((sub+" MeV subtracted from each tower").c_str(),0.85,0.85,1,kBlack,0.025);
-  ca->SaveAs(("dcenttow" + cal + "_" + sc + "_cent" + to_string(10*percent) + ".png").c_str());
+  ca->SaveAs(("dcenttow" + cal + "_" + sc + "_cent" + to_string(10*percent) +"-"+to_string(10*(percent2)) + ".png").c_str());
+  hist1->Divide(hist2);
+  hist1->GetYaxis()->SetTitle("Data/Sim");
+  hist1->GetYaxis()->SetRangeUser(0.01,10);
+  hist1->Draw();
+  drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
+  drawText(("Run " + run + " " + to_string(10*percent) +"-"+to_string(10*(percent2))+"% centrality").c_str(),0.85,0.85,1,kBlack,0.025);
+  ca->SaveAs(("ratio_dcenttow" + cal + "_" + sc + "_cent" + to_string(10*percent) +"-"+to_string(10*(percent2)) + ".png").c_str());
 }
 int build_events()
 {
@@ -117,7 +132,7 @@ int build_events()
   TFile* simf = TFile::Open("/home/jocl/datatemp/merged_dEdeta_250.root");
   TTree* simt = simf->Get<TTree>("ttree");
   TH1D* hist = new TH1D("hist","",500,0,500);
-  TH1D* dmbh = new TH1D("dmbh","",1000,0,2000);
+  TH1D* dmbh = new TH1D("dmbh","",3000,0,3000);
   double dcent[11] = {0};
   dcent[10] = 999999;
   TH1D* centclass[10][3];
@@ -136,14 +151,47 @@ int build_events()
       scenttow[2][i] = new TH1D(("scenttowoh" + to_string(i)).c_str(),"",50,0,10);
 
 
-      dcentet[0][i] = new TH1D(("dcentetem" + to_string(i)).c_str(),"",50,0,80*(i+1));
-      dcentet[1][i] = new TH1D(("dcentetih" + to_string(i)).c_str(),"",50,0,6*(i+1));
-      dcentet[2][i] = new TH1D(("dcentetoh" + to_string(i)).c_str(),"",50,0,25*(i+i));
+      dcentet[0][i] = new TH1D(("dcentetem" + to_string(i)).c_str(),"",100,0,1200);
+      dcentet[1][i] = new TH1D(("dcentetih" + to_string(i)).c_str(),"",100,0,100);
+      dcentet[2][i] = new TH1D(("dcentetoh" + to_string(i)).c_str(),"",100,0,300);
 
-      scentet[0][i] = new TH1D(("scentetem" + to_string(i)).c_str(),"",50,0,80*(i+1));
-      scentet[1][i] = new TH1D(("scentetih" + to_string(i)).c_str(),"",50,0,6*(i+1));
-      scentet[2][i] = new TH1D(("scentetoh" + to_string(i)).c_str(),"",50,0,25*(i+i));
+      scentet[0][i] = new TH1D(("scentetem" + to_string(i)).c_str(),"",100,0,1200);
+      scentet[1][i] = new TH1D(("scentetih" + to_string(i)).c_str(),"",100,0,100);
+      scentet[2][i] = new TH1D(("scentetoh" + to_string(i)).c_str(),"",100,0,300);
     }
+
+  TH1D* mc20ets[3];
+  TH1D* lc30ets[3];
+  TH1D* mc20tws[3];
+  TH1D* lc30tws[3];
+  TH1D* mc20etd[3];
+  TH1D* lc30etd[3];
+  TH1D* mc20twd[3];
+  TH1D* lc30twd[3];
+  mc20ets[0] = new TH1D("mc20ets0","",100,300,1100);
+  mc20ets[1] = new TH1D("mc20ets1","",100,25,100);
+  mc20ets[2] = new TH1D("mc20ets2","",100,50,300);
+  mc20tws[0] = new TH1D("mc20tws0","",100,0,5);
+  mc20tws[1] = new TH1D("mc20tws1","",100,0,1);
+  mc20tws[2] = new TH1D("mc20tws2","",100,0,5);
+  mc20etd[0] = new TH1D("mc20etd0","",100,300,1100);
+  mc20etd[1] = new TH1D("mc20etd1","",100,25,100);
+  mc20etd[2] = new TH1D("mc20etd2","",100,50,300);
+  mc20twd[0] = new TH1D("mc20twd0","",100,0,5);
+  mc20twd[1] = new TH1D("mc20twd1","",100,0,1);
+  mc20twd[2] = new TH1D("mc20twd2","",100,0,5);
+  lc30ets[0] = new TH1D("lc30ets0","",100,0,100);
+  lc30ets[1] = new TH1D("lc30ets1","",100,0,10);
+  lc30ets[2] = new TH1D("lc30ets2","",100,0,30);
+  lc30tws[0] = new TH1D("lc30tws0","",100,0,3);
+  lc30tws[1] = new TH1D("lc30tws1","",100,0,1);
+  lc30tws[2] = new TH1D("lc30tws2","",100,0,5);
+  lc30etd[0] = new TH1D("lc30etd0","",100,0,100);
+  lc30etd[1] = new TH1D("lc30etd1","",100,0,10);
+  lc30etd[2] = new TH1D("lc30etd2","",100,0,30);
+  lc30twd[0] = new TH1D("lc30twd0","",100,0,3);
+  lc30twd[1] = new TH1D("lc30twd1","",100,0,1);
+  lc30twd[2] = new TH1D("lc30twd2","",100,0,5);
   
   TH1D* etdata = new TH1D("etdata","",50,0,1200);
   TH1D* etsim  = new TH1D("etsim","",50,0,1200);
@@ -184,7 +232,7 @@ int build_events()
   int noh[10][24] = {0};
   int tpn = 0;
   float subtr = 0.018;
-  float scale = 1;
+  float scale = 1.3;
   float mine = 0.005;
   float tpe[25000] = {0};
   float tpet[25000] = {0};
@@ -235,8 +283,8 @@ int build_events()
   simt->SetBranchAddress("sectoroh",&ssectoroh);
   simt->SetBranchAddress("sectormb",&ssectormb);
   TLine* lines[10];
-  int fracdat = 30;
-  int fracsim = 3;
+  int fracdat = 100;
+  int fracsim = 10;
   int counter = 0;
   int mbdsum = 0;
   int mbdsumunc = 0;
@@ -357,6 +405,7 @@ int build_events()
 	      //lines[n] = new TLine(hist->GetBinCenter(i),0,hist->GetBinCenter(i), hist->GetBinContent(i));
 	      //lines[n]->SetLineColor(kRed);
 	      dcent[n] = dmbh->GetBinLowEdge(i+1);
+	      if(n==0) dcent[n]=0;
 	      //cout << cents[n] << endl;
 	      ++n;
 	      break;
@@ -424,7 +473,7 @@ int build_events()
       mbdsum = npart;
       float eval = 0;
       //cout << mbdsum << endl;
-      for(int j=0; j<9; ++j)
+      for(int j=0; j<10; ++j)
 	{
 	  if(mbdsum < cents[j+1])
 	    {
@@ -463,6 +512,8 @@ int build_events()
 		  eval = scale*(semcalen[k]-subtr)*sin(2*atan(exp(-(etabin-48)*0.024)));
 		  detacente[j][etabin] += eval;
 		  sedist->Fill(eval);
+		  if(mbdsum > cents[8]) mc20tws[0]->Fill(eval);
+		  if(mbdsum < cents[3]) lc30tws[0]->Fill(eval);
 		  scenttow[0][j]->Fill(eval);
 		  //floor(emcalet[k]/0.023)+48;
 		  
@@ -478,6 +529,8 @@ int build_events()
 	      simsum += sime;
 	      etsim->Fill(sime);
 	      scentet[0][j]->Fill(sime);
+	      if(mbdsum > cents[8]) mc20ets[0]->Fill(sime);
+	      if(mbdsum < cents[3]) lc30ets[0]->Fill(sime);
 	      sime=0;
 	      for(int k=0; k<ssectorih; ++k)
 		{
@@ -486,6 +539,8 @@ int build_events()
 		  eval = scale*(sihcalen[k]-subtr)*sin(2*atan(exp(-(etabin-12)*0.096)));
 		  isedist->Fill(eval);
 		  scenttow[1][j]->Fill(eval);
+		  if(mbdsum > cents[8]) mc20tws[1]->Fill(eval);
+		  if(mbdsum < cents[3]) lc30tws[1]->Fill(eval);
 		  detacenti[j][etabin] += eval;//-ihcalet[k])));
 		  sime += eval;
 		  semtowercomb[sihcalph[k]][etabin] += eval;
@@ -494,6 +549,8 @@ int build_events()
 	      simsum += sime;
 	      ietsim->Fill(sime);
 	      scentet[1][j]->Fill(sime);
+	      if(mbdsum > cents[8]) mc20ets[1]->Fill(sime);
+	      if(mbdsum < cents[3]) lc30ets[1]->Fill(sime);
 	      sime=0;
 	      for(int k=0; k<ssectoroh; ++k)
 		{
@@ -502,6 +559,8 @@ int build_events()
 		  eval = scale*(sohcalen[k]-subtr)*sin(2*atan(exp(-(etabin-12)*0.096)));
 		  scenttow[2][j]->Fill(eval);
 		  osedist->Fill(eval);
+		  if(mbdsum > cents[8]) mc20tws[2]->Fill(eval);
+		  if(mbdsum < cents[3]) lc30tws[2]->Fill(eval);
 		  detacento[j][etabin] += eval;
 		  sime += eval;
 		  semtowercomb[sohcalph[k]][etabin] += eval;
@@ -513,6 +572,8 @@ int build_events()
 	      simsum += sime;
 	      oetsim->Fill(sime);
 	      scentet[2][j]->Fill(sime);
+	      if(mbdsum > cents[8]) mc20ets[2]->Fill(sime);
+	      if(mbdsum < cents[3]) lc30ets[2]->Fill(sime);
 	      ssumhist->Fill(simsum);
 	      simsum = 0;
 	      sime=0;
@@ -661,6 +722,7 @@ int build_events()
 	}
       mbdts /= mbdns;
       mbdtn /= mbdnn;
+      if(mbdsum<=0) continue;
       if(isnan(mbdtn-mbdts)) continue;
       if(abs(mbdtn-mbdts)>10) continue;
       else
@@ -678,7 +740,7 @@ int build_events()
 	      demtowercomb[j][k] = 0;
 	    }
 	}
-      for(int j=0; j<9; ++j)
+      for(int j=0; j<10; ++j)
       {
 	if(mbdsum < dcent[j+1])
 	{
@@ -696,6 +758,8 @@ int build_events()
 		  //floor(emcalet[k]/0.023)+48;
 		  //detacente[j][etabin] += emcalen[k]*sin(2*atan(exp(-(etabin-48)*0.024)));//-emcalet[k])));
 		  dcenttow[0][j]->Fill(eval);
+		  if(mbdsum > dcent[8]) mc20twd[0]->Fill(eval);
+		  if(mbdsum < dcent[3]) lc30twd[0]->Fill(eval);
 		  date += eval;
 		  //cout << j << "etabin" << etabin << " detacente " << detacente[j][etabin] << endl;
 		  //cout << emcalen[k] << endl;
@@ -708,6 +772,8 @@ int build_events()
 	      etdata->Fill(date);
 	      dcentet[0][j]->Fill(date);
 	      datsum += date;
+	      if(mbdsum > dcent[8]) mc20etd[0]->Fill(date);
+	      if(mbdsum < dcent[3]) lc30etd[0]->Fill(date);
 	      date=0;
 	      for(int k=0; k<sectorih; ++k)
 		{
@@ -716,6 +782,8 @@ int build_events()
 		  idedist->Fill(eval);
 		  date += eval;
 		  dcenttow[1][j]->Fill(eval);
+		  if(mbdsum > dcent[8]) mc20twd[1]->Fill(eval);
+		  if(mbdsum < dcent[3]) lc30twd[1]->Fill(eval);
 		  demtowercomb[ihcalph[k]][etabin] += eval;
 		  //detacenti[j][etabin] += ihcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));//-ihcalet[k])));
 		  //if(ihcalen[k] > 0)
@@ -725,6 +793,8 @@ int build_events()
 		}
 	      ietdata->Fill(date);
 	      dcentet[1][j]->Fill(date);
+	      if(mbdsum > dcent[8]) mc20etd[1]->Fill(date);
+	      if(mbdsum < dcent[3]) lc30etd[1]->Fill(date);
 	      datsum += date;
 	      date=0;
 	      for(int k=0; k<sectoroh; ++k)
@@ -734,6 +804,8 @@ int build_events()
 		  odedist->Fill(eval);
 		  date += eval;
 		  dcenttow[2][j]->Fill(eval);
+		  if(mbdsum > dcent[8]) mc20twd[2]->Fill(eval);
+		  if(mbdsum < dcent[3]) lc30twd[2]->Fill(eval);
 		  demtowercomb[ohcalph[k]][etabin] += eval;
 		  //detacento[j][etabin] += ohcalen[k]*sin(2*atan(exp(-(etabin-12)*0.096)));//-ohcalet[k])));
 		  //if(ohcalen[k] > 0)
@@ -742,6 +814,8 @@ int build_events()
 		  //}
 		}
 	      datsum += date;
+	      if(mbdsum > dcent[8]) mc20etd[2]->Fill(date);
+	      if(mbdsum < dcent[3]) lc30etd[2]->Fill(date);
 	      oetdata->Fill(date);
 	      dcentet[2][j]->Fill(date);
 	      dsumhist->Fill(datsum);
@@ -803,12 +877,20 @@ int build_events()
 
   for(int i=0; i<10; ++i)
     {
-      plotcentet(c7, dcentet[0][i], scentet[0][i], i, 1, "EMCal", sc, sub, "21615");
-      plotcentet(c7, dcentet[1][i], scentet[1][i], i, 1, "IHCal", sc, sub, "21615");
-      plotcentet(c7, dcentet[2][i], scentet[2][i], i, 1, "OHCal", sc, sub, "21615");
-      plotcenttow(c7, dcenttow[0][i], scenttow[0][i], i, 1, "EMCal", sc, sub, "21615");
-      plotcenttow(c7, dcenttow[1][i], scenttow[1][i], i, 1, "IHCal", sc, sub, "21615");
-      plotcenttow(c7, dcenttow[2][i], scenttow[2][i], i, 1, "OHCal", sc, sub, "21615");
+      plotcentet(c7, dcentet[0][i], scentet[0][i], i,i+1, 1, "EMCal", sc, sub, "21615");
+      plotcentet(c7, dcentet[1][i], scentet[1][i], i,i+1, 1, "IHCal", sc, sub, "21615");
+      plotcentet(c7, dcentet[2][i], scentet[2][i], i,i+1, 1, "OHCal", sc, sub, "21615");
+      plotcenttow(c7, dcenttow[0][i], scenttow[0][i], i,i+1, 1, "EMCal", sc, sub, "21615");
+      plotcenttow(c7, dcenttow[1][i], scenttow[1][i], i,i+1, 1, "IHCal", sc, sub, "21615");
+      plotcenttow(c7, dcenttow[2][i], scenttow[2][i], i,i+1, 1, "OHCal", sc, sub, "21615");
+    }
+  string detstring[3] = {"EMCal","IHCal","OHCal"};
+  for(int i=0; i<3; ++i)
+    {
+      plotcentet(c7, mc20etd[i], mc20ets[i], 8, 10, 1, detstring[i], sc, sub, "21615");
+      plotcentet(c7, lc30etd[i], lc30ets[i], 0, 3, 1, detstring[i], sc, sub, "21615");
+      plotcenttow(c7, mc20twd[i], mc20tws[i], 8, 10, 1, detstring[i], sc, sub, "21615");
+      plotcenttow(c7, lc30twd[i], lc30tws[i], 0, 3, 1, detstring[i], sc, sub, "21615");
     }
     
   c5->cd(4);
@@ -1228,5 +1310,25 @@ int build_events()
   c4->cd();
   mthist->Draw();
   c4->SaveAs("mthist.png");
+
+    for(int i=0; i<10; ++i)
+    {
+      cout << dcenttow[0][i]->GetEntries() << endl;
+      cout << dcenttow[1][i]->GetEntries() << endl;
+      cout << dcenttow[2][i]->GetEntries() << endl;
+
+      cout << scentet[0][i]->GetEntries() << endl;
+      cout << scentet[1][i]->GetEntries() << endl;
+      cout << scentet[2][i]->GetEntries() << endl;
+
+      cout << dcenttow[0][i]->GetBinContent(0) << endl;
+      cout << dcenttow[1][i]->GetBinContent(0) << endl;
+      cout << dcenttow[2][i]->GetBinContent(0) << endl;
+
+      cout << scentet[0][i]->GetBinContent(0) << endl;
+      cout << scentet[1][i]->GetBinContent(0) << endl;
+      cout << scentet[2][i]->GetBinContent(0) << endl;
+    }
+
   return 0;
 }

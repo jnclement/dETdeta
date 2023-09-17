@@ -35,24 +35,26 @@ void SetLineAtt(TH1D *h, Color_t color, int width, int style){
   h->SetLineWidth(width);
   h->SetLineStyle(style);
 }
+/*
 void SetLineAtt(TProfile *h, Color_t color, int width, int style){
   h->SetLineColor(color);
   h->SetLineWidth(width);
   h->SetLineStyle(style);
 }
+*/
 void SetLineAtt(TGraph *h, Color_t color, int width, int style){
   h->SetLineColor(color);
   h->SetLineWidth(width);
   h->SetLineStyle(style);
 }
 
-
+/*
 void SetMarkerAtt(TProfile *h, Color_t color, int size, int style){
   h->SetMarkerColor(color);
   h->SetMarkerSize(size);
   h->SetMarkerStyle(style);
 }
-
+*/
 void SetMarkerAtt(TH1D *h, Color_t color, int size, int style){
   h->SetMarkerColor(color);
   h->SetMarkerSize(size);
@@ -64,7 +66,7 @@ void SetMarkerAtt(TGraph *h, Color_t color, int size, int style){
   h->SetMarkerStyle(style);
 }
 
-
+/*
 void SetLineAtt(TEfficiency *h, Color_t color, int width, int style){
   h->SetLineColor(color);
   h->SetLineWidth(width);
@@ -76,7 +78,7 @@ void SetMarkerAtt(TEfficiency *h, Color_t color, int size, int style){
   h->SetMarkerSize(size);
   h->SetMarkerStyle(style);
 }
-
+*/
 
 void SetyjPadStyle(){
   gStyle->SetPaperSize(20,26);
@@ -388,7 +390,7 @@ void saveHistogramsToPicture(TH1* h, const char* fileType="pdf", const char* cap
   c1->Close();
 }
 
-
+/*
 TGraphAsymmErrors* scale_graph(TGraphAsymmErrors* gr=0, Float_t s=0){
     int np = gr->GetN();
     TGraphAsymmErrors* new_gr = (TGraphAsymmErrors*) gr->Clone(Form("%s_scaled",gr->GetName()));
@@ -472,7 +474,7 @@ void hist_to_graph(TGraphAsymmErrors* gr=0, TH1D* h1=0, TH1D* h2=0, TH1D* h3=0, 
         }
     }
 }
-
+*/
 void MakeTextPrint(vector<string> lines, double x, double y, double dy){
 
   int s = lines.size();
