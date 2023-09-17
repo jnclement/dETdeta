@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <iostream>
 #include "TGraph.h"
+#include <iomanip>
 #include "TTree.h"
 #include "TLegend.h"
 #include "TLatex.h"
@@ -291,7 +292,30 @@ int build_hists()
   frac[0] = 1;
   frac[1] = 1;
   float zcut = 10;
-  string outname = "/home/jocl/datatemp/savedhists_subtr_" + to_string(subtr) + "_minE_" + to_string(mine)+ "_scale_" + to_string(scale[0]) + "_zcut_" + to_string(zcut) + ".root";
+  const int par = 4;
+  float parval[par];
+  float mult[par];
+  mult[0] = 1;
+  mult[1] = 1000;
+  mult[2] = 1000;
+  mult[3] = 1;
+  parval[0] = scale[0];
+  parval[1] = subtr;
+  parval[2] = mine;
+  parval[3] = zcut;
+  string params[par];
+  stringstream streams[par];
+  int precision[par];
+  precision[0] = 2;
+  precision[1] = 0;
+  precision[2] = 0;
+  precision[3] = 0;
+  for(int i=0; i<par; ++i)
+    {
+      streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
+      params[i] = streams[i].str();
+    }
+  string outname = "/home/jocl/datatemp/savedhists_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   TTree* outt = new TTree("ttree","");
   float dummy;
