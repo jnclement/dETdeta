@@ -173,7 +173,7 @@ float get_E_T_hc(float E, int eta, float sub)
 }
 
 
-int build_hists()
+int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0)
 {
   mbd_init();
   gROOT->SetStyle("Plain");
@@ -283,15 +283,13 @@ int build_hists()
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
 
   TH1D* zhist = new TH1D("zhist","",200,-100,100);
-  float subtr = 0;//0.018;
+  float subtr = subtracted;//0.018;
   float scale[2];
-  scale[0] = 1.3;
+  scale[0] = simscale;
   scale[1] = 1;
-  float mine = 0;//0.005;
   int frac[2];
   frac[0] = 1;
   frac[1] = 1;
-  float zcut = 10;
   int run = 21615;
   const int par = 4;
   float parval[par];

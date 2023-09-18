@@ -32,7 +32,7 @@ void plothists(TCanvas* ca, TH1* histarr, int nhist, string* text, int ntext, in
   ca->cd();
 }
 
-void plotsimdat(TCanvas* ca, TH1* dathist, TH1* simhist, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, int percent0, int percent1, string name, string dir)
+void plotsimdat(TCanvas* ca, TH1* dathist, TH1* simhist, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, int percent0, int percent1, string name, string dir, string subdir)
 {
   const int par = 4;
   float parval[par];
@@ -57,49 +57,138 @@ void plotsimdat(TCanvas* ca, TH1* dathist, TH1* simhist, int logy, string cal, f
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  const int ntext = 4;
+  const int ntext = 5;
   string texts[ntext];
-  texts[0] = "Red data, blue sim, sim scaled by " + params[0];
-  texts[1] = "Area normed to 1, |z|<" + params[3] +", min tower E = " +params[2];
-  texts[2] = params[1] + " subtracted from each tower";
-  texts[3] = "Run " + to_string(run) + " " + to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent2))+"% centrality"
+  texts[0] = "Sim scaled by " + params[0] + ", Area normed to 1";
+  texts[2] = "|z|<" + params[3] +" cm, min tower E = " +params[2] + " MeV";
+  texts[1] = params[1] + " MeV subtracted from each tower";
+  texts[3] = "Run " + to_string(run) + " " + to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent0))+"% centrality";
+  texts[4] = "Red data, blue sim";
+
+  const int ntext2 = 3;
+  string texts2[ntext2];
+  texts2[0] = "Sim scaled by " + params[0] + ", |z|<" + params[3] + " cm, min tower E " + params[2] + " MeV";
+  texts2[1] = params[1] + " MeV subtracted from each tower";
+  texts2[2] = "Run " + to_string(run) + " " + to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent0))+"% centrality";
   ca->cd();
   if(logy) gPad->SetLogy();
   else gPad->SetLogy(0);
   gPad->SetTicks(1);
   dathist->Scale(1./dathist->Integral());
-  simhist->Scale(1./simhist->Integral());
+  if(simhist) simhist->Scale(1./simhist->Integral());
   dathist->SetLineColor(kRed);
-  simhist->SetLineColor(kBlue);
-  float maxval = max(dathist->GetMaximum(),simhist->GetMaximum());
-  float minval = min(dathist->GetBinContent(dathist->FindLastBinAbove(0,1)),simhist->GetBinContent(simhist->FindLastBinAbove(0,1)));
-  dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
+  dathist->SetMarkerColor(kRed);
+  if(simhist)
+    {
+      simhist->SetLineColor(kBlue);
+      simhist->SetMarkerColor(kBlue);
+    }
+  float maxval;
+  if(simhist) maxval = max(dathist->GetMaximum(),simhist->GetMaximum());
+  else maxval = dathist->GetMaximum();
+  float minval;
+  if(simhist) min(dathist->GetBinContent(dathist->FindLastBinAbove(0,1)),simhist->GetBinContent(simhist->FindLastBinAbove(0,1)));
+  else minval = dathist->GetBinContent(dathist->FindLastBinAbove(0,1));
+  dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*10.);
   dathist->GetXaxis()->SetTitle((xlabel).c_str());
   dathist->GetYaxis()->SetTitle("Counts");
   dathist->GetYaxis()->SetLabelSize(0.025);
   dathist->GetXaxis()->SetLabelSize(0.025);
   dathist->Draw();
-  simhist->Draw("SAME");
+  if(simhist) simhist->Draw("SAME");
   sphenixtext();
   multitext(texts, ntext);
-  ca->SaveAs((dir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent2))+".pdf").c_str());
-
-  dathist->Divide(simhist);
-  dathist->GetYaxis()->SetTitle("Data/Sim");
-  dathist->GetYaxis()->SetRangeUser(0.01,10);
-  dathist->Draw();
-  sphenixtext();
-  drawText(("Run " + to_string(run) + " " + to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent2))+"% centrality").c_str(),0.85,0.85,1,kBlack,0.025);
-  ca->SaveAs((dir+"ratio"+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent2))+".pdf").c_str());
+  ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent0))+".pdf").c_str());
+  ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent0))+".png").c_str());
+  if(simhist)
+    {
+      dathist->Divide(simhist);
+      dathist->GetYaxis()->SetTitle("Data/Sim");
+      dathist->GetYaxis()->SetRangeUser(0.01,10);
+      dathist->Draw();
+      sphenixtext();
+      multitext(texts2, ntext2);
+      ca->SaveAs((dir+"pdf/"+"ratio_"+subdir+"ratio_"+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent0))+".pdf").c_str());
+      ca->SaveAs((dir+"png/"+"ratio_"+subdir+"ratio_"+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(5*(20-percent1)) +"-"+ to_string(5*(20-percent0))+".png").c_str());
+    }
 }
 
-int plot(string histfilename = "savedhists_subtr_0_minE_0_scale_1.30_zcut_30.root", string treename = "ttree", string datdir = "/home/jocl/datatemp/", string plotdir = "/home/jocl/datatemp/plots/")
+int plot(string histfilename = "savedhists_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root", string treename = "ttree", string datdir = "/home/jocl/datatemp/", string plotdir = "/home/jocl/datatemp/plots/")
 {
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   SetsPhenixStyle();
   const int centbins = 20;
-  TFile* histfile = TFile::Open(datdir+histfilename);
-  TTree* tree = histfile->Get<TTree>("treename");
+  TFile* histfile = TFile::Open((datdir+histfilename).c_str());
+  TTree* tree = histfile->Get<TTree>(treename.c_str());
+  TH1D* centtow[2][3][centbins];
+  TH1D* centet[2][3][centbins];
+  TH1D* ET[2][3];
+  TH1D* TW[2][3];
+  TH1D* sumev[2];
+  TH1D* sumtw[2];
+  TH1D* mbh[2];
+  TH1D* zhist;
+  float sub;
+  float scale[2];
+  int frac[2];
+  float mine;
+  float zcut;
+  int run;
+  mbh[0] = (TH1D*)histfile->Get("smbh");
+  mbh[1] = (TH1D*)histfile->Get("dmbh");
+  zhist = (TH1D*)histfile->Get("zhist");
+  for(int i=0; i<2; ++i)
+    {
+      sumev[i] = (TH1D*)histfile->Get(("sumev" + to_string(i)).c_str());
+      sumtw[i] = (TH1D*)histfile->Get(("sumtw" + to_string(i)).c_str());
+      for(int j=0; j<3; ++j)
+	{
+	  ET[i][j] = (TH1D*)histfile->Get(("et"+to_string(i)+to_string(j)).c_str());
+	  TW[i][j] = (TH1D*)histfile->Get(("tw"+to_string(i)+to_string(j)).c_str());
+	  for(int k=0; k<centbins; ++k)
+	    {
+	      centtow[i][j][k] = (TH1D*)histfile->Get(("centtow"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
+	      centet[i][j][k] = (TH1D*)histfile->Get(("centet"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
+	    }
+	}
+    }
+  string cal[3] = {"EMCal","IHCal","OHCal"};
+  string xlabel;
+  tree->SetBranchAddress("sub",&sub);
+  tree->SetBranchAddress("scale",scale);
+  tree->SetBranchAddress("frac",frac);
+  tree->SetBranchAddress("mine",&mine);
+  tree->SetBranchAddress("zcut",&zcut);
+  tree->SetBranchAddress("run",&run);
+  tree->GetEvent(0);
+  TCanvas* c1 = new TCanvas("c1","c1",1000,1000);
+  xlabel = "MBD Z vertex [cm]";
+  plotsimdat(c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "zvtx", plotdir,"all/");
+  xlabel = "MBD charge sum [??]";
+  plotsimdat(c1, mbh[1], mbh[0], 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mboverlay", plotdir,"all/");
+  //plotsimdat(c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mbdat", plotdir);
+  //plotsimdat(c1, mbh[0], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mbsim", plotdir);
+  xlabel = "E_{T, event calorimeter sum}";
+  plotsimdat(c1, sumev[1], sumev[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "et_total", plotdir,"all/");
+  xlabel = "E_{T, stacked calorimeter towers}";
+  plotsimdat(c1, sumtw[1], sumtw[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "et_sumtow", plotdir,"all/");
+  
+  for(int j=0; j<3; ++j)
+    {
+      xlabel = "E_{T," + cal[j] +" event} [GeV]";
+      plotsimdat(c1, ET[1][j], ET[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, 0, 20, "et_event", plotdir, "all/");
+      xlabel = "E_{T," + cal[j] +" tower} [GeV]";
+      plotsimdat(c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, 0, 20, "et_tower", plotdir, "all/");
+      for(int k=0; k<centbins; ++k)
+	{
+	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
+	  plotsimdat(c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, k, k+1, "centtow", plotdir, "cent/");
+	  xlabel = "E_{T," + cal[j] +" event} [GeV]";
+	  plotsimdat(c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, k, k+1, "centet", plotdir, "cent/");
+	}
+    }
+  
+  return 0;
 }

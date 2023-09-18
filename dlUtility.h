@@ -128,14 +128,14 @@ void drawText(const char *text, float xp, float yp, bool isRightAlign=0, int tex
 
 void sphenixtext()
 {
-  drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
+  drawText("#bf{#it{sPHENIX}} internal", 0.9, 0.96, 1, kBlack, 0.04);
 }
 
-void multitext(string* texts, int ntext, float xp = 0.85, float ytop = 0.85, bool rightalign = 1, int textColor = kBlack, double textsize = 0.025)
+void multitext(string* texts, int ntext, float xp = 0.9, float ytop = 0.9, bool rightalign = 1, int textColor = kBlack, double textsize = 0.025)
 {
   for(int i=0; i<ntext; ++i)
     {
-      drawText(texts[i].c_str(), xp, ytop-i*(textsize+0.05), rightalign, kBlack, textsize);
+      drawText(texts[i].c_str(), xp, ytop-i*(textsize), rightalign, kBlack, textsize);
     }
 }
 
