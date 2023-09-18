@@ -291,7 +291,8 @@ int build_hists()
   int frac[2];
   frac[0] = 1;
   frac[1] = 1;
-  float zcut = 30;
+  float zcut = 10;
+  int run = 21615;
   const int par = 4;
   float parval[par];
   float mult[par];
@@ -315,7 +316,7 @@ int build_hists()
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  string outname = "/home/jocl/datatemp/savedhists_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + ".root";
+  string outname = "/home/jocl/datatemp/savedhists_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+ ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   TTree* outt = new TTree("ttree","");
   float dummy;
@@ -443,6 +444,7 @@ int build_hists()
   int nccb = centbins;
   outt->Branch("cbin",&nccb,"cbin/I");
   outt->Branch("zcut",&zcut,"zcut/F");
+  outt->Branch("run",&run,"run/I");
   outt->Fill();
   outf->WriteObject(outt,outt->GetName());
   cout << "Done writing parameters to file" << endl;
