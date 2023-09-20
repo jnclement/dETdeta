@@ -14,6 +14,7 @@
 #include "TLatex.h"
 #include "stdlib.h"
 #include <fstream>
+#include <iomanip>
 #include <cstdlib>
 #include <cmath>
 #include <math.h>
@@ -29,7 +30,7 @@
 #include "mbd_info.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
-
+const int centbins = 9;
 void plotcentet(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int percent2, int logy, string cal, string sc, string sub, string run)
 {
   ca->cd();
@@ -55,16 +56,16 @@ void plotcentet(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int percent2, 
   drawText(("Sim scaled "+sc).c_str(),0.85,0.79,1,kBlack,0.025);
   drawText("Area normed to 1",0.85,0.82,1,kBlack,0.025);
   drawText("|z|<10cm",0.85,0.7,1,kBlack,0.025);
-  drawText(("Run " + run + " " + to_string(10*percent) +"-"+to_string(10*(percent2))+"% centrality").c_str(),0.85,0.67,1,kBlack,0.025);
+  drawText(("Run " + run + " " + to_string(10*(centbins-percent)) +"-"+to_string(10*(centbins-percent2))+"% centrality").c_str(),0.85,0.67,1,kBlack,0.025);
   drawText((sub+" MeV subtracted from each tower").c_str(),0.85,0.85,1,kBlack,0.025);
-  ca->SaveAs(("dcentet" + cal + "_" + sc + "_cent" + to_string(10*percent) +"-"+to_string(10*(percent2)) + ".png").c_str());
+  ca->SaveAs(("dcentet" + cal + "_" + sc + "_cent" + to_string(10*(centbins-percent)) +"-"+to_string(10*(centbins-percent2)) + ".png").c_str());
   hist1->Divide(hist2);
   hist1->GetYaxis()->SetTitle("Data/Sim");
   hist1->GetYaxis()->SetRangeUser(0.01,10);
   hist1->Draw();
   drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
-  drawText(("Run " + run + " " + to_string(10*percent) +"-"+to_string(10*(percent2))+"% centrality").c_str(),0.85,0.85,1,kBlack,0.025);
-  ca->SaveAs(("ratio_dcentet" + cal + "_" + sc + "_cent" + to_string(10*percent) +"-"+to_string(10*(percent2)) + ".png").c_str());
+  drawText(("Run " + run + " " + to_string(10*(centbins-percent)) +"-"+to_string(10*(centbins-percent2))+"% centrality").c_str(),0.85,0.85,1,kBlack,0.025);
+  ca->SaveAs(("ratio_dcentet" + cal + "_" + sc + "_cent" + to_string(10*(centbins-percent)) +"-"+to_string(10*(centbins-percent2)) + ".png").c_str());
   
 }
 
@@ -93,16 +94,16 @@ void plotcenttow(TCanvas* ca, TH1* hist1, TH1* hist2, int percent, int percent2,
   drawText(("Sim scaled "+sc).c_str(),0.85,0.79,1,kBlack,0.025);
   drawText("Area normed to 1",0.85,0.82,1,kBlack,0.025);
   drawText("|z|<10cm",0.85,0.7,1,kBlack,0.025);
-  drawText(("Run " + run+ " " + to_string(10*percent) +"-"+to_string(10*(percent2))+"% centrality").c_str(),0.85,0.67,1,kBlack,0.025);
+  drawText(("Run " + run+ " " + to_string(10*(centbins-percent)) +"-"+to_string(10*(centbins-percent2))+"% centrality").c_str(),0.85,0.67,1,kBlack,0.025);
   drawText((sub+" MeV subtracted from each tower").c_str(),0.85,0.85,1,kBlack,0.025);
-  ca->SaveAs(("dcenttow" + cal + "_" + sc + "_cent" + to_string(10*percent) +"-"+to_string(10*(percent2)) + ".png").c_str());
+  ca->SaveAs(("dcenttow" + cal + "_" + sc + "_cent" + to_string(10*(centbins-percent)) +"-"+to_string(10*(centbins-percent2)) + ".png").c_str());
   hist1->Divide(hist2);
   hist1->GetYaxis()->SetTitle("Data/Sim");
   hist1->GetYaxis()->SetRangeUser(0.01,10);
   hist1->Draw();
   drawText("#bf{#it{sPHENIX}} internal", 0.85, 0.93, 1, kBlack, 0.04);
-  drawText(("Run " + run + " " + to_string(10*percent) +"-"+to_string(10*(percent2))+"% centrality").c_str(),0.85,0.85,1,kBlack,0.025);
-  ca->SaveAs(("ratio_dcenttow" + cal + "_" + sc + "_cent" + to_string(10*percent) +"-"+to_string(10*(percent2)) + ".png").c_str());
+  drawText(("Run " + run + " " + to_string(10*(centbins-percent)) +"-"+to_string(10*(centbins-percent2))+"% centrality").c_str(),0.85,0.85,1,kBlack,0.025);
+  ca->SaveAs(("ratio_dcenttow" + cal + "_" + sc + "_cent" + to_string(10*(centbins-percent)) +"-"+to_string(10*(centbins-percent2)) + ".png").c_str());
 }
 int build_events()
 {
@@ -133,14 +134,17 @@ int build_events()
   TTree* simt = simf->Get<TTree>("ttree");
   TH1D* hist = new TH1D("hist","",500,0,500);
   TH1D* dmbh = new TH1D("dmbh","",3000,0,3000);
-  double dcent[11] = {0};
-  dcent[10] = 999999;
-  TH1D* centclass[10][3];
-  TH1D* dcenttow[3][10];
-  TH1D* scenttow[3][10];
-  TH1D* dcentet[3][10];
-  TH1D* scentet[3][10];
-  for(int i=0; i<10; ++i)
+  double dcent[centbins+1] = {0};
+  dcent[centbins] = 999999;
+  TH1D* centclass[centbins][3];
+  TH1D* dcenttow[3][centbins];
+  TH1D* scenttow[3][centbins];
+  TH1D* dcentet[3][centbins];
+  TH1D* scentet[3][centbins];
+  float et_em_range[centbins] = {100,150,275,350,400,600,800,1200,1750};
+  float et_oh_range[centbins] = {35,50,80,100,140,175,225,300,400};
+  float et_ih_range[centbins] = {10,15,25,35,50,75,100,120,150};
+  for(int i=0; i<centbins; ++i)
     {
       dcenttow[0][i] = new TH1D(("dcenttowem" + to_string(i)).c_str(),"",50,0,10);
       dcenttow[1][i] = new TH1D(("dcenttowih" + to_string(i)).c_str(),"",50,0,2);
@@ -151,13 +155,13 @@ int build_events()
       scenttow[2][i] = new TH1D(("scenttowoh" + to_string(i)).c_str(),"",50,0,10);
 
 
-      dcentet[0][i] = new TH1D(("dcentetem" + to_string(i)).c_str(),"",100,0,1200);
-      dcentet[1][i] = new TH1D(("dcentetih" + to_string(i)).c_str(),"",100,0,100);
-      dcentet[2][i] = new TH1D(("dcentetoh" + to_string(i)).c_str(),"",100,0,300);
+      dcentet[0][i] = new TH1D(("dcentetem" + to_string(i)).c_str(),"",100,0,et_em_range[i]);
+      dcentet[1][i] = new TH1D(("dcentetih" + to_string(i)).c_str(),"",100,0,et_ih_range[i]);
+      dcentet[2][i] = new TH1D(("dcentetoh" + to_string(i)).c_str(),"",100,0,et_oh_range[i]);
 
-      scentet[0][i] = new TH1D(("scentetem" + to_string(i)).c_str(),"",100,0,1200);
-      scentet[1][i] = new TH1D(("scentetih" + to_string(i)).c_str(),"",100,0,100);
-      scentet[2][i] = new TH1D(("scentetoh" + to_string(i)).c_str(),"",100,0,300);
+      scentet[0][i] = new TH1D(("scentetem" + to_string(i)).c_str(),"",100,0,et_em_range[i]);
+      scentet[1][i] = new TH1D(("scentetih" + to_string(i)).c_str(),"",100,0,et_ih_range[i]);
+      scentet[2][i] = new TH1D(("scentetoh" + to_string(i)).c_str(),"",100,0,et_oh_range[i]);
     }
 
   TH1D* mc20ets[3];
@@ -218,22 +222,22 @@ int build_events()
   TH1D* ssumtow = new TH1D("ssumtow","",50,0,15);
   TH1D* dsumtow = new TH1D("dsumtow","",50,0,15);
   TH1D* rsumtow = new TH1D("rsumtow","",50,0,15);
-  for(int i=0; i<10; ++i)
+  for(int i=0; i<centbins; ++i)
     {
       centclass[i][0] = new TH1D(("centhiste" + to_string(i)).c_str(),"",96,-1.1,1.1);
       centclass[i][1] = new TH1D(("centhisti" + to_string(i)).c_str(),"",24,-1.1,1.1);
       centclass[i][2] = new TH1D(("centhisto" + to_string(i)).c_str(),"",24,-1.1,1.1);
     }
-  float detacente[10][96] = {0};
-  float detacento[10][24] = {0};
-  float detacenti[10][24] = {0};
-  int nem[10][96] = {0};
-  int nih[10][24] = {0};
-  int noh[10][24] = {0};
+  float detacente[centbins][96] = {0};
+  float detacento[centbins][24] = {0};
+  float detacenti[centbins][24] = {0};
+  int nem[centbins][96] = {0};
+  int nih[centbins][24] = {0};
+  int noh[centbins][24] = {0};
   int tpn = 0;
-  float subtr = 0.018;
+  float subtr = 0;//0.018;
   float scale = 1.3;
-  float mine = 0.005;
+  float mine = 0;//0.005;
   float tpe[25000] = {0};
   float tpet[25000] = {0};
   float tpph[25000] = {0};
@@ -282,9 +286,11 @@ int build_events()
   simt->SetBranchAddress("sectorih",&ssectorih);
   simt->SetBranchAddress("sectoroh",&ssectoroh);
   simt->SetBranchAddress("sectormb",&ssectormb);
-  TLine* lines[10];
-  int fracdat = 100;
-  int fracsim = 10;
+  float z_v;
+  simt->SetBranchAddress("zvtx",&z_v);
+  TLine* lines[centbins];
+  int fracdat = 50;
+  int fracsim = 5;
   int counter = 0;
   int mbdsum = 0;
   int mbdsumunc = 0;
@@ -309,6 +315,8 @@ int build_events()
 	}
       */
       mbdsum = npart;
+      if(z_v == 0) continue;
+      if(abs(z_v) > 30) continue;
       hist->Fill(mbdsum);
       //cout << mbdsum << endl;
       /*
@@ -345,10 +353,12 @@ int build_events()
       mbdsum = 0;
       mbdsumunc = 0;
       tree->GetEntry(i);
-      
+      int mbdts = 0;
+      int mbdtn = 0;
+      int mbdns = 0;
+      int mbdnn = 0;
       for(int j=0; j<sectormb; ++j)
 	{
-	  mbdsumunc += mbenrgy[j];
 	  if(mbdtype[j] == 1)
 	    {
 	      if(mbdside[j] == 1)
@@ -360,26 +370,47 @@ int build_events()
 		  mbdsum += mbenrgy[j]*gaincorr[mbdchan[j]];
 		}
 	    }
+	  else
+	    {
+	      if(mbdside[j] == 1 && mbenrgy[j-8] > 10)
+		{
+		  mbdnn++;
+		  mbdtn += mbenrgy[j]*9./5000-tq_t0_offsets[mbdchan[j]+64];
+		}
+	      else if(mbdside[j] == 0 && mbenrgy[j-8] > 10)
+		{
+		  mbdns++;
+		  mbdts += mbenrgy[j]*9./5000-tq_t0_offsets[mbdchan[j]];
+		}
+	    }
 	}
-      if(mbdsumunc > 0) dmbh->Fill(mbdsum);
+      if(mbdns == 0 || mbdnn == 0) continue;
+      mbdts /= mbdns;
+      mbdtn /= mbdnn;
+      if(mbdsum<=0) continue;
+      if(isnan(mbdtn-mbdts)) continue;
+      if(abs(mbdtn-mbdts)*15>30) continue;
+      if(mbdsum > 0) dmbh->Fill(mbdsum);
+      cout << i << endl;
     }
   
   
   int n = 0;
   int nsum = 0;
   cout << "test" << endl;
-  while(n<10)
+  while(n<centbins)
     {
       nsum = 0;
       for(int i=1; i<hist->GetNbinsX()+1; ++i)
 	{
 	  //cout <<n <<" "<<i << " " << nsum << endl;
 	  nsum += hist->GetBinContent(i);
-	  if(n*hist->GetEntries()/10 < nsum)
+	  if(n*hist->GetEntries()/centbins < nsum)
 	    {
 	      lines[n] = new TLine(hist->GetBinCenter(i),0,hist->GetBinCenter(i), hist->GetBinContent(i));
 	      lines[n]->SetLineColor(kRed);
 	      cents[n] = hist->GetBinLowEdge(i+1);
+	      if(n==0) cents[n] = 0;
 	      //cout << cents[n] << endl;
 	      ++n;
 	      break;
@@ -390,16 +421,17 @@ int build_events()
   n = 0;
   nsum = 0;
   cout << "test" << endl;
+  cout << hist->GetEntries() << endl;
   cout << dmbh->GetEntries() << endl;
   cout << dmbh->GetBinContent(dmbh->GetNbinsX()+1) << endl;
-  while(n<10)
+  while(n<centbins)
     {
       nsum = 0;
       for(int i=1; i<dmbh->GetNbinsX()+1; ++i)
 	{
 	  //cout <<n <<" "<<i << " " << nsum << endl;
 	  nsum += dmbh->GetBinContent(i);
-	  if(n*dmbh->GetEntries()/10 < nsum)
+	  if(n*dmbh->GetEntries()/centbins < nsum)
 	    {
 	      cout << n << " " << nsum << " " << i << " " << dmbh->GetBinContent(i) << endl;
 	      //lines[n] = new TLine(hist->GetBinCenter(i),0,hist->GetBinCenter(i), hist->GetBinContent(i));
@@ -414,10 +446,10 @@ int build_events()
     }
 
   
-  cents[10] = 99999999999;
+  cents[centbins] = 99999999999;
   cout << "test4" << endl;
   int kcodes[12] = {0,1,2,3,4,-1,-5,-8,-10,+1,+2,+3};
-  for(int i=0; i<10; ++i)
+  for(int i=0; i<centbins; ++i)
     {
       setcolorcent(centclass[i][0], kcodes, kRed, 10, i);
       setcolorcent(centclass[i][1], kcodes, kGreen, 10, i);
@@ -470,10 +502,12 @@ int build_events()
       float simsum = 0;
       float sime = 0;
       simt->GetEntry(i);
+      if(z_v == 0) continue;
+      if(abs(z_v) > 30) continue;
       mbdsum = npart;
       float eval = 0;
       //cout << mbdsum << endl;
-      for(int j=0; j<10; ++j)
+      for(int j=0; j<centbins; ++j)
 	{
 	  if(mbdsum < cents[j+1])
 	    {
@@ -611,7 +645,7 @@ int build_events()
     }
   */
   cout << "test5" << endl;
-  for(int i=0; i<10; ++i)
+  for(int i=0; i<centbins; ++i)
     {
       for(int j=0; j<96; ++j)
 	{
@@ -641,7 +675,7 @@ int build_events()
   //drawText("Simulated reco MBD charge sum", 0.85,0.825,1, kBlack,0.04);
   //drawText("Red lines represent 10\%-ile bins in",0.85,0.775,1,kBlack,0.04);
   //drawText("centrality, with most central at right",0.85,0.725,1,kBlack,0.04);
-  for(int i=0; i<10; ++i) lines[i]->Draw();
+  for(int i=0; i<centbins; ++i) lines[i]->Draw();
   c1->SaveAs("cent_edep.png");
   TCanvas* c2 = new TCanvas("c2","c2",1000,1000);
   c2->SetLogy();
@@ -650,7 +684,7 @@ int build_events()
     {
       float min = 999999999;
       float max = 0;
-      for(int i=0; i<10; ++i)
+      for(int i=0; i<centbins; ++i)
 	{
 	  if(centclass[i][j]->GetMaximum() > max)
 	    {
@@ -661,14 +695,14 @@ int build_events()
 	      min = centclass[i][j]->GetMinimum();
 	    }
 	}
-      for(int i=0; i<10; ++i)
+      for(int i=0; i<centbins; ++i)
 	{
 	  for(int k=0; k<8; ++k)
 	    {
 	      centclass[i][0]->SetBinContent(k+1,0);
 	    }
 	}
-      for(int i=0; i<10; ++i)
+      for(int i=0; i<centbins; ++i)
 	{
 	  c2->cd();
 	  if(i==0)
@@ -724,7 +758,7 @@ int build_events()
       mbdtn /= mbdnn;
       if(mbdsum<=0) continue;
       if(isnan(mbdtn-mbdts)) continue;
-      if(abs(mbdtn-mbdts)>10) continue;
+      if(abs(mbdtn-mbdts)*15>30) continue;
       else
       {
       	  mthist->Fill(mbdtn-mbdts);
@@ -740,7 +774,7 @@ int build_events()
 	      demtowercomb[j][k] = 0;
 	    }
 	}
-      for(int j=0; j<10; ++j)
+      for(int j=0; j<centbins; ++j)
       {
 	if(mbdsum < dcent[j+1])
 	{
@@ -875,7 +909,7 @@ int build_events()
   drawText("|z|<10cm",0.85,0.7,1,kBlack,0.025);
   doPlot(c7, etdata, etsim, sc, sub, 1, "emcal_et_event_" + sc + "_" + sub + ".png");
 
-  for(int i=0; i<10; ++i)
+  for(int i=0; i<centbins; ++i)
     {
       plotcentet(c7, dcentet[0][i], scentet[0][i], i,i+1, 1, "EMCal", sc, sub, "21615");
       plotcentet(c7, dcentet[1][i], scentet[1][i], i,i+1, 1, "IHCal", sc, sub, "21615");
@@ -887,9 +921,9 @@ int build_events()
   string detstring[3] = {"EMCal","IHCal","OHCal"};
   for(int i=0; i<3; ++i)
     {
-      plotcentet(c7, mc20etd[i], mc20ets[i], 8, 10, 1, detstring[i], sc, sub, "21615");
+      plotcentet(c7, mc20etd[i], mc20ets[i], 8, centbins, 1, detstring[i], sc, sub, "21615");
       plotcentet(c7, lc30etd[i], lc30ets[i], 0, 3, 1, detstring[i], sc, sub, "21615");
-      plotcenttow(c7, mc20twd[i], mc20tws[i], 8, 10, 1, detstring[i], sc, sub, "21615");
+      plotcenttow(c7, mc20twd[i], mc20tws[i], 8, centbins, 1, detstring[i], sc, sub, "21615");
       plotcenttow(c7, lc30twd[i], lc30tws[i], 0, 3, 1, detstring[i], sc, sub, "21615");
     }
     
@@ -1286,12 +1320,12 @@ int build_events()
   //drawText("Simulated reco MBD charge sum", 0.85,0.825,1, kBlack,0.04);
   //drawText("Red lines represent 10\%-ile bins in",0.85,0.775,1,kBlack,0.04);
   //drawText("centrality, with most central at right",0.85,0.725,1,kBlack,0.04);
-  for(int i=0; i<10; ++i) lines[i]->Draw();
+  for(int i=0; i<centbins; ++i) lines[i]->Draw();
   //c1->SaveAs("cent_edep.png");
   //TCanvas* c2 = new TCanvas("c2","c2",1000,1000);
   c2->SetLogy();
   c2->SetTicks(1);
-  for(int i=0; i<10; ++i)
+  for(int i=0; i<centbins; ++i)
     {
       c2->cd();
       centclass[i][0]->Draw();
@@ -1311,7 +1345,7 @@ int build_events()
   mthist->Draw();
   c4->SaveAs("mthist.png");
 
-    for(int i=0; i<10; ++i)
+    for(int i=0; i<centbins; ++i)
     {
       cout << dcenttow[0][i]->GetEntries() << endl;
       cout << dcenttow[1][i]->GetEntries() << endl;

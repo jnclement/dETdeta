@@ -69,6 +69,7 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
 	    }
 	}
     }
+  if(mbdns == 0 || mbdnn == 0) return -1;
   mbdts/=mbdns;
   mbdtn/=mbdnn;
   zvtx = (mbdtn-mbdts)*15;
@@ -103,7 +104,7 @@ void set_em_combined_towers_0(float towers[96][24])
 
 int set_cent_cuts(TH1* hist, float* cent, int centbins)
 {
-  int n=0;
+  int n=1;
   int nsum=0;
   while(n<centbins)
     {
@@ -121,7 +122,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 	  nsum += hist->GetBinContent(i);
 	  if(n*hist->GetEntries()/centbins < nsum)
 	    {
-	      cent[n+1] = hist->GetBinLowEdge(i+1);
+	      cent[n] = hist->GetBinLowEdge(i+1);
 	      ++n;
 	      break;
 	    }
@@ -164,12 +165,12 @@ int check_acceptance(int eta, int phi)
 
 float get_E_T_em(float E, int eta, float sub)
 {
-  return (E-sub)*sin(2*atan(exp(-(eta-48)*0.024)));
+  return (E-sub)/cosh(-(eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
 }
 
 float get_E_T_hc(float E, int eta, float sub)
 {
-  return (E-sub)*sin(2*atan(exp(-(eta-12)*0.096)));
+  return (E-sub)/cosh(-(eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
 }
 
 
@@ -179,7 +180,7 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 20;
+  const int centbins = 9;
   float mbenrgy[25000], calen[2][3][25000];
   int calet[2][3][25000], calph[2][3][25000];
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
@@ -187,6 +188,7 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   int sector[2][3];
   int sectormb;
   int npart = 0;
+  float z_v;
   TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
   TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
   TFile* file = TFile::Open("/home/jocl/datatemp/merged_dEdeta_71.root");
@@ -197,9 +199,9 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   float cents[2][centbins+1] = {0};
   TH1D* centtow[2][3][centbins];
   TH1D* centet[2][3][centbins];
-  float et_em_range = 1700;
-  float et_oh_range = 400;
-  float et_ih_range = 150;
+  float et_em_range[centbins] = {100,150,275,350,400,600,800,1200,1750};
+  float et_oh_range[centbins] = {35,50,80,100,140,175,225,300,400};
+  float et_ih_range[centbins] = {10,15,25,35,50,75,100,120,150};
   float et_sm_range = 2000;
   float tw_em_range = 15;
   float tw_oh_range = 20;
@@ -209,22 +211,21 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   int bins_et = 100;
   for(int i=0; i<centbins; ++i)
     {
-      centtow[1][0][i] = new TH1D(("centtow10_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range);
-      centtow[1][1][i] = new TH1D(("centtow11_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range);
-      centtow[1][2][i] = new TH1D(("centtow12_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range);
+      centtow[1][0][i] = new TH1D(("centtow10_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range*(10.+i)/20);
+      centtow[1][1][i] = new TH1D(("centtow11_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range*(10.+i)/20);
+      centtow[1][2][i] = new TH1D(("centtow12_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
 
-      centtow[0][0][i] = new TH1D(("centtow00_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range);
-      centtow[0][1][i] = new TH1D(("centtow01_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range);
-      centtow[0][2][i] = new TH1D(("centtow02_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range);
+      centtow[0][0][i] = new TH1D(("centtow00_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range*(10.+i)/20);
+      centtow[0][1][i] = new TH1D(("centtow01_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range*(10.+i)/20);
+      centtow[0][2][i] = new TH1D(("centtow02_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
 
+      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",bins_et,0,et_em_range[i]);
+      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",bins_et,0,et_ih_range[i]);
+      centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",bins_et,0,et_oh_range[i]);
 
-      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",bins_et,0,et_em_range);
-      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",bins_et,0,et_ih_range);
-      centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",bins_et,0,et_oh_range);
-
-      centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",bins_et,0,et_em_range);
-      centet[0][1][i] = new TH1D(("centet01_" + to_string(i)).c_str(),"",bins_et,0,et_ih_range);
-      centet[0][2][i] = new TH1D(("centet02_" + to_string(i)).c_str(),"",bins_et,0,et_oh_range);
+      centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",bins_et,0,et_em_range[i]);
+      centet[0][1][i] = new TH1D(("centet01_" + to_string(i)).c_str(),"",bins_et,0,et_ih_range[i]);
+      centet[0][2][i] = new TH1D(("centet02_" + to_string(i)).c_str(),"",bins_et,0,et_oh_range[i]);
     }
 
   TH1D* ET[2][3];
@@ -235,16 +236,16 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   
   mbh[0] = new TH1D("smbh","",500,0,500);
   mbh[1] = new TH1D("dmbh","",3000,0,3000);
-  ET[1][0] = new TH1D("et10","",bins_et,0,et_em_range);
-  ET[0][0]  = new TH1D("et00","",bins_et,0,et_em_range);
+  ET[1][0] = new TH1D("et10","",bins_et,0,et_em_range[centbins-1]);
+  ET[0][0]  = new TH1D("et00","",bins_et,0,et_em_range[centbins-1]);
   TW[0][0] = new TH1D("tw00","",bins_tw,0,tw_em_range);
   TW[1][0] = new TH1D("tw10","",bins_tw,0,tw_em_range);
-  ET[1][1] = new TH1D("et11","",bins_et,0,et_ih_range);
-  ET[0][1] = new TH1D("et01","",bins_et,0,et_ih_range);
+  ET[1][1] = new TH1D("et11","",bins_et,0,et_ih_range[centbins-1]);
+  ET[0][1] = new TH1D("et01","",bins_et,0,et_ih_range[centbins-1]);
   TW[0][1] = new TH1D("tw01","",bins_tw,0,tw_ih_range);
   TW[1][1] = new TH1D("tw11","",bins_tw,0,tw_ih_range);
-  ET[1][2] = new TH1D("et12","",bins_et,0,et_oh_range);
-  ET[0][2] = new TH1D("et02","",bins_et,0,et_oh_range);
+  ET[1][2] = new TH1D("et12","",bins_et,0,et_oh_range[centbins-1]);
+  ET[0][2] = new TH1D("et02","",bins_et,0,et_oh_range[centbins-1]);
   TW[0][2] = new TH1D("tw02","",bins_tw,0,tw_oh_range);
   TW[1][2] = new TH1D("tw12","",bins_tw,0,tw_oh_range);
   sumev[0] = new TH1D("sumev0","",bins_et,0,et_sm_range);
@@ -268,6 +269,7 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   tree[1]->SetBranchAddress("sectorih",&sector[1][1]);
   tree[1]->SetBranchAddress("sectoroh",&sector[1][2]);
   tree[1]->SetBranchAddress("sectormb",&sectormb);
+  tree[0]->SetBranchAddress("zvtx",&z_v);
   tree[0]->SetBranchAddress("npart",&npart);
   tree[0]->SetBranchAddress("emcalen",calen[0][0]);
   tree[0]->SetBranchAddress("emcalet",calet[0][0]);
@@ -331,6 +333,8 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
     {
       if(i%toprint == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
+      if(z_v == 0) continue;
+      if(abs(z_v) > zcut) continue;
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
     }
@@ -356,7 +360,12 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
 	  if(i%toprint==0) cout << "Starting event " << i << endl;
 	  set_em_combined_towers_0(towercomb);
 	  tree[h]->GetEntry(i);
-	  if(h==0) mbsum = npart;
+	  if(h==0)
+	    {
+	      if(z_v == 0) continue;
+	      if(abs(z_v) > zcut) continue;
+	      mbsum = npart;
+	    }
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, NULL);
 	  if(mbsum < 0) continue;
 	  for(int j=0; j<centbins; ++j)
