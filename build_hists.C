@@ -29,7 +29,7 @@
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
-float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, TH1* zhist)
+float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist)
 {
   float mbsum, ucmbd;
   int mbdnn, mbdns;
@@ -72,13 +72,14 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
   if(mbdns == 0 || mbdnn == 0) return -1;
   mbdts/=mbdns;
   mbdtn/=mbdnn;
-  zvtx = (mbdtn-mbdts)*15;
+  zvtx = zval;
+  //zvtx = (mbdtn-mbdts)*15;
   if(mbsum <=0)
     {
       return -1;
     }
   
-  if(isnan(mbdtn-mbdts))
+  if(isnan(zvtx))
     {
       return -1;
     }
@@ -106,6 +107,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 {
   int n=1;
   int nsum=0;
+  cout << hist->GetEntries() << endl;
   while(n<centbins)
     {
       //cout << n << endl;
@@ -188,7 +190,7 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   int sector[2][3];
   int sectormb;
   int npart = 0;
-  float z_v;
+  float z_v[2];
   TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
   TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
   TFile* file = TFile::Open("/home/jocl/datatemp/merged_dEdeta_71.root");
@@ -199,6 +201,16 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   float cents[2][centbins+1] = {0};
   TH1D* centtow[2][3][centbins];
   TH1D* centet[2][3][centbins];
+  TH1D* meandiff[3];
+  TH1D* sigmu[2][3];
+  for(int j=0; j<3; ++j)
+    {
+      meandiff[j] = new TH1D(("md"+to_string(j)).c_str(),"",9,0,90);
+      for(int i=0; i<2; ++i)
+	{
+	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",9,0,90);
+	}
+    }
   float et_em_range[centbins] = {100,150,275,350,400,600,800,1200,1750};
   float et_oh_range[centbins] = {35,50,80,100,140,175,225,300,400};
   float et_ih_range[centbins] = {10,15,25,35,50,75,100,120,150};
@@ -269,7 +281,8 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   tree[1]->SetBranchAddress("sectorih",&sector[1][1]);
   tree[1]->SetBranchAddress("sectoroh",&sector[1][2]);
   tree[1]->SetBranchAddress("sectormb",&sectormb);
-  tree[0]->SetBranchAddress("zvtx",&z_v);
+  tree[1]->SetBranchAddress("zvtx",&z_v[1]);
+  tree[0]->SetBranchAddress("zvtx",&z_v[0]);
   tree[0]->SetBranchAddress("npart",&npart);
   tree[0]->SetBranchAddress("emcalen",calen[0][0]);
   tree[0]->SetBranchAddress("emcalet",calet[0][0]);
@@ -333,8 +346,8 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
     {
       if(i%toprint == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
-      if(z_v == 0) continue;
-      if(abs(z_v) > zcut) continue;
+      if(z_v[0] == 0) continue;
+      if(abs(z_v[0]) > zcut) continue;
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
     }
@@ -344,7 +357,7 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
     {
       if(i%toprint == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, zhist);
+      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1], zhist);
     }
   cout << "Done filling data MBD hist." << endl;
   cout << "Done filling all MBD hists." << endl;
@@ -362,11 +375,11 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
 	  tree[h]->GetEntry(i);
 	  if(h==0)
 	    {
-	      if(z_v == 0) continue;
-	      if(abs(z_v) > zcut) continue;
+	      if(z_v[0] == 0) continue;
+	      if(abs(z_v[0]) > zcut) continue;
 	      mbsum = npart;
 	    }
-	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, NULL);
+	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1], NULL);
 	  if(mbsum < 0) continue;
 	  for(int j=0; j<centbins; ++j)
 	  {
@@ -412,13 +425,30 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
       cout << "Done." << endl;
     }
 
+  for(int i=0; i<3; ++i)
+    {
+      for(int k=0; k<centbins; ++k)
+	{
+	  meandiff[i]->SetBinContent(k+1,(centet[1][i][k]->GetMean()-centet[0][i][k]->GetMean())/(centet[1][i][k]->GetMean()+centet[0][i][k]->GetMean()));
+	  for(int j=0; j<2; ++j)
+	    {
+	      sigmu[j][i]->SetBinContent(k+1,centet[j][i][k]->GetStdDev()/centet[j][i][k]->GetMean());
+	    }
+	}
+    }
+  
   cout << "Saving hists to " << outname << endl;
 
   outf->WriteObject(zhist, zhist->GetName());
+  for(int i=0; i<3; ++i)
+    {
+      outf->WriteObject(meandiff[i], meandiff[i]->GetName());
+    }
   for(int h=0; h<2; ++h)
     {
       for(int i=0; i<3; ++i)
 	{
+	  outf->WriteObject(sigmu[h][i], sigmu[h][i]->GetName());
 	  outf->WriteObject(ET[h][i], ET[h][i]->GetName());
 	  outf->WriteObject(TW[h][i], TW[h][i]->GetName());
 	}
