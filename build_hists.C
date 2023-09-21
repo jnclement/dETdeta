@@ -176,7 +176,7 @@ float get_E_T_hc(float E, int eta, float sub)
 }
 
 
-int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0)
+int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0)
 {
   mbd_init();
   gROOT->SetStyle("Plain");
@@ -303,8 +303,8 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   scale[0] = simscale;
   scale[1] = 1;
   int frac[2];
-  frac[0] = 1;
-  frac[1] = 1;
+  frac[0] = simfrac;
+  frac[1] = datfrac;
   int run = 21615;
   const int par = 4;
   float parval[par];
@@ -324,12 +324,14 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
   precision[1] = 0;
   precision[2] = 0;
   precision[3] = 0;
+
+  int counter[2][3] = {0};
   for(int i=0; i<par; ++i)
     {
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  string outname = "/home/jocl/datatemp/savedhists_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+ ".root";
+  string outname = "/home/jocl/datatemp/savedhists_fracsim_" + simfrac + "_fracdat_" + datfrac + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+ ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   TTree* outt = new TTree("ttree","");
   float dummy;
@@ -371,6 +373,25 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
       for(int i=0; i<tree[h]->GetEntries()/frac[h]; ++i)
 	{
 	  if(i%toprint==0) cout << "Starting event " << i << endl;
+	  if(i<10)
+	    {
+	      for(int k=0; k<3; ++k)
+		{
+		  esum = 0;
+		  for(int l=0; l<sector[h][k]; ++l)
+		    {
+		      if(calen[h][k][l] < mine) continue;
+		      if(k==0)
+			{
+			  if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			  eval = scale[h]*get_E_T_em(calen[h][k][l], calet[h][k][l], subtr);
+			}
+		      else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);
+		      esum += eval;
+		    }
+		  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (no cuts)." << endl;
+		}
+	    }
 	  set_em_combined_towers_0(towercomb);
 	  tree[h]->GetEntry(i);
 	  if(h==0)
@@ -402,6 +423,11 @@ int build_hists(float zcut = 30, float simscale = 1.3, float subtracted = 0, flo
 			  centtow[h][k][j]->Fill(eval);
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
+			}
+		      if(counter[h][k] < 10)
+			{
+			  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (after cuts)." << endl;
+			  counter[h][k]++;
 			}
 		      allsum += esum;
 		      ET[h][k]->Fill(esum);
