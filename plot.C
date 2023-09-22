@@ -54,17 +54,20 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  const int ntext = 5;
+  const int ntext = 4;
   string texts[ntext];
-  texts[0] = "Sim scaled by " + params[0] + ", Area normed to 1";
-  texts[2] = "|z|<" + params[3] +" cm, min tower E = " +params[2] + " MeV";
+  string ztext = ((zcut > 100)?"No z cut,":"|z|<"+params[3]+" cm,");
+  texts[0] =  "Histogram areas normed to 1";
+  texts[2] = ztext +" min tower E = " +params[2] + " MeV";
   texts[1] = params[1] + " MeV subtracted from each tower";
   texts[3] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
-  texts[4] = "Red data, blue sim";
-
+  auto leg = new TLegend(0.15,0.95,0.25,1.);
+  leg->SetTextSize(0.02);
+  if(simhist) leg->AddEntry(simhist,("HIJING scaled by " + params[0]).c_str(),"P");
+  if(simhist) leg->AddEntry(dathist,"Data","P");
   const int ntext2 = 3;
   string texts2[ntext2];
-  texts2[0] = "Sim scaled by " + params[0] + ", |z|<" + params[3] + " cm, min tower E " + params[2] + " MeV";
+  texts2[0] = "|z|<" + params[3] + " cm, min tower E " + params[2] + " MeV";
   texts2[1] = params[1] + " MeV subtracted from each tower";
   texts2[2] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
   ca->cd();
@@ -84,9 +87,16 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   if(simhist) maxval = max(dathist->GetMaximum(),simhist->GetMaximum());
   else maxval = dathist->GetMaximum();
   float minval;
-  if(simhist) minval = min(dathist->GetBinContent(dathist->FindLastBinAbove(0,1)),simhist->GetBinContent(simhist->FindLastBinAbove(0,1)));
-  else minval = dathist->GetBinContent(dathist->FindLastBinAbove(0,1));
-  dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*10.);
+  float mintemp[2];
+  
+  if(simhist)
+    {
+      mintemp[0] = min(dathist->GetBinContent(dathist->FindLastBinAbove(0,1)),simhist->GetBinContent(simhist->FindLastBinAbove(0,1)));
+      mintemp[1] = min(dathist->GetBinContent(dathist->FindFirstBinAbove(0,1)),simhist->GetBinContent(simhist->FindFirstBinAbove(0,1)));
+      minval = min(mintemp[0],mintemp[1]);
+    }
+  else minval = min(dathist->GetBinContent(dathist->FindFirstBinAbove(0,1)),dathist->GetBinContent(dathist->FindLastBinAbove(0,1)));
+  dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
   dathist->GetXaxis()->SetTitle(xlabel.c_str());
   dathist->GetYaxis()->SetTitle(ylabel.c_str());
   dathist->GetYaxis()->SetLabelSize(0.025);
@@ -94,13 +104,14 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   dathist->Draw(options.c_str());
   if(simhist) simhist->Draw(("SAME "+options).c_str());
   sphenixtext();
-  multitext(texts, (simhist?ntext:ntext-1));
+  multitext(texts, ntext);
+  if(simhist) leg->Draw();
   ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
   ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
   if(simhist)
     {
       dathist->Divide(simhist);
-      dathist->GetYaxis()->SetTitle("Data/Sim");
+      dathist->GetYaxis()->SetTitle("Data/HIJING");
       maxval = dathist->GetMaximum();
       minval = dathist->GetMinimum();
       dathist->GetYaxis()->SetRangeUser(0.01,100);
@@ -172,7 +183,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   string options = "";
   plotsimdat(options, c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins);
   xlabel = "MBD charge sum [??]";
-  plotsimdat(options, c1, mbh[1], mbh[0], 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay", plotdir,"all/", centbins);
+  plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay", plotdir,"all/", centbins);
   //plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mbdat", plotdir);
   //plotsimdat(options, c1, mbh[0], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mbsim", plotdir);
   xlabel = "E_{T, event calorimeter sum}";
@@ -183,7 +194,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   for(int j=0; j<3; ++j)
     {
       options = "hist p";
-      ylabel = "(#mu_{data}-#mu_{sim})/(#mu_{data}+#mu_{sim})";
+      ylabel = "(#mu_{data}-#mu_{HIJING})/(#mu_{data}+#mu_{HIJING})";
       xlabel = "Centrality " + cal[j] + " [%]";
       plotsimdat(options, c1, meandiff[j], NULL, 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins);
       ylabel = "#sigma/#mu";
@@ -210,27 +221,7 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root"
-    /*
-    "savedhists_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root"
-    "savedhists_subtr_0_minE_0_scale_1.50_zcut_30_run_21615.root",
-    "savedhists_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root",
-    "savedhists_subtr_0_minE_0_scale_1.30_zcut_10_run_21615.root",
-    "savedhists_subtr_0_minE_0_scale_1.00_zcut_30_run_21615.root",
-    "savedhists_subtr_0_minE_0_scale_1.00_zcut_10_run_21615.root",
-    "savedhists_subtr_0_minE_5_scale_1.30_zcut_30_run_21615.root",
-    "savedhists_subtr_0_minE_5_scale_1.30_zcut_10_run_21615.root",
-    "savedhists_subtr_0_minE_5_scale_1.00_zcut_30_run_21615.root",
-    "savedhists_subtr_0_minE_5_scale_1.00_zcut_10_run_21615.root",
-    "savedhists_subtr_18_minE_0_scale_1.30_zcut_30_run_21615.root",
-    "savedhists_subtr_18_minE_0_scale_1.30_zcut_10_run_21615.root",
-    "savedhists_subtr_18_minE_0_scale_1.00_zcut_30_run_21615.root",
-    "savedhists_subtr_18_minE_0_scale_1.00_zcut_10_run_21615.root",
-    "savedhists_subtr_18_minE_5_scale_1.30_zcut_30_run_21615.root",
-    "savedhists_subtr_18_minE_5_scale_1.30_zcut_10_run_21615.root",
-    "savedhists_subtr_18_minE_5_scale_1.00_zcut_30_run_21615.root",
-    "savedhists_subtr_18_minE_5_scale_1.00_zcut_10_run_21615.root",
-    */
+    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root"
   };
 
   for(int i=0; i<nfiles; ++i)

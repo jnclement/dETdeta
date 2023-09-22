@@ -29,32 +29,46 @@
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
+const float eta_hc[] = {-1.05417,-0.9625,-0.870833,-0.779167,-0.6875,-0.595833,-0.504167,-0.4125,-0.320833,-0.229167,-0.1375,-0.0458333,0.0458333,0.1375,0.229167,0.320833,0.4125,0.504167,0.595833,0.6875,0.779167,0.870833,0.9625,1.05417};
+
+
+  //{-1.104, -1.008, -0.912, -0.816, -0.72, -0.624, -0.528, -0.432, -0.336, -0.24, -0.144, -0.048, 0.048,
+//0.144, 0.24, 0.336, 0.432, 0.528, 0.624, 0.72, 0.816, 0.912, 1.008, 1.104};
+const float em_eta[] = {-1.12318,-1.10191,-1.08023,-1.05875,-1.03686,-1.01518,-0.993083,-0.971197,-0.948893,-0.926804,-0.904295,-0.882004,-0.859292,
+-0.836801,-0.813886,-0.791195,-0.768079,-0.745189,-0.721872,-0.698783,-0.675264,-0.651976,-0.628256,-0.604768,-0.580845,-0.557155,-0.533027,
+-0.509133,-0.484798,-0.460697,-0.43615,-0.411838,-0.387076,-0.362547,-0.337564,-0.312813,-0.287601,-0.26262,-0.237171,-0.211952,-0.186257,
+-0.160788,-0.135722,-0.111796,-0.0874366,-0.0633955,-0.0389474,-0.0148467,0.0148467,0.0389474,0.0633955,0.0874366,0.111796,0.135722,0.160788,
+0.186257,0.211952,0.237171,0.26262,0.287601,0.312813,0.337564,0.362547,0.387076,0.411838,0.43615,0.460697,0.484798,0.509133,0.533027,0.557155,
+0.580845,0.604768,0.628256,0.651976,0.675264,0.698783,0.721872,0.745189,0.768079,0.791195,0.813886,0.836801,0.859292,0.882004,0.904295,0.926804,
+0.948893,0.971197,0.993083,1.01518,1.03686,1.05875,1.08023,1.10191,1.12318};
+
 float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist)
 {
-  float mbsum, ucmbd;
-  int mbdnn, mbdns;
-  float mbdtn, mbdts;
+  float mbsum;//, ucmbd;
+  //int mbdnn, mbdns;
+  //float mbdtn, mbdts;
   float zvtx;
-  mbdnn=0;
-  mbdns=0;
-  mbdtn=0;
-  mbdts=0;
+  //mbdnn=0;
+  //mbdns=0;
+  //mbdtn=0;
+  //mbdts=0;
   mbsum=0;
-  ucmbd=0;
+  //ucmbd=0;
   for(int i=0; i<sectors; ++i)
     {
-      ucmbd += mbe[i];
+      //ucmbd += mbe[i];
       if(mbt[i] == 1)
 	{
 	  if(mbs[i] == 1)
 	    {
-	      mbsum += mbe[i]*gaincorr[mbc[i]+64];
+	      mbsum += mbe[i];//*gaincorr[mbc[i]+64];
 	    }
 	  else if(mbs[i] == 0)
 	    {
-	      mbsum += mbe[i]*gaincorr[mbc[i]];
+	      mbsum += mbe[i];//*gaincorr[mbc[i]];
 	    }
 	}
+      /*
       else
 	{
 	  if(mbs[i] == 1 && mbe[i-8] > 10)
@@ -68,11 +82,13 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
 	      mbdts += mbe[i]*9./5000-tq_t0_offsets[mbc[i]];
 	    }
 	}
+      */
     }
-  if(mbdns == 0 || mbdnn == 0) return -1;
-  mbdts/=mbdns;
-  mbdtn/=mbdnn;
+  //if(mbdns == 0 || mbdnn == 0) return -1;
+  //mbdts/=mbdns;
+  //mbdtn/=mbdnn;
   zvtx = zval;
+  if(abs(zval) == 0) return -1;
   //zvtx = (mbdtn-mbdts)*15;
   if(mbsum <=0)
     {
@@ -107,7 +123,6 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 {
   int n=1;
   int nsum=0;
-  cout << hist->GetEntries() << endl;
   while(n<centbins)
     {
       //cout << n << endl;
@@ -137,7 +152,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 
 int check_acceptance(int eta, int phi)
 {
-  if (eta < 8) return 1;
+  if (eta < 9) return 1;
   if (eta >= 9 && eta <= 47 && phi >= 32 && phi <= 39) return 1; 
   if (eta >= 9 && eta <= 15 && phi >= 40 && phi <= 47) return 1; 
   if (eta >= 32 && eta <= 39 && phi >= 0 && phi <= 7) return 1; 
@@ -167,12 +182,12 @@ int check_acceptance(int eta, int phi)
 
 float get_E_T_em(float E, int eta, float sub)
 {
-  return (E-sub)/cosh(-(eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
+  return (E-sub)/cosh(em_eta[eta]);//cosh((eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
 }
 
 float get_E_T_hc(float E, int eta, float sub)
 {
-  return (E-sub)/cosh(-(eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
+  return (E-sub)/cosh(eta_hc[eta]);//cosh((eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
 }
 
 
@@ -183,6 +198,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   const int centbins = 9;
+  int mbd_bins[centbins+1] = {1,3084,7561,15085,26257,42335,66403,101303,150063,250000};
   float mbenrgy[25000], calen[2][3][25000];
   int calet[2][3][25000], calph[2][3][25000];
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
@@ -191,14 +207,18 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int sectormb;
   int npart = 0;
   float z_v[2];
-  TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
-  TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
-  TFile* file = TFile::Open("/home/jocl/datatemp/merged_dEdeta_71.root");
+  //TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
+  //TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
+  TFile* file = TFile::Open("/home/jocl/datatemp/merged_dEdeta_71_new.root");
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
   TFile* simf = TFile::Open("/home/jocl/datatemp/merged_dEdeta_250.root");
   tree[0] = simf->Get<TTree>("ttree");  
   float cents[2][centbins+1] = {0};
+  for(int i=0; i<centbins; ++i)
+    {
+      cents[1][i] = mbd_bins[i];
+    }
   TH1D* centtow[2][3][centbins];
   TH1D* centet[2][3][centbins];
   TH1D* meandiff[3];
@@ -231,13 +251,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       centtow[0][1][i] = new TH1D(("centtow01_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range*(10.+i)/20);
       centtow[0][2][i] = new TH1D(("centtow02_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
 
-      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",bins_et,0,et_em_range[i]);
-      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",bins_et,0,et_ih_range[i]);
-      centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",bins_et,0,et_oh_range[i]);
+      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",et_em_range[i],0,et_em_range[i]);
+      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",et_ih_range[i],0,et_ih_range[i]);
+      centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",et_oh_range[i],0,et_oh_range[i]);
 
-      centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",bins_et,0,et_em_range[i]);
-      centet[0][1][i] = new TH1D(("centet01_" + to_string(i)).c_str(),"",bins_et,0,et_ih_range[i]);
-      centet[0][2][i] = new TH1D(("centet02_" + to_string(i)).c_str(),"",bins_et,0,et_oh_range[i]);
+      centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",et_em_range[i],0,et_em_range[i]);
+      centet[0][1][i] = new TH1D(("centet01_" + to_string(i)).c_str(),"",et_ih_range[i],0,et_ih_range[i]);
+      centet[0][2][i] = new TH1D(("centet02_" + to_string(i)).c_str(),"",et_oh_range[i],0,et_oh_range[i]);
     }
 
   TH1D* ET[2][3];
@@ -247,7 +267,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* mbh[2];
   
   mbh[0] = new TH1D("smbh","",500,0,500);
-  mbh[1] = new TH1D("dmbh","",3000,0,3000);
+  mbh[1] = new TH1D("dmbh","",1000,0,300000);
   ET[1][0] = new TH1D("et10","",bins_et,0,et_em_range[centbins-1]);
   ET[0][0]  = new TH1D("et00","",bins_et,0,et_em_range[centbins-1]);
   TW[0][0] = new TH1D("tw00","",bins_tw,0,tw_em_range);
@@ -298,6 +318,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
 
   TH1D* zhist = new TH1D("zhist","",200,-100,100);
+  TH1D* f10h[2][3];
+  for(int i=0; i<2; ++i)
+    {
+      f10h[i][0] = new TH1D(("f10h"+to_string(i)+"0").c_str(),"",400,0,400);
+      f10h[i][1] = new TH1D(("f10h"+to_string(i)+"1").c_str(),"",50,0,50);
+      f10h[i][2] = new TH1D(("f10h"+to_string(i)+"2").c_str(),"",120,0,120);
+    }
   float subtr = subtracted;//0.018;
   float scale[2];
   scale[0] = simscale;
@@ -331,7 +358,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  string outname = "/home/jocl/datatemp/savedhists_fracsim_" + simfrac + "_fracdat_" + datfrac + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+ ".root";
+  string outname = "/home/jocl/datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+ ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   TTree* outt = new TTree("ttree","");
   float dummy;
@@ -339,40 +366,46 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float allsum;
   float esum;
   float mbsum;
-  int toprint = 10000/frac[0];
+  int toprint[2] = {10000/frac[0],10000/frac[1]};
   cout << "Events for sim:  " << tree[0]->GetEntries()/frac[0] << endl;
   cout << "Events for data: " << tree[1]->GetEntries()/frac[1] << endl;
   cout << "Beginning processing." << endl;
   cout << "Filling MBD sim hist." << endl;
   for(int i=0; i<tree[0]->GetEntries()/frac[0]; ++i)
     {
-      if(i%toprint == 0) cout << "Doing event " << i << endl;
+      if(i%toprint[0] == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
-      if(z_v[0] == 0) continue;
+      if(abs(z_v[0]) == 0) continue;
       if(abs(z_v[0]) > zcut) continue;
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
     }
+  cout << "Sim MBD histogram entries: " << mbh[0]->GetEntries() << endl;
   cout << "Done filling sim MBD hist." << endl;
   cout << "Filling MBD data hist." << endl;
   for(int i=0; i<tree[1]->GetEntries()/frac[1]; ++i)
     {
-      if(i%toprint == 0) cout << "Doing event " << i << endl;
+      if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
       dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1], zhist);
     }
+  cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
   cout << "Done filling all MBD hists." << endl;
   cout << "Setting centrality bins" << endl;
   dummy = set_cent_cuts(mbh[0], cents[0], centbins);
-  dummy = set_cent_cuts(mbh[1], cents[1], centbins);
+  cout << "Sim minbias hist entries: " << mbh[0]->GetEntries() << endl;
+  //dummy = set_cent_cuts(mbh[1], cents[1], centbins);
+  cout << "Data minbias hist entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done setting centrality bins." << endl;
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
       for(int i=0; i<tree[h]->GetEntries()/frac[h]; ++i)
 	{
-	  if(i%toprint==0) cout << "Starting event " << i << endl;
+	  if(i%toprint[h]==0) cout << "Starting event " << i << endl;
+	  set_em_combined_towers_0(towercomb);
+	  tree[h]->GetEntry(i);
 	  if(i<10)
 	    {
 	      for(int k=0; k<3; ++k)
@@ -392,11 +425,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (no cuts)." << endl;
 		}
 	    }
-	  set_em_combined_towers_0(towercomb);
-	  tree[h]->GetEntry(i);
 	  if(h==0)
 	    {
-	      if(z_v[0] == 0) continue;
+	      if(abs(z_v[0]) == 0) continue;
 	      if(abs(z_v[0]) > zcut) continue;
 	      mbsum = npart;
 	    }
@@ -427,6 +458,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      if(counter[h][k] < 10)
 			{
 			  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (after cuts)." << endl;
+			  f10h[h][k]->Fill(esum);
 			  counter[h][k]++;
 			}
 		      allsum += esum;
@@ -512,6 +544,17 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outf->WriteObject(outt,outt->GetName());
   cout << "Done writing parameters to file" << endl;
   cout << "All done!" << endl;
+
+  TCanvas* c1 = new TCanvas("","");
+  c1->cd();
+  for(int i=0; i<2; ++i)
+    {
+      for(int j=0; j<3; ++j)
+	{
+	  f10h[i][j]->Draw();
+	  c1->SaveAs(("f10h"+to_string(i)+to_string(j)+".pdf").c_str());
+	}
+    }
   
   return 0;
 }
