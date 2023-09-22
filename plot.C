@@ -61,7 +61,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   texts[2] = ztext +" min tower E = " +params[2] + " MeV";
   texts[1] = params[1] + " MeV subtracted from each tower";
   texts[3] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
-  auto leg = new TLegend(0.15,0.95,0.25,1.);
+  auto leg = new TLegend(0.15,0.96,0.25,0.995);
   leg->SetTextSize(0.02);
   if(simhist) leg->AddEntry(simhist,("HIJING scaled by " + params[0]).c_str(),"P");
   if(simhist) leg->AddEntry(dathist,"Data","P");
