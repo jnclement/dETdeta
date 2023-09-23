@@ -512,7 +512,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  outf->WriteObject(sigmu[h][i], sigmu[h][i]->GetName());
 	  outf->WriteObject(ET[h][i], ET[h][i]->GetName());
 	  outf->WriteObject(TW[h][i], TW[h][i]->GetName());
-	  outf->WriteObject(meancent[h][i]->GetName());
+	  outf->WriteObject(meancent[h][i],meancent[h][i]->GetName());
 	}
     }
   for(int h=0; h<2; ++h)
