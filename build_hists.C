@@ -223,11 +223,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* centet[2][3][centbins];
   TH1D* meandiff[3];
   TH1D* sigmu[2][3];
+  TH1D* meancent[2][3];
   for(int j=0; j<3; ++j)
     {
       meandiff[j] = new TH1D(("md"+to_string(j)).c_str(),"",9,0,90);
       for(int i=0; i<2; ++i)
 	{
+	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",9,0,90);
 	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",9,0,90);
 	}
     }
@@ -491,6 +493,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  for(int j=0; j<2; ++j)
 	    {
 	      sigmu[j][i]->SetBinContent(k+1,centet[j][i][k]->GetStdDev()/centet[j][i][k]->GetMean());
+	      meancent[j][i]->SetBinContent(k+1,centet[j][i][k]->GetMean());
 	    }
 	}
     }
@@ -509,6 +512,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  outf->WriteObject(sigmu[h][i], sigmu[h][i]->GetName());
 	  outf->WriteObject(ET[h][i], ET[h][i]->GetName());
 	  outf->WriteObject(TW[h][i], TW[h][i]->GetName());
+	  outf->WriteObject(meancent[h][i]->GetName());
 	}
     }
   for(int h=0; h<2; ++h)

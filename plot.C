@@ -221,7 +221,7 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root"
+    "savedhists_fracsim_100_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root"
   };
 
   for(int i=0; i<nfiles; ++i)
