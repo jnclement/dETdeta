@@ -236,7 +236,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      dETcent[i][j][k] = new TH1D(("dET"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
+	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
 	    }
 	}
     }
