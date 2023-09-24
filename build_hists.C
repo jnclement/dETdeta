@@ -198,14 +198,18 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   const int centbins = 9;
+  const int hcalbins = 24;
+  const int ecalbins = 96;
   int mbd_bins[centbins+1] = {1,3084,7561,15085,26257,42335,66403,101303,150063,300000};
   float mbenrgy[25000], calen[2][3][25000];
   int calet[2][3][25000], calph[2][3][25000];
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
-  float towercomb[64][24];
+  float towercomb[64][hcalbins];
   int sector[2][3];
   int sectormb;
   int npart = 0;
+  int neta[2][3][hcalbins] = {0};
+  int netacent[2][3][centbins][hcalbins] = {0};
   float z_v[2];
   //TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
   //TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
@@ -217,6 +221,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float cents[2][centbins+1] = {0};
   TH1D* centtow[2][3][centbins];
   TH1D* centet[2][3][centbins];
+  TH1D* dET[2][3];
+  TH1D* dETcent[2][3][centbins];
   TH1D* meandiff[3];
   TH1D* sigmu[2][3];
   TH1D* meancent[2][3];
@@ -227,6 +233,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",9,0,90);
 	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",9,0,90);
+	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
+	  for(int k=0; k<centbins; ++k)
+	    {
+	      dETcent[i][j][k] = new TH1D(("dET"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
+	    }
 	}
     }
   float et_em_range[centbins] = {100,150,275,350,400,600,800,1200,1750};
@@ -453,6 +464,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  centtow[h][k][j]->Fill(eval);
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
+			  dET[h][k]->Fill(calet[h][k][l],eval);
+			  neta[h][k][calet[h][k][l]]++;
+			  dETcent[h][k][j]->Fill(calet[h][k][l],eval);
+			  netacent[h][k][j][calet[h][k][l]]++;
 			}
 		      if(counter[h][k] < 10)
 			{
@@ -467,7 +482,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  sumev[h]->Fill(allsum);
 		  for(int k=0; k<64; ++k)
 		    {
-		      for(int l=0; l<24; ++l)
+		      for(int l=0; l<hcalbins; ++l)
 			{
 			  if(towercomb[k][l] < mine) continue;
 			  sumtw[h]->Fill(towercomb[k][l]);
@@ -493,7 +508,20 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
-  
+  for(int h=0; h<2; ++h)
+    {
+      for(int i=0; i<3; ++i)
+	{
+	  for(int j=0; j<hcalbins; ++j)
+	    {
+	      dET[h][i]->SetBinContent(j,dET[h][i]->GetBinContent(j)/neta[h][i][j]);
+	      for(int k=0; k<centbins; ++k)
+		{
+		  dETcent[h][i][k]->SetBinContent(j,dETcent[h][i][k]->GetBinContent(j)/netacent[h][i][k][j]);
+		}
+	    }
+	}
+    }
   cout << "Saving hists to " << outname << endl;
 
   outf->WriteObject(zhist, zhist->GetName());
@@ -505,6 +533,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       for(int i=0; i<3; ++i)
 	{
+	  outf->WriteObject(dET[h][i], dET[h][i]->GetName());
 	  outf->WriteObject(sigmu[h][i], sigmu[h][i]->GetName());
 	  outf->WriteObject(ET[h][i], ET[h][i]->GetName());
 	  outf->WriteObject(TW[h][i], TW[h][i]->GetName());
@@ -519,6 +548,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      outf->WriteObject(centtow[h][i][j], centtow[h][i][j]->GetName());
 	      outf->WriteObject(centet[h][i][j], centet[h][i][j]->GetName());
+	      outf->WriteObject(dETcent[h][i][j], dETcent[h][i][j]->GetName());
 	    }
 	}
     }
