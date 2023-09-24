@@ -464,10 +464,20 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  centtow[h][k][j]->Fill(eval);
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
-			  dET[h][k]->Fill(calet[h][k][l],eval);
-			  neta[h][k][calet[h][k][l]]++;
-			  dETcent[h][k][j]->Fill(calet[h][k][l],eval);
-			  netacent[h][k][j][calet[h][k][l]]++;
+			  if(k==0)
+			    {
+			      dETcent[h][k][j]->Fill(calet[h][k][l]/4,eval);
+			      netacent[h][k][j][calet[h][k][l]/4]++;
+			      dET[h][k]->Fill(calet[h][k][l]/4,eval);
+			      neta[h][k][calet[h][k][l]/4]++;
+			    }
+			  else
+			    {
+			      dETcent[h][k][j]->Fill(calet[h][k][l],eval);
+			      netacent[h][k][j][calet[h][k][l]]++;
+			      dET[h][k]->Fill(calet[h][k][l],eval);
+			      neta[h][k][calet[h][k][l]]++;
+			    }
 			}
 		      if(counter[h][k] < 10)
 			{
@@ -514,10 +524,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  for(int j=0; j<hcalbins; ++j)
 	    {
-	      dET[h][i]->SetBinContent(j,dET[h][i]->GetBinContent(j)/neta[h][i][j]);
+	      dET[h][i]->SetBinContent(j+1,dET[h][i]->GetBinContent(j+1)/neta[h][i][j]);
 	      for(int k=0; k<centbins; ++k)
 		{
-		  dETcent[h][i][k]->SetBinContent(j,dETcent[h][i][k]->GetBinContent(j)/netacent[h][i][k][j]);
+		  dETcent[h][i][k]->SetBinContent(j+1,dETcent[h][i][k]->GetBinContent(j+1)/netacent[h][i][k][j]);
 		}
 	    }
 	}

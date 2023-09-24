@@ -211,7 +211,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       plotsimdat(options, c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_tower", plotdir, "all/", centbins);
       xlabel = "#eta bin";
       ylabel = "Mean E_{T} [GeV]";
-      plotsimdat(options, c1, dET[1][j],dET[2][j],1,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins);
+      plotsimdat(options, c1, dET[1][j],dET[0][j],1,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins);
       for(int k=0; k<centbins; ++k)
 	{
 	  ylabel = "Counts";
@@ -221,7 +221,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins);
 	  xlabel = "#eta bin";
 	  ylabel = "Mean E_{T} [GeV]";
-	  plotsimdat(options, c1, dETcent[1][j][k], dETcent[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel,k,k+1,"detcent","plotdir","cent/",centbins);
+	  plotsimdat(options, c1, dETcent[1][j][k], dETcent[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel,k,k+1,"detcent",plotdir,"cent/",centbins);
 	}
     }
   
@@ -232,7 +232,7 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_fracsim_100_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root"
+    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
   };
 
   for(int i=0; i<nfiles; ++i)
