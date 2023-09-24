@@ -198,7 +198,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   const int centbins = 9;
-  int mbd_bins[centbins+1] = {1,3084,7561,15085,26257,42335,66403,101303,150063,250000};
+  int mbd_bins[centbins+1] = {1,3084,7561,15085,26257,42335,66403,101303,150063,300000};
   float mbenrgy[25000], calen[2][3][25000];
   int calet[2][3][25000], calph[2][3][25000];
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
@@ -215,10 +215,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TFile* simf = TFile::Open("/home/jocl/datatemp/merged_dEdeta_250.root");
   tree[0] = simf->Get<TTree>("ttree");  
   float cents[2][centbins+1] = {0};
-  for(int i=0; i<centbins; ++i)
-    {
-      cents[1][i] = mbd_bins[i];
-    }
   TH1D* centtow[2][3][centbins];
   TH1D* centet[2][3][centbins];
   TH1D* meandiff[3];
@@ -398,6 +394,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   dummy = set_cent_cuts(mbh[0], cents[0], centbins);
   cout << "Sim minbias hist entries: " << mbh[0]->GetEntries() << endl;
   //dummy = set_cent_cuts(mbh[1], cents[1], centbins);
+  for(int i=0; i<centbins+1; ++i) cents[1][i] = mbd_bins[i];
   cout << "Data minbias hist entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done setting centrality bins." << endl;
   for(int h=0; h<2; ++h)
@@ -479,7 +476,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  allsum = 0;
 		  break;
 		  
-		  }
+	      }
 	  }
       }
       cout << "Done." << endl;
@@ -493,7 +490,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  for(int j=0; j<2; ++j)
 	    {
 	      sigmu[j][i]->SetBinContent(k+1,centet[j][i][k]->GetStdDev()/centet[j][i][k]->GetMean());
-	      meancent[j][i]->SetBinContent(k+1,centet[j][i][k]->GetMean());
+	      meancent[j][i]->SetBinContent(centbins-k,centet[j][i][k]->GetMean());
 	    }
 	}
     }
