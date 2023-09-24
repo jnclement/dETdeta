@@ -191,7 +191,7 @@ float get_E_T_hc(float E, int eta, float sub)
 }
 
 
-int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0)
+int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="")
 {
   mbd_init();
   gROOT->SetStyle("Plain");
@@ -209,7 +209,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float z_v[2];
   //TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
   //TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
-  TFile* file = TFile::Open("/home/jocl/datatemp/merged_dEdeta_71_new.root");
+  TFile* file = TFile::Open(("/home/jocl/datatemp/merged_dEdeta_71"+tag+".root").c_str());
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
   TFile* simf = TFile::Open("/home/jocl/datatemp/merged_dEdeta_250.root");
@@ -356,7 +356,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  string outname = "/home/jocl/datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+ ".root";
+  string outname = "/home/jocl/datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+tag+ ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   TTree* outt = new TTree("ttree","");
   float dummy;
