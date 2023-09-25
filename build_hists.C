@@ -562,7 +562,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  if(i==0 && j<2)
 		    {
 		      dETcent[h][i][k]->SetBinContent(j+1,0);
-		      dETcent[h][i][k]->SetBinContent(j+1,0);
+		      dETcent[h][i][k]->SetBinError(j+1,0);
 		    }
 		}
 	    }
