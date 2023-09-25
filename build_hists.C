@@ -205,8 +205,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int calet[2][3][25000], calph[2][3][25000];
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
   float towercomb[64][hcalbins];
-  bool etavent[hcalbins] = {false};
-  bool eventeta = false;
+  bool etavent[centbins][hcalbins] = {false};
+  bool eventeta[hcalbins] = {false};
   int sector[2][3];
   int sectormb;
   int npart = 0;
@@ -472,13 +472,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			      if(!etavent[calet[h][k][l]/4])
 				{
 				  netacent[h][k][j][calet[h][k][l]/4]++;
-				  etavent[calet[h][k][l]/4] = true;
+				  etavent[j][calet[h][k][l]/4] = true;
 				}
 			      dET[h][k]->Fill(calet[h][k][l]/4,eval);
 			      if(!eventeta)
 				{
 				  neta[h][k][calet[h][k][l]/4]++;
-				  eventeta = true;
+				  eventeta[calet[h][k][l]] = true;
 				}
 			    }
 			  else
@@ -487,21 +487,21 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			      if(!etavent[calet[h][k][l]])
 				{
 				  netacent[h][k][j][calet[h][k][l]]++;
-				  etavent[calet[h][k][l]] = true;
+				  etavent[j][calet[h][k][l]] = true;
 				}
 			      dET[h][k]->Fill(calet[h][k][l],eval);
 			      if(!eventeta)
 				{
 				  neta[h][k][calet[h][k][l]]++;
-				  eventeta = true;
+				  eventeta[calet[h][k][l]] = true;
 				}
 			    }
 			}
 		      for(int l=0; l<hcalbins; ++l)
 			{
-			  etavent[l] = false;
+			  etavent[j][l] = false;
+			  eventeta[l] = false;
 			}
-		      eventeta = false;
 		      if(counter[h][k] < 10)
 			{
 			  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (after cuts)." << endl;
