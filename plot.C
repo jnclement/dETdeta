@@ -28,10 +28,88 @@
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
-void multiplot(string options, TCanvas* ca, TH1* hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, percent1, string name, string dir, string subdir, int centbins)
+void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int datorsim)
 {
+  string typ = "";
+  if(datorsim) typ = "Data";
+  else typ = "HIJING";
+  int kcodes[9] = {0,-4,-7,-9,-10,-8,-5,-1,4};
+  int centrange = 90/centbins;
+  const int par = 4;
+  float parval[par];
+  float mult[par];
+  mult[0] = 1;
+  mult[1] = 1000;
+  mult[2] = 1000;
+  mult[3] = 1;
+  parval[0] = sc;
+  parval[1] = sub;
+  parval[2] = mine;
+  parval[3] = zcut;
+  string params[par];
+  stringstream streams[par];
+  int precision[par];
+  precision[0] = 2;
+  precision[1] = 0;
+  precision[2] = 0;
+  precision[3] = 0;
+  for(int i=0; i<par; ++i)
+    {
+      streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
+      params[i] = streams[i].str();
+    }
+  const int ntext = 3;
+  string texts[ntext];
+  string ztext = ((zcut > 100)?"No z cut,":"|z|<"+params[3]+" cm,");
+  texts[0] = params[1] + " MeV subtracted from each tower";
+  texts[2] = ztext +" min tower E = " +params[2] + " MeV";
+  texts[1] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
+  auto leg = new TLegend(0.,0.,0.15,0.13);
+  leg->SetTextSize(0.015);
+  for(int i=0; i<centbins; ++i)
+    {
+      hists[i]->SetMarkerColor(kRed+kcodes[i]);
+      leg->AddEntry(hists[i],(typ+" " + to_string((centbins-i-1)*10)+"-"+to_string((centbins-i)*10) + "% centrality").c_str(),"P");
+    }
+  const int ntext2 = 3;
+  string texts2[ntext2];
+  texts2[0] = "|z|<" + params[3] + " cm, min tower E " + params[2] + " MeV";
+  texts2[1] = params[1] + " MeV subtracted from each tower";
+  texts2[2] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
+  ca->cd();
+  if(logy) gPad->SetLogy();
+  else gPad->SetLogy(0);
+  gPad->SetTicks(1);
+  float maxval = -999999;
+  for(int i=0; i<centbins; ++i)
+    {
+      maxval = max(hists[i]->GetMaximum(),maxval);
+    }
+  float minval = 999999;
   
+  for(int i=0; i<centbins; ++i)
+    {
+      for(int j=0; j<hists[i]->GetNbinsX(); ++j)
+	{
+	  minval = min(minval, hists[i]->GetBinContent(j+1));
+	}
+    }
+  if(minval < 0 && logy) minval = 1E-10;
+  if(logy) hists[0]->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
+  else hists[0]->GetYaxis()->SetRangeUser(minval-minval/10.,maxval+maxval/10.);
+  hists[0]->GetXaxis()->SetTitle(xlabel.c_str());
+  hists[0]->GetYaxis()->SetTitle(ylabel.c_str());
+  hists[0]->GetYaxis()->SetLabelSize(0.025);
+  hists[0]->GetXaxis()->SetLabelSize(0.025);
+  hists[0]->Draw(options.c_str());
+  for(int i=0; i<centbins; ++i) hists[i]->Draw(("SAME "+options).c_str());
+  sphenixtext();
+  multitext(texts, ntext, 0.2);
+  leg->Draw();
+  ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
+  ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
 }
+
 void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins)
 {
   int centrange = 90/centbins;
@@ -92,15 +170,24 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   else maxval = dathist->GetMaximum();
   float minval;
   float mintemp[2];
-  
-  if(simhist)
+
+  if(logy)
     {
-      mintemp[0] = min(dathist->GetBinContent(dathist->FindLastBinAbove(0,1)),simhist->GetBinContent(simhist->FindLastBinAbove(0,1)));
-      mintemp[1] = min(dathist->GetBinContent(dathist->FindFirstBinAbove(0,1)),simhist->GetBinContent(simhist->FindFirstBinAbove(0,1)));
-      minval = min(mintemp[0],mintemp[1]);
+      if(simhist)
+	{
+	  mintemp[0] = min(dathist->GetBinContent(dathist->FindLastBinAbove(0,1)),simhist->GetBinContent(simhist->FindLastBinAbove(0,1)));
+	  mintemp[1] = min(dathist->GetBinContent(dathist->FindFirstBinAbove(0,1)),simhist->GetBinContent(simhist->FindFirstBinAbove(0,1)));
+	  minval = min(mintemp[0],mintemp[1]);
+	}
+      else minval = min(dathist->GetBinContent(dathist->FindFirstBinAbove(0,1)),dathist->GetBinContent(dathist->FindLastBinAbove(0,1)));
     }
-  else minval = min(dathist->GetBinContent(dathist->FindFirstBinAbove(0,1)),dathist->GetBinContent(dathist->FindLastBinAbove(0,1)));
-  dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
+  else
+    {
+      if(simhist) minval = min(dathist->GetMinimum(),simhist->GetMaximum());
+      else minval = dathist->GetMinimum();
+    }
+  if(logy) dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
+  else dathist->GetYaxis()->SetRangeUser(minval-minval/10.,maxval+maxval/10.);
   dathist->GetXaxis()->SetTitle(xlabel.c_str());
   dathist->GetYaxis()->SetTitle(ylabel.c_str());
   dathist->GetYaxis()->SetLabelSize(0.025);
@@ -204,9 +291,9 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       options = "hist p";
       ylabel = "(#mu_{data}-#mu_{HIJING})/(#mu_{data}+#mu_{HIJING})";
       xlabel = "Centrality " + cal[j] + " [%]";
-      plotsimdat(options, c1, meandiff[j], NULL, 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins);
+      plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins);
       ylabel = "#sigma/#mu";
-      plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins);
+      plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins);
       ylabel = "Counts";
       options = "";
       xlabel = "E_{T," + cal[j] +" event} [GeV]";
@@ -214,9 +301,16 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       xlabel = "E_{T," + cal[j] +" tower} [GeV]";
       plotsimdat(options, c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_tower", plotdir, "all/", centbins);
       xlabel = "#eta bin " + cal[j];
-      ylabel = "Mean E_{T} [GeV]";
-      options = "hist p";
-      plotsimdat(options, c1, dET[1][j],dET[0][j],1,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins);
+      ylabel = "dE_{T}/d#eta [GeV]";
+      options = "p";
+      plotsimdat(options, c1, dET[1][j],dET[0][j],0,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins);
+
+      xlabel = "#eta bin " +cal[j];
+      ylabel = "dE_{T}/d#eta [GeV]";
+      options = "";
+      
+      multiplot(options, c1, dETcent[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_sim", plotdir, "all/", centbins, 0);
+      multiplot(options, c1, dETcent[1][j], 0, cal[j], scale[1], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_data", plotdir, "all/", centbins, 1);
       for(int k=0; k<centbins; ++k)
 	{
 	  options = "";
