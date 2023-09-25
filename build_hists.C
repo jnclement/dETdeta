@@ -467,7 +467,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      dETcent[h][k][j]->Fill(1+calet[h][k][l]/4,eval);
-			      if(calet[h][k][l] < 8) cout << calet[h][k][l]/4 << endl;
+			      //if(calet[h][k][l] < 8) cout << calet[h][k][l]/4 << endl;
 			      netacent[h][k][j][calet[h][k][l]/4]++;
 			      dET[h][k]->Fill(1+calet[h][k][l]/4,eval);
 			      neta[h][k][calet[h][k][l]/4]++;
@@ -528,8 +528,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      dET[h][i]->SetBinContent(j+1,dET[h][i]->GetBinContent(j+1)/neta[h][i][j]);
 	      for(int k=0; k<centbins; ++k)
 		{
-		  cout << h << " " << i << " " << j << " " << k << " " << netacent[h][i][k][j] << endl;
+		  //cout << h << " " << i << " " << j << " " << k << " " << netacent[h][i][k][j] << endl;
 		  dETcent[h][i][k]->SetBinContent(j+1,dETcent[h][i][k]->GetBinContent(j+1)/netacent[h][i][k][j]);
+		  if(k==0 && j<2) dETcent[h][i][k]->SetBinContent(j+1,0);
 		}
 	    }
 	}
