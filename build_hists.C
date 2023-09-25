@@ -527,7 +527,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      dET[h][i]->SetBinContent(j+1,dET[h][i]->GetBinContent(j+1)/neta[h][i][j]);
 	      for(int k=0; k<centbins; ++k)
 		{
-		  cout << h << " " << i << " " << j << " " << k << " " << netacent[h][i][k][j] 
+		  cout << h << " " << i << " " << j << " " << k << " " << netacent[h][i][k][j] << endl;
 		  dETcent[h][i][k]->SetBinContent(j+1,dETcent[h][i][k]->GetBinContent(j+1)/netacent[h][i][k][j]);
 		}
 	    }
