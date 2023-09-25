@@ -467,6 +467,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      dETcent[h][k][j]->Fill(1+calet[h][k][l]/4,eval);
+			      if(calet < 8) cout << calet[h][k][l]/4 << endl;
 			      netacent[h][k][j][calet[h][k][l]/4]++;
 			      dET[h][k]->Fill(1+calet[h][k][l]/4,eval);
 			      neta[h][k][calet[h][k][l]/4]++;
