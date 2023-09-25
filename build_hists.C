@@ -469,13 +469,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      dETcent[h][k][j]->Fill(calet[h][k][l]/4,eval);
-			      if(!etavent[calet[h][k][l]/4])
+			      if(!etavent[j][calet[h][k][l]/4])
 				{
 				  netacent[h][k][j][calet[h][k][l]/4]++;
 				  etavent[j][calet[h][k][l]/4] = true;
 				}
 			      dET[h][k]->Fill(calet[h][k][l]/4,eval);
-			      if(!eventeta)
+			      if(!eventeta[calet[h][k][l]])
 				{
 				  neta[h][k][calet[h][k][l]/4]++;
 				  eventeta[calet[h][k][l]] = true;
@@ -484,13 +484,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  else
 			    {
 			      dETcent[h][k][j]->Fill(calet[h][k][l],eval);
-			      if(!etavent[calet[h][k][l]])
+			      if(!etavent[j][calet[h][k][l]])
 				{
 				  netacent[h][k][j][calet[h][k][l]]++;
 				  etavent[j][calet[h][k][l]] = true;
 				}
 			      dET[h][k]->Fill(calet[h][k][l],eval);
-			      if(!eventeta)
+			      if(!eventeta[calet[h][k][l]])
 				{
 				  neta[h][k][calet[h][k][l]]++;
 				  eventeta[calet[h][k][l]] = true;
