@@ -468,13 +468,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  if(k==0)
 			    {
-			      dETcent[h][k][j]->Fill(1+calet[h][k][l]/4,eval);
+			      dETcent[h][k][j]->Fill(calet[h][k][l]/4,eval);
 			      if(!etavent[calet[h][k][l]/4])
 				{
 				  netacent[h][k][j][calet[h][k][l]/4]++;
 				  etavent[calet[h][k][l]/4] = true;
 				}
-			      dET[h][k]->Fill(1+calet[h][k][l]/4,eval);
+			      dET[h][k]->Fill(calet[h][k][l]/4,eval);
 			      if(!eventeta)
 				{
 				  neta[h][k][calet[h][k][l]/4]++;
@@ -483,13 +483,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			    }
 			  else
 			    {
-			      dETcent[h][k][j]->Fill(1+calet[h][k][l],eval);
+			      dETcent[h][k][j]->Fill(calet[h][k][l],eval);
 			      if(!etavent[calet[h][k][l]])
 				{
 				  netacent[h][k][j][calet[h][k][l]]++;
 				  etavent[calet[h][k][l]] = true;
 				}
-			      dET[h][k]->Fill(1+calet[h][k][l],eval);
+			      dET[h][k]->Fill(calet[h][k][l],eval);
 			      if(!eventeta)
 				{
 				  neta[h][k][calet[h][k][l]]++;
@@ -548,12 +548,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  for(int j=0; j<hcalbins; ++j)
 	    {
 	      dET[h][i]->SetBinContent(j+1,dET[h][i]->GetBinContent(j+1)/neta[h][i][j]);
-	      if(k==0 && j<2) dET[h][i]->SetBinContent(j+1,0);
+	      if(i==0 && j<2) dET[h][i]->SetBinContent(j+1,0);
 	      for(int k=0; k<centbins; ++k)
 		{
 		  //cout << h << " " << i << " " << j << " " << k << " " << netacent[h][i][k][j] << endl;
 		  dETcent[h][i][k]->SetBinContent(j+1,dETcent[h][i][k]->GetBinContent(j+1)/netacent[h][i][k][j]);
-		  if(k==0 && j<2) dETcent[h][i][k]->SetBinContent(j+1,0);
+		  if(i==0 && j<2) dETcent[h][i][k]->SetBinContent(j+1,0);
 		}
 	    }
 	}
