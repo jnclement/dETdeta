@@ -205,6 +205,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int calet[2][3][25000], calph[2][3][25000];
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
   float towercomb[64][hcalbins];
+  bool etavent[hcalbins] = {false};
+  bool eventeta = false;
   int sector[2][3];
   int sectormb;
   int npart = 0;
@@ -467,19 +469,39 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      dETcent[h][k][j]->Fill(1+calet[h][k][l]/4,eval);
-			      //if(calet[h][k][l] < 8) cout << calet[h][k][l]/4 << endl;
-			      netacent[h][k][j][calet[h][k][l]/4]++;
+			      if(!etavent[calet[h][k][l]/4])
+				{
+				  netacent[h][k][j][calet[h][k][l]/4]++;
+				  etavent[calet[h][k][l]/4] = true;
+				}
 			      dET[h][k]->Fill(1+calet[h][k][l]/4,eval);
-			      neta[h][k][calet[h][k][l]/4]++;
+			      if(!eventeta)
+				{
+				  neta[h][k][calet[h][k][l]/4]++;
+				  eventeta = true;
+				}
 			    }
 			  else
 			    {
 			      dETcent[h][k][j]->Fill(1+calet[h][k][l],eval);
-			      netacent[h][k][j][calet[h][k][l]]++;
+			      if(!etavent[calet[h][k][l]])
+				{
+				  netacent[h][k][j][calet[h][k][l]]++;
+				  etavent[calet[h][k][l]] = true;
+				}
 			      dET[h][k]->Fill(1+calet[h][k][l],eval);
-			      neta[h][k][calet[h][k][l]]++;
+			      if(!eventeta)
+				{
+				  neta[h][k][calet[h][k][l]]++;
+				  eventeta = true;
+				}
 			    }
 			}
+		      for(int l=0; l<hcalbins; ++l)
+			{
+			  etavent[l] = false;
+			}
+		      eventeta = false;
 		      if(counter[h][k] < 10)
 			{
 			  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (after cuts)." << endl;
@@ -511,10 +533,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       for(int k=0; k<centbins; ++k)
 	{
-	  meandiff[i]->SetBinContent(k+1,(centet[1][i][k]->GetMean()-centet[0][i][k]->GetMean())/(centet[1][i][k]->GetMean()+centet[0][i][k]->GetMean()));
+	  meandiff[i]->SetBinContent(centbins-k,(centet[1][i][k]->GetMean()-centet[0][i][k]->GetMean())/(centet[1][i][k]->GetMean()+centet[0][i][k]->GetMean()));
 	  for(int j=0; j<2; ++j)
 	    {
-	      sigmu[j][i]->SetBinContent(k+1,centet[j][i][k]->GetStdDev()/centet[j][i][k]->GetMean());
+	      sigmu[j][i]->SetBinContent(centbins-k,centet[j][i][k]->GetStdDev()/centet[j][i][k]->GetMean());
 	      meancent[j][i]->SetBinContent(centbins-k,centet[j][i][k]->GetMean());
 	    }
 	}
