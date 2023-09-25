@@ -475,10 +475,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 				  etavent[j][calet[h][k][l]/4] = true;
 				}
 			      dET[h][k]->Fill(calet[h][k][l]/4,eval);
-			      if(!eventeta[calet[h][k][l]])
+			      if(!eventeta[calet[h][k][l]/4])
 				{
 				  neta[h][k][calet[h][k][l]/4]++;
-				  eventeta[calet[h][k][l]] = true;
+				  eventeta[calet[h][k][l]/4] = true;
 				}
 			    }
 			  else
