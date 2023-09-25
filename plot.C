@@ -28,6 +28,10 @@
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
+void multiplot(string options, TCanvas* ca, TH1* hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, percent1, string name, string dir, string subdir, int centbins)
+{
+  
+}
 void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins)
 {
   int centrange = 90/centbins;
@@ -209,19 +213,23 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       plotsimdat(options, c1, ET[1][j], ET[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_event", plotdir, "all/", centbins);
       xlabel = "E_{T," + cal[j] +" tower} [GeV]";
       plotsimdat(options, c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_tower", plotdir, "all/", centbins);
-      xlabel = "#eta bin";
+      xlabel = "#eta bin " + cal[j];
       ylabel = "Mean E_{T} [GeV]";
+      options = "hist p";
       plotsimdat(options, c1, dET[1][j],dET[0][j],1,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins);
       for(int k=0; k<centbins; ++k)
 	{
+	  options = "";
 	  ylabel = "Counts";
 	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
 	  plotsimdat(options, c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centtow", plotdir, "cent/", centbins);
 	  xlabel = "E_{T," + cal[j] +" event} [GeV]";
 	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins);
+	  options = "hist p";
 	  xlabel = "#eta bin";
 	  ylabel = "Mean E_{T} [GeV]";
 	  plotsimdat(options, c1, dETcent[1][j][k], dETcent[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel,k,k+1,"detcent",plotdir,"cent/",centbins);
+	  options = "";
 	}
     }
   
