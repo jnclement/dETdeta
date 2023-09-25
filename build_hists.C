@@ -466,16 +466,16 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  if(k==0)
 			    {
-			      dETcent[h][k][j]->Fill(calet[h][k][l]/4,eval);
+			      dETcent[h][k][j]->Fill(1+calet[h][k][l]/4,eval);
 			      netacent[h][k][j][calet[h][k][l]/4]++;
-			      dET[h][k]->Fill(calet[h][k][l]/4,eval);
+			      dET[h][k]->Fill(1+calet[h][k][l]/4,eval);
 			      neta[h][k][calet[h][k][l]/4]++;
 			    }
 			  else
 			    {
-			      dETcent[h][k][j]->Fill(calet[h][k][l],eval);
+			      dETcent[h][k][j]->Fill(1+calet[h][k][l],eval);
 			      netacent[h][k][j][calet[h][k][l]]++;
-			      dET[h][k]->Fill(calet[h][k][l],eval);
+			      dET[h][k]->Fill(1+calet[h][k][l],eval);
 			      neta[h][k][calet[h][k][l]]++;
 			    }
 			}
