@@ -548,12 +548,22 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  for(int j=0; j<hcalbins; ++j)
 	    {
 	      dET[h][i]->SetBinContent(j+1,dET[h][i]->GetBinContent(j+1)/neta[h][i][j]);
-	      if(i==0 && j<2) dET[h][i]->SetBinContent(j+1,0);
+	      dET[h][i]->SetBinError(j+1,dET[h][i]->GetBinError(j+1)/neta[h][i][j]);
+	      if(i==0 && j<2)
+		{
+		  dET[h][i]->SetBinContent(j+1,0);
+		  dET[h][i]->SetBinError(j+1,0);
+		}
 	      for(int k=0; k<centbins; ++k)
 		{
 		  //cout << h << " " << i << " " << j << " " << k << " " << netacent[h][i][k][j] << endl;
 		  dETcent[h][i][k]->SetBinContent(j+1,dETcent[h][i][k]->GetBinContent(j+1)/netacent[h][i][k][j]);
-		  if(i==0 && j<2) dETcent[h][i][k]->SetBinContent(j+1,0);
+		  dETcent[h][i][k]->SetBinError(j+1,dETcent[h][i][k]->GetBinError(j+1)/netacent[h][i][k][j]);
+		  if(i==0 && j<2)
+		    {
+		      dETcent[h][i][k]->SetBinContent(j+1,0);
+		      dETcent[h][i][k]->SetBinContent(j+1,0);
+		    }
 		}
 	    }
 	}
