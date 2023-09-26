@@ -23,12 +23,13 @@
 #include <TLine.h>
 #include <TFile.h>
 #include <algorithm>
+#include <TSystem.h>
 #include "dlUtility.h"
 #include "mbd_info.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
-void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int datorsim)
+void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int datorsim, int calnum)
 {
   string typ = "";
   if(datorsim) typ = "Data";
@@ -58,12 +59,14 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  const int ntext = 3;
+  const int ntext = 4;
   string texts[ntext];
   string ztext = ((zcut > 100)?"No z cut,":"|z|<"+params[3]+" cm,");
   texts[0] = params[1] + " MeV subtracted from each tower";
   texts[2] = ztext +" min tower E = " +params[2] + " MeV";
   texts[1] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
+  if(sc > 1.) texts[3] = "HIJING scaled by " + params[0];
+  else texts[3] = "";
   auto leg = new TLegend(0.,0.,0.15,0.13);
   leg->SetTextSize(0.015);
   for(int i=0; i<centbins; ++i)
@@ -95,6 +98,9 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
 	}
     }
   if(minval < 0 && logy) minval = 1E-10;
+  if(calnum == 0) maxval = 60;
+  else if(calnum == 1) maxval = 6;
+  else if(calnum == 2) maxval = 20;
   if(logy) hists[0]->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
   else hists[0]->GetYaxis()->SetRangeUser(min(0,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
   hists[0]->GetXaxis()->SetTitle(xlabel.c_str());
@@ -105,6 +111,7 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
   for(int i=0; i<centbins; ++i) hists[i]->Draw(("SAME "+options).c_str());
   sphenixtext();
   multitext(texts, ntext, 0.2);
+  drawText(typ.c_str(), 0.15, 0.96, 0, kBlack, 0.04);
   leg->Draw();
   ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
   ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
@@ -136,7 +143,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  const int ntext = 4;
+  const int ntext = 5;
   string texts[ntext];
   string ztext = ((zcut > 100)?"No z cut,":"|z|<"+params[3]+" cm,");
   if(norm) texts[0] =  "Histogram areas normed to 1";
@@ -144,9 +151,10 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   texts[2] = ztext +" min tower E = " +params[2] + " MeV";
   texts[1] = params[1] + " MeV subtracted from each tower";
   texts[3] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
+  texts[4] = "HIJING scaled by " + params[0];
   auto leg = new TLegend(0.15,0.96,0.25,0.995);
   leg->SetTextSize(0.02);
-  if(simhist) leg->AddEntry(simhist,("HIJING scaled by " + params[0]).c_str(),"P");
+  if(simhist) leg->AddEntry(simhist,"HIJING","P");
   if(simhist) leg->AddEntry(dathist,"Data","P");
   const int ntext2 = 3;
   string texts2[ntext2];
@@ -196,7 +204,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   dathist->Draw(options.c_str());
   if(simhist) simhist->Draw(("SAME "+options).c_str());
   sphenixtext();
-  multitext(texts, ntext);
+  multitext(texts, ntext, 0.03, 0.125);
   if(simhist) leg->Draw();
   ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
   ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
@@ -216,12 +224,28 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
 }
 
 int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root", string treename = "ttree", string datdir = "/home/jocl/datatemp/", string plotdir = "/home/jocl/datatemp/plots/")
-{
+{   
+  gSystem->RedirectOutput("test.txt");
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   SetsPhenixStyle();
   const int centbins = 9;
+  TH1D* means[2][3];
+  TH1D* sigs[2][3];
+  TH1D* meandiffnoavg[3];
+  for(int i=0; i<3; ++i)
+    {
+      meandiffnoavg[i] = new TH1D(("meandiffnoavg"+to_string(i)).c_str(),"",centbins,0,90);
+    }
+  for(int i=0; i<2; ++i)
+    {
+      for(int j=0; j<3; ++j)
+	{
+	  means[i][j] = new TH1D(("mean"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
+	  sigs[i][j] = new TH1D(("sig"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
+	}
+    }
   TFile* histfile = TFile::Open((datdir+histfilename).c_str());
   TTree* tree = histfile->Get<TTree>(treename.c_str());
   TH1D* centtow[2][3][centbins];
@@ -264,6 +288,29 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	    }
 	}
     }
+
+  for(int i=0; i<2; ++i)
+    {
+      for(int j=0; j<3; ++j)
+	{
+	  for(int k=0; k<centbins; ++k)
+	    {
+	      means[i][j]->SetBinContent(centbins-k,centet[i][j][k]->GetMean());
+	      means[i][j]->SetBinError(centbins-k,0);
+	      sigs[i][j]->SetBinContent(centbins-k,centet[i][j][k]->GetStdDev());
+	      sigs[i][j]->SetBinError(centbins-k,0);
+	    }
+	}
+    }
+  for(int i=0; i<3; ++i)
+    {
+      for(int j=0; j<centbins; ++j)
+	{
+	  meandiffnoavg[i]->SetBinContent(centbins-j,centet[1][i][j]->GetMean()-centet[0][i][j]->GetMean());
+	  meandiffnoavg[i]->SetBinError(centbins-j,0);
+	}
+    }
+				  
   string cal[3] = {"EMCal","IHCal","OHCal"};
   string xlabel;
   tree->SetBranchAddress("sub",&sub);
@@ -289,11 +336,24 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   
   for(int j=0; j<3; ++j)
     {
+      options = "p";
+      xlabel = "MBD Centrality [%]";
+     ylabel = "#mu_{E_{T} event data}^{"+cal[j]+"}-#mu_{E_{T} event HIJING}^{"+cal[j]+"} [GeV]";
+      plotsimdat(options, c1, meandiffnoavg[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiffnoavg", plotdir, "all/", centbins, 0);
+	
+      options = "p";
+      ylabel = "#mu_{E_{T} event}^{"+cal[j]+"} [GeV]";
+      xlabel = "Centrality MBD [%]";
+      plotsimdat(options, c1, means[1][j], means[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandist", plotdir, "all/", centbins, 0);
+      ylabel = "#sigma_{E_{T} event}^{"+cal[j]+"} [GeV]";
+      plotsimdat(options, c1, sigs[1][j], sigs[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigdist", plotdir, "all/", centbins, 0);
+      
       options = "hist p";
-      ylabel = "(#mu_{data}-#mu_{HIJING})/(#mu_{data}+#mu_{HIJING})";
-      xlabel = "Centrality " + cal[j] + " [%]";
+      ylabel = "2(#mu_{data}^{" + cal[j] + "}-#mu_{HIJING}^{" + cal[j] + "})/(#mu_{data}^{" + cal[j] + "}+#mu_{HIJING}^{" + cal[j] + "})";
+      xlabel = "MBD Centrality [%]";
+      meandiff[j]->Scale(2.);
       plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins, 0);
-      ylabel = "#sigma/#mu";
+      ylabel = "#sigma_{EMCal}/#mu_{EMCal}";
       plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins, 0);
       ylabel = "Counts";
       options = "";
@@ -301,19 +361,20 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       plotsimdat(options, c1, ET[1][j], ET[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_event", plotdir, "all/", centbins, 1);
       xlabel = "E_{T," + cal[j] +" tower} [GeV]";
       plotsimdat(options, c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_tower", plotdir, "all/", centbins, 1);
-      xlabel = "#eta bin " + cal[j];
+      if(j==0) xlabel = "floor{(#eta bin " +cal[j]+")/4}";
+      else xlabel = "#eta bin " + cal[j];
       ylabel = "dE_{T}/d#eta [GeV]";
       options = "p";
       plotsimdat(options, c1, dET[1][j],dET[0][j],0,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins, 0);
 
-      xlabel = "#eta bin " +cal[j];
-      ylabel = "dE_{T}/d#eta [GeV]";
-      options = "";
       
-      multiplot(options, c1, dETcent[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_sim", plotdir, "all/", centbins, 0);
-      multiplot(options, c1, dETcent[1][j], 0, cal[j], scale[1], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_data", plotdir, "all/", centbins, 1);
+      multiplot(options, c1, dETcent[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_sim", plotdir, "all/", centbins, 0, j);
+      multiplot(options, c1, dETcent[1][j], 0, cal[j], scale[1], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_data", plotdir, "all/", centbins, 1, j);
       for(int k=0; k<centbins; ++k)
 	{
+	  outputon(gSystem);
+	  cout << centet[1][j][k]->GetMean() << " " << dETcent[1][j][k]->Integral() << " " <<centet[0][j][k]->GetMean() << " " << dETcent[0][j][k]->Integral() << endl;
+	  outputoff(gSystem,"test.txt");
 	  options = "";
 	  ylabel = "Counts";
 	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
