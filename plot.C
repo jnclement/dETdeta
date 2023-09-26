@@ -353,7 +353,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       xlabel = "MBD Centrality [%]";
       meandiff[j]->Scale(2.);
       plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins, 0);
-      ylabel = "#sigma_{EMCal}/#mu_{EMCal}";
+      ylabel = "#sigma_{"+cal[j]+"}/#mu_{"+cal[j]+"}";
       plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins, 0);
       ylabel = "Counts";
       options = "";
