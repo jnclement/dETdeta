@@ -6,6 +6,15 @@
 //etc.
 //#include "tdrstyle.C"   // std::clock()
 
+void outputon(TSystem* sys)
+{
+  sys->RedirectOutput(0,0);
+}
+
+void outputoff(TSystem* sys, string filename)
+{
+  sys->RedirectOutput(filename.c_str());
+}
 
 void setcolorcent(TH1* hist, int kcodes[12], int kColor, int bins, int i)
 {
