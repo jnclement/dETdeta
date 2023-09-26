@@ -110,7 +110,7 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
   ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
 }
 
-void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins)
+void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int norm)
 {
   int centrange = 90/centbins;
   const int par = 4;
@@ -139,7 +139,8 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   const int ntext = 4;
   string texts[ntext];
   string ztext = ((zcut > 100)?"No z cut,":"|z|<"+params[3]+" cm,");
-  texts[0] =  "Histogram areas normed to 1";
+  if(norm) texts[0] =  "Histogram areas normed to 1";
+  else texts[0] = "";
   texts[2] = ztext +" min tower E = " +params[2] + " MeV";
   texts[1] = params[1] + " MeV subtracted from each tower";
   texts[3] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
@@ -156,8 +157,8 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   if(logy) gPad->SetLogy();
   else gPad->SetLogy(0);
   gPad->SetTicks(1);
-  dathist->Scale(1./dathist->Integral());
-  if(simhist) simhist->Scale(1./simhist->Integral());
+  if(norm) dathist->Scale(1./dathist->Integral());
+  if(simhist && norm) simhist->Scale(1./simhist->Integral());
   dathist->SetLineColor(kRed);
   dathist->SetMarkerColor(kRed);
   if(simhist)
@@ -276,34 +277,34 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   xlabel = "MBD Z vertex [cm]";
   string ylabel = "Counts";
   string options = "";
-  plotsimdat(options, c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins);
+  plotsimdat(options, c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins, 1);
   xlabel = "MBD charge sum [??]";
-  plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay", plotdir,"all/", centbins);
+  plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay", plotdir,"all/", centbins, 1);
   //plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mbdat", plotdir);
   //plotsimdat(options, c1, mbh[0], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mbsim", plotdir);
   xlabel = "E_{T, event calorimeter sum}";
-  plotsimdat(options, c1, sumev[1], sumev[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_total", plotdir,"all/", centbins);
+  plotsimdat(options, c1, sumev[1], sumev[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_total", plotdir,"all/", centbins, 1);
   xlabel = "E_{T, stacked calorimeter towers}";
-  plotsimdat(options, c1, sumtw[1], sumtw[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_sumtow", plotdir,"all/", centbins);
+  plotsimdat(options, c1, sumtw[1], sumtw[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_sumtow", plotdir,"all/", centbins, 1);
   
   for(int j=0; j<3; ++j)
     {
       options = "hist p";
       ylabel = "(#mu_{data}-#mu_{HIJING})/(#mu_{data}+#mu_{HIJING})";
       xlabel = "Centrality " + cal[j] + " [%]";
-      plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins);
+      plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins, 0);
       ylabel = "#sigma/#mu";
-      plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins);
+      plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins, 0);
       ylabel = "Counts";
       options = "";
       xlabel = "E_{T," + cal[j] +" event} [GeV]";
-      plotsimdat(options, c1, ET[1][j], ET[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_event", plotdir, "all/", centbins);
+      plotsimdat(options, c1, ET[1][j], ET[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_event", plotdir, "all/", centbins, 1);
       xlabel = "E_{T," + cal[j] +" tower} [GeV]";
-      plotsimdat(options, c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_tower", plotdir, "all/", centbins);
+      plotsimdat(options, c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_tower", plotdir, "all/", centbins, 1);
       xlabel = "#eta bin " + cal[j];
       ylabel = "dE_{T}/d#eta [GeV]";
       options = "p";
-      plotsimdat(options, c1, dET[1][j],dET[0][j],0,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins);
+      plotsimdat(options, c1, dET[1][j],dET[0][j],0,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins, 0);
 
       xlabel = "#eta bin " +cal[j];
       ylabel = "dE_{T}/d#eta [GeV]";
@@ -316,13 +317,13 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  options = "";
 	  ylabel = "Counts";
 	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
-	  plotsimdat(options, c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centtow", plotdir, "cent/", centbins);
+	  plotsimdat(options, c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centtow", plotdir, "cent/", centbins, 1);
 	  xlabel = "E_{T," + cal[j] +" event} [GeV]";
-	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins);
+	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins, 1);
 	  options = "hist p";
 	  xlabel = "#eta bin";
-	  ylabel = "Mean E_{T} [GeV]";
-	  plotsimdat(options, c1, dETcent[1][j][k], dETcent[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel,k,k+1,"detcent",plotdir,"cent/",centbins);
+	  ylabel = "dE_{T}/d#eta [GeV]";
+	  plotsimdat(options, c1, dETcent[1][j][k], dETcent[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel,k,k+1,"detcent",plotdir,"cent/",centbins, 0);
 	  options = "";
 	}
     }
