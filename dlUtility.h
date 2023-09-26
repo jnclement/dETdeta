@@ -19,13 +19,13 @@ void setcolorcent(TH1* hist, int kcodes[12], int kColor, int bins, int i)
     }
 }
 using namespace std;
-int min(int a, int b)
+float min(float a, float b)
 {
   if(a<b)return a;
   return b;
 }
 
-int max(int a, int b)
+float max(float a, float b)
 {
   if(a>b) return a;
   return b;

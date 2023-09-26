@@ -96,7 +96,7 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
     }
   if(minval < 0 && logy) minval = 1E-10;
   if(logy) hists[0]->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
-  else hists[0]->GetYaxis()->SetRangeUser(minval-abs(minval)/10.,maxval+abs(maxval)/10.);
+  else hists[0]->GetYaxis()->SetRangeUser(min(0,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
   hists[0]->GetXaxis()->SetTitle(xlabel.c_str());
   hists[0]->GetYaxis()->SetTitle(ylabel.c_str());
   hists[0]->GetYaxis()->SetLabelSize(0.025);
@@ -188,7 +188,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
       else minval = dathist->GetMinimum();
     }
   if(logy) dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
-  else dathist->GetYaxis()->SetRangeUser(minval-abs(minval)/10.,maxval+abs(maxval)/10.);
+  else dathist->GetYaxis()->SetRangeUser(min(0.,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
   dathist->GetXaxis()->SetTitle(xlabel.c_str());
   dathist->GetYaxis()->SetTitle(ylabel.c_str());
   dathist->GetYaxis()->SetLabelSize(0.025);
