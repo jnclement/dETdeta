@@ -72,7 +72,7 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
   for(int i=0; i<centbins; ++i)
     {
       hists[i]->SetMarkerColor(kRed+kcodes[i]);
-      leg->AddEntry(hists[i],(typ+" " + to_string((centbins-i-1)*10)+"-"+to_string((centbins-i)*10) + "% centrality").c_str(),"P");
+      leg->AddEntry(hists[i],(typ+" " + to_string((centbins-i-1)*centrange)+"-"+to_string((centbins-i)*centrange) + "% centrality").c_str(),"P");
     }
   const int ntext2 = 3;
   string texts2[ntext2];
