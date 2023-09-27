@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <iostream>
 #include "TGraph.h"
+#include "TH2I.h"
 #include <iomanip>
 #include "TTree.h"
 #include "TLegend.h"
@@ -26,8 +27,7 @@
 #include "dlUtility.h"
 #include "mbd_info.h"
 #include "TProfile.h"
-#include "macros/macros/sPHENIXStyle/sPhenixStyle.h"
-#include "macros/macros/sPHENIXStyle/sPhenixStyle.C"
+#include <TSystem.h>
 
 const float eta_hc[] = {-1.05417,-0.9625,-0.870833,-0.779167,-0.6875,-0.595833,-0.504167,-0.4125,-0.320833,-0.229167,-0.1375,-0.0458333,0.0458333,0.1375,0.229167,0.320833,0.4125,0.504167,0.595833,0.6875,0.779167,0.870833,0.9625,1.05417};
 
@@ -143,7 +143,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 	      //exit(1);
 	    }
 	  nsum += hist->GetBinContent(i);
-	  if((n+1)*hist->GetEntries()/centbins < nsum)
+	  if((n+1)*hist->GetEntries()/centbins <= nsum)
 	    {
 	      cent[n] = hist->GetBinLowEdge(i+1);
 	      ++n;
@@ -199,13 +199,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 {
   cout << "Starting..." << endl;
   mbd_init();
+  
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   const int centbins = 18;
   const int hcalbins = 24;
   const int ecalbins = 96;
-  int mbd_bins[centbins+1] = {1,3084,7561,15085,26257,42335,66403,101303,150063,300000};
+  //int mbd_bins[centbins+1] = {0};
   float mbenrgy[25000], calen[2][3][25000];
   int calet[2][3][25000], calph[2][3][25000];
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
@@ -235,7 +236,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* meancent[2][3];
   TH2D* deadmap[2][3][centbins];
   TH1D* zcent[2][centbins];
-  int deadhits[2][3][centbins][96][256];
+  TH2I* deadhits[2][3][centbins];
   int phibins[3] = {256,64,64};
   int etabins[3] = {96,24,24};
   for(int j=0; j<3; ++j)
@@ -250,10 +251,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
+	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",200,-100,100);
 	    }
 	}
     }
+  
   float et_em_range[centbins] = {100,100,150,150,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
   float et_oh_range[centbins] = {35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};
   float et_ih_range[centbins] = {10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};
@@ -307,6 +310,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   sumev[1] = new TH1D("sumev1","",bins_et,0,et_sm_range);
   sumtw[0] = new TH1D("sumtw0","",bins_tw,0,tw_sm_range);
   sumtw[1] = new TH1D("sumtw1","",bins_tw,0,tw_sm_range);
+  
   cout << "Hists initialized" << endl;
   tree[1]->SetBranchAddress("mbenrgy",mbenrgy);
   tree[1]->SetBranchAddress("emcalen",calen[1][0]);
@@ -392,6 +396,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float esum;
   float mbsum;
   int toprint[2] = {10000/frac[0],10000/frac[1]};
+  
   cout << "Events for sim:  " << tree[0]->GetEntries()/frac[0] << endl;
   cout << "Events for data: " << tree[1]->GetEntries()/frac[1] << endl;
   cout << "Beginning processing." << endl;
@@ -432,26 +437,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  if(i%toprint[h]==0) cout << "Starting event " << i << endl;
 	  set_em_combined_towers_0(towercomb);
 	  tree[h]->GetEntry(i);
-	  if(i<10)
-	    {
-	      for(int k=0; k<3; ++k)
-		{
-		  esum = 0;
-		  for(int l=0; l<sector[h][k]; ++l)
-		    {
-		      if(calen[h][k][l] < mine) continue;
-		      if(k==0)
-			{
-			  if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
-			  eval = scale[h]*get_E_T_em(calen[h][k][l], calet[h][k][l], subtr);
-			}
-		      else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);
-		      esum += eval;
-		    }
-		  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (no cuts)." << endl;
-		}
-	    }
-	  
 	  if(h==0)
 	    {
 	      if(abs(z_v[0]) == 0) continue;
@@ -460,7 +445,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1], NULL);
 	  if(mbsum < 0) continue;
-	  for(int j=0; j<centbins+2*(1-h); ++j)
+	  for(int j=0; j<centbins; ++j)
 	  {
 	    if(mbsum < cents[h][j+2*(1-h)])
 	      {
@@ -472,7 +457,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			{
 			  if(calen[h][k][l] < mine) continue;
 			  deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],scale[h]*(k==0?get_E_T_em(calen[h][k][l], calet[h][k][l],subtr):get_E_T_hc(calen[h][k][l],calet[h][k][l],subtr)));
-			  deadhits[h][k][j][calet[h][k][l]][calph[h][k][l]]++;
+			  deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
 			  if(k==0)
 			    {
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
@@ -516,20 +501,16 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 				}
 			    }
 			}
+		      
 		      for(int l=0; l<hcalbins; ++l)
 			{
 			  etavent[j][l] = false;
 			  eventeta[l] = false;
 			}
-		      if(counter[h][k] < 10)
-			{
-			  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (after cuts)." << endl;
-			  f10h[h][k]->Fill(esum);
-			  counter[h][k]++;
-			}
 		      allsum += esum;
 		      ET[h][k]->Fill(esum);
 		      centet[h][k][j]->Fill(esum);
+		      
 		    }
 		  sumev[h]->Fill(allsum);
 		  for(int k=0; k<64; ++k)
@@ -541,13 +522,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			}
 		    }
 		  allsum = 0;
-		  break;	  
+		  break;
+		  
 	      }
 	  }
       }
       cout << "Done." << endl;
     }
-
+  
   for(int i=0; i<3; ++i)
     {
       for(int k=0; k<centbins; ++k)
@@ -560,19 +542,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
+  cout << "Doing a few histogram operations..." << endl;
   for(int h=0; h<2; ++h)
     {
       for(int i=0; i<3; ++i)
 	{
 	  for(int j=0; j<centbins; ++j)
 	    {
-	      for(int k=0; k<etabins[i]; ++k)
-		{
-		  for(int l=0; l<phibins[i]; ++k)
-		    {
-		      deadmap[h][i][j]->SetBinContent(k+1,l+1,deadmap[h][i][j]->GetBinContent(k+1,l+1)/deadhits[h][i][j][k][l]);
-		    }
-		}
+	      deadmap[h][i][j]->Divide(deadhits[h][i][j]);
 	    }
 	  for(int j=0; j<hcalbins; ++j)
 	    {
@@ -598,7 +575,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
   cout << "Saving hists to " << outname << endl;
-
+  
   outf->WriteObject(zhist, zhist->GetName());
   for(int i=0; i<3; ++i)
     {

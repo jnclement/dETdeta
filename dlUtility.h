@@ -1,6 +1,5 @@
 #ifndef UTILITY_Daniel_H
 #define UTILITY_Daniel_H
-
 //TREE,HIST,GRAPH,VECTOR ...
     // std::clock()
 //etc.
