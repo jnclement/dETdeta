@@ -203,7 +203,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 9;
+  const int centbins = 19;
   const int hcalbins = 24;
   const int ecalbins = 96;
   int mbd_bins[centbins+1] = {1,3084,7561,15085,26257,42335,66403,101303,150063,300000};
@@ -234,17 +234,24 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* meandiff[3];
   TH1D* sigmu[2][3];
   TH1D* meancent[2][3];
+  TH2D* deadmap[2][3][centbins];
+  TH1D* zcent[2][centbins];
+  int deadhits[2][3][centbins][96][256];
+  int phibins[3] = {256,64,64};
+  int etabins[3] = {96,24,24};
   for(int j=0; j<3; ++j)
     {
-      meandiff[j] = new TH1D(("md"+to_string(j)).c_str(),"",9,0,90);
+      meandiff[j] = new TH1D(("md"+to_string(j)).c_str(),"",centbins,0,90);
       for(int i=0; i<2; ++i)
 	{
-	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",9,0,90);
-	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",9,0,90);
+	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
+	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
 	  for(int k=0; k<centbins; ++k)
 	    {
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
+	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",24,etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
+	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",200,-100,100);
 	    }
 	}
     }
@@ -443,6 +450,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  cout << "Tree " << h << " event " << i << " cal " << k << " energy: " << esum << " (no cuts)." << endl;
 		}
 	    }
+	  
 	  if(h==0)
 	    {
 	      if(abs(z_v[0]) == 0) continue;
@@ -455,12 +463,15 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  {
 	    if(mbsum < cents[h][j+1+(1-h)])
 	      {
+		zcent[h][j]-Fill(z_v[h]);
 		for(int k=0; k<3; ++k)
 		    {
 		      esum = 0;
 		      for(int l=0; l<sector[h][k]; ++l)
 			{
 			  if(calen[h][k][l] < mine) continue;
+			  deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],scale[h]*(k==0?get_E_T_em(calen[h][k][l], calet[h][k][l]):get_E_T_hc(calen[h][k][l],calet[h][k][l])));
+			  deadhits[h][k][j][calet[h][k][l]][calph[h][k][l]]++;
 			  if(k==0)
 			    {
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
@@ -552,6 +563,16 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       for(int i=0; i<3; ++i)
 	{
+	  for(int j=0; j<centbins; ++j)
+	    {
+	      for(int k=0; k<etabins[i]; ++k)
+		{
+		  for(int l=0; l<phibins[i]; ++k)
+		    {
+		      deadmap[h][i][j]->SetBinContent(k+1,l+1,deadmean[h][i][j]->GetBinContent(k+1,l+1)/deadhits[h][i][j][k][l]);
+		    }
+		}
+	    }
 	  for(int j=0; j<hcalbins; ++j)
 	    {
 	      dET[h][i]->SetBinContent(j+1,dET[h][i]->GetBinContent(j+1)/neta[h][i][j]);
@@ -599,6 +620,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  for(int j=0; j<centbins; j++)
 	    {
+	      if(i==0)
+		{
+		  outf->WriteObject(zcent[h][j],zcent[h][j]->GetName());
+		}
+	      outf->WriteObject(deadmap[h][i][j], deadmap[h][i][j]->GetName());
 	      outf->WriteObject(centtow[h][i][j], centtow[h][i][j]->GetName());
 	      outf->WriteObject(centet[h][i][j], centet[h][i][j]->GetName());
 	      outf->WriteObject(dETcent[h][i][j], dETcent[h][i][j]->GetName());

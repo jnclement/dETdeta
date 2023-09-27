@@ -32,8 +32,6 @@
 void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int datorsim, int calnum)
 {
   string typ = "";
-  if(datorsim) typ = "Data";
-  else typ = "HIJING";
   int kcodes[9] = {0,-4,-7,-9,-10,-8,-5,-1,4};
   int centrange = 90/centbins;
   const int par = 4;
@@ -59,14 +57,16 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
+  if(datorsim) typ = "Data";
+  else typ = "HIJING scaled by " + params[0];
   const int ntext = 4;
   string texts[ntext];
   string ztext = ((zcut > 100)?"No z cut,":"|z|<"+params[3]+" cm,");
   texts[0] = params[1] + " MeV subtracted from each tower";
   texts[2] = ztext +" min tower E = " +params[2] + " MeV";
   texts[1] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
-  if(sc > 1.) texts[3] = "HIJING scaled by " + params[0];
-  else texts[3] = "";
+  //if(sc > 1.) texts[3] = "HIJING scaled by " + params[0];
+  texts[3] = "";
   auto leg = new TLegend(0.,0.,0.15,0.13);
   leg->SetTextSize(0.015);
   for(int i=0; i<centbins; ++i)
@@ -98,7 +98,7 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
 	}
     }
   if(minval < 0 && logy) minval = 1E-10;
-  if(calnum == 0) maxval = 60;
+  if(calnum == 0) maxval = 10;
   else if(calnum == 1) maxval = 6;
   else if(calnum == 2) maxval = 20;
   if(logy) hists[0]->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
@@ -215,7 +215,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
       maxval = dathist->GetMaximum();
       minval = dathist->GetMinimum();
       gPad->SetLogy();
-      dathist->GetYaxis()->SetRangeUser(0.01,100);
+      dathist->GetYaxis()->SetRangeUser(0.1,10);
       dathist->Draw(options.c_str());
       sphenixtext();
       multitext(texts2, ntext2);
@@ -398,7 +398,7 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_fracsim_12_fracdat_50_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
+    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
   };
 
   for(int i=0; i<nfiles; ++i)
