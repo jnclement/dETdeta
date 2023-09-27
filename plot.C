@@ -214,6 +214,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
       dathist->GetYaxis()->SetTitle("Data/HIJING");
       maxval = dathist->GetMaximum();
       minval = dathist->GetMinimum();
+      gPad->SetLogy();
       dathist->GetYaxis()->SetRangeUser(0.01,100);
       dathist->Draw(options.c_str());
       sphenixtext();
@@ -396,7 +397,7 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
+    "savedhists_fracsim_5_fracdat_20_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
   };
 
   for(int i=0; i<nfiles; ++i)
