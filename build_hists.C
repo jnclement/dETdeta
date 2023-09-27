@@ -197,6 +197,7 @@ float get_E_T_hc(float E, int eta, float sub)
 
 int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="")
 {
+  cout << "Starting..." << endl;
   mbd_init();
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
@@ -306,6 +307,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   sumev[1] = new TH1D("sumev1","",bins_et,0,et_sm_range);
   sumtw[0] = new TH1D("sumtw0","",bins_tw,0,tw_sm_range);
   sumtw[1] = new TH1D("sumtw1","",bins_tw,0,tw_sm_range);
+  cout << "Hists initialized" << endl;
   tree[1]->SetBranchAddress("mbenrgy",mbenrgy);
   tree[1]->SetBranchAddress("emcalen",calen[1][0]);
   tree[1]->SetBranchAddress("emcalet",calet[1][0]);
@@ -338,7 +340,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[0]->SetBranchAddress("sectorem",&sector[0][0]);
   tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
-
+  cout << "Branches set" << endl;
   TH1D* zhist = new TH1D("zhist","",200,-100,100);
   TH1D* f10h[2][3];
   for(int i=0; i<2; ++i)
@@ -380,6 +382,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
+  cout << "Now opening output file..." << endl;
   string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+tag+ ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   TTree* outt = new TTree("ttree","");
