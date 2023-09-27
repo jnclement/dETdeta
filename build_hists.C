@@ -42,6 +42,12 @@ const float em_eta[] = {-1.12318,-1.10191,-1.08023,-1.05875,-1.03686,-1.01518,-0
 0.580845,0.604768,0.628256,0.651976,0.675264,0.698783,0.721872,0.745189,0.768079,0.791195,0.813886,0.836801,0.859292,0.882004,0.904295,0.926804,
 0.948893,0.971197,0.993083,1.01518,1.03686,1.05875,1.08023,1.10191,1.12318};
 
+int fullregonly(int phi)
+{
+  if(phi > 205 || phi < 165) return 1;
+  return 0;
+}
+
 float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist)
 {
   float mbsum;//, ucmbd;
@@ -429,6 +435,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      if(k==0)
 			{
 			  if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			  if(fullregonly(calph[h][k][l]) continue;
 			  eval = scale[h]*get_E_T_em(calen[h][k][l], calet[h][k][l], subtr);
 			}
 		      else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);
