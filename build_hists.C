@@ -248,7 +248,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  for(int k=0; k<centbins; ++k)
 	    {
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
-	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",24,etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
+	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",200,-100,100);
 	    }
 	}
@@ -461,14 +461,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  {
 	    if(mbsum < cents[h][j+2*(1-h)])
 	      {
-		zcent[h][j]-Fill(z_v[h]);
+		zcent[h][j]->Fill(z_v[h]);
 		for(int k=0; k<3; ++k)
 		    {
 		      esum = 0;
 		      for(int l=0; l<sector[h][k]; ++l)
 			{
 			  if(calen[h][k][l] < mine) continue;
-			  deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],scale[h]*(k==0?get_E_T_em(calen[h][k][l], calet[h][k][l]):get_E_T_hc(calen[h][k][l],calet[h][k][l])));
+			  deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],scale[h]*(k==0?get_E_T_em(calen[h][k][l], calet[h][k][l],subtr):get_E_T_hc(calen[h][k][l],calet[h][k][l],subtr)));
 			  deadhits[h][k][j][calet[h][k][l]][calph[h][k][l]]++;
 			  if(k==0)
 			    {
@@ -567,7 +567,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		{
 		  for(int l=0; l<phibins[i]; ++k)
 		    {
-		      deadmap[h][i][j]->SetBinContent(k+1,l+1,deadmean[h][i][j]->GetBinContent(k+1,l+1)/deadhits[h][i][j][k][l]);
+		      deadmap[h][i][j]->SetBinContent(k+1,l+1,deadmap[h][i][j]->GetBinContent(k+1,l+1)/deadhits[h][i][j][k][l]);
 		    }
 		}
 	    }
