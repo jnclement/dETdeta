@@ -143,7 +143,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 	      //exit(1);
 	    }
 	  nsum += hist->GetBinContent(i);
-	  if(n*hist->GetEntries()/centbins < nsum)
+	  if((n+1)*hist->GetEntries()/centbins < nsum)
 	    {
 	      cent[n] = hist->GetBinLowEdge(i+1);
 	      ++n;
@@ -151,8 +151,6 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 	    }
 	}
     }
-  cent[0] = 0;
-  cent[centbins] = 999999;
   return 0;
 }
 
@@ -203,7 +201,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 19;
+  const int centbins = 18;
   const int hcalbins = 24;
   const int ecalbins = 96;
   int mbd_bins[centbins+1] = {1,3084,7561,15085,26257,42335,66403,101303,150063,300000};
@@ -255,9 +253,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
-  float et_em_range[centbins] = {100,150,275,350,400,600,800,1200,1750};
-  float et_oh_range[centbins] = {35,50,80,100,140,175,225,300,400};
-  float et_ih_range[centbins] = {10,15,25,35,50,75,100,120,150};
+  float et_em_range[centbins] = {100,100,150,150,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
+  float et_oh_range[centbins] = {35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};
+  float et_ih_range[centbins] = {10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};
   float et_sm_range = 2000;
   float tw_em_range = 15;
   float tw_oh_range = 20;
@@ -417,10 +415,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Done filling data MBD hist." << endl;
   cout << "Done filling all MBD hists." << endl;
   cout << "Setting centrality bins" << endl;
-  dummy = set_cent_cuts(mbh[0], cents[0], centbins+1);
+  dummy = set_cent_cuts(mbh[0], cents[0], centbins+2);
   cout << "Sim minbias hist entries: " << mbh[0]->GetEntries() << endl;
-  //dummy = set_cent_cuts(mbh[1], cents[1], centbins);
-  for(int i=0; i<centbins+1; ++i) cents[1][i] = mbd_bins[i];
+  dummy = set_cent_cuts(mbh[1], cents[1], centbins);
+  //for(int i=0; i<centbins+1; ++i) cents[1][i] = mbd_bins[i];
   cout << "Data minbias hist entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done setting centrality bins." << endl;
   for(int h=0; h<2; ++h)
@@ -459,9 +457,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1], NULL);
 	  if(mbsum < 0) continue;
-	  for(int j=0; j<centbins+(1-h); ++j)
+	  for(int j=0; j<centbins+2*(1-h); ++j)
 	  {
-	    if(mbsum < cents[h][j+1+(1-h)])
+	    if(mbsum < cents[h][j+2*(1-h)])
 	      {
 		zcent[h][j]-Fill(z_v[h]);
 		for(int k=0; k<3; ++k)
@@ -475,7 +473,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
-			      if(fullregonly(calph[h][k][l])) continue;
+			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], calet[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);
