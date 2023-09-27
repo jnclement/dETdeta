@@ -435,7 +435,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      if(k==0)
 			{
 			  if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
-			  if(fullregonly(calph[h][k][l])) continue;
 			  eval = scale[h]*get_E_T_em(calen[h][k][l], calet[h][k][l], subtr);
 			}
 		      else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);
@@ -465,6 +464,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			      if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], calet[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);

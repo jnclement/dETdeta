@@ -226,7 +226,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
 
 int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root", string treename = "ttree", string datdir = "/home/jocl/datatemp/", string plotdir = "/home/jocl/datatemp/plots/")
 {   
-  gSystem->RedirectOutput("test.txt");
+  //gSystem->RedirectOutput("test.txt");
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
@@ -289,7 +289,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	    }
 	}
     }
-
+  cout << "Finished getting hists" << endl;
   for(int i=0; i<2; ++i)
     {
       for(int j=0; j<3; ++j)
@@ -311,7 +311,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  meandiffnoavg[i]->SetBinError(centbins-j,0);
 	}
     }
-				  
+  cout << "Finished filling new hists" << endl;
   string cal[3] = {"EMCal","IHCal","OHCal"};
   string xlabel;
   tree->SetBranchAddress("sub",&sub);
@@ -325,6 +325,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   xlabel = "MBD Z vertex [cm]";
   string ylabel = "Counts";
   string options = "";
+  cout << "Starting to plot" << endl;
   plotsimdat(options, c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins, 1);
   xlabel = "MBD charge sum [??]";
   plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay", plotdir,"all/", centbins, 1);
@@ -334,7 +335,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   plotsimdat(options, c1, sumev[1], sumev[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_total", plotdir,"all/", centbins, 1);
   xlabel = "E_{T, stacked calorimeter towers}";
   plotsimdat(options, c1, sumtw[1], sumtw[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_sumtow", plotdir,"all/", centbins, 1);
-  
+  cout << "Plotted non-loops" << endl;
   for(int j=0; j<3; ++j)
     {
       options = "p";
@@ -373,9 +374,9 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       multiplot(options, c1, dETcent[1][j], 0, cal[j], scale[1], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_data", plotdir, "all/", centbins, 1, j);
       for(int k=0; k<centbins; ++k)
 	{
-	  outputon(gSystem);
+	  //outputon(gSystem);
 	  cout << centet[1][j][k]->GetMean() << " " << dETcent[1][j][k]->Integral() << " " <<centet[0][j][k]->GetMean() << " " << dETcent[0][j][k]->Integral() << endl;
-	  outputoff(gSystem,"test.txt");
+	  //outputoff(gSystem,"test.txt");
 	  options = "";
 	  ylabel = "Counts";
 	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
@@ -397,7 +398,7 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_fracsim_5_fracdat_20_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
+    "savedhists_fracsim_12_fracdat_50_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
   };
 
   for(int i=0; i<nfiles; ++i)
