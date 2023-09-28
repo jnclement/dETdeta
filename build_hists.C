@@ -135,7 +135,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
       nsum = 0;
       for(int i=0; i<hist->GetNbinsX()+1; ++i)
 	{
-	  //cout << i << endl;
+	  //if(j>=16) cout << i << endl;
 	  if(i==hist->GetNbinsX())
 	    {
 	      cout << "Your centrality bins cannot be set for hist " << hist->GetName() << " centrality bin " << n << " because your hist range is not wide enough. All greater bins will also fail." << endl;
@@ -143,7 +143,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 	      //exit(1);
 	    }
 	  nsum += hist->GetBinContent(i);
-	  if(j>=16) cout << nsum<< " " << (n+1)*hist->GetEntries()/centbins << endl;
+	  if(n>=16) cout << nsum<< " " << (n+1)*hist->GetEntries()/centbins << endl;
 	  if((n+1)*hist->GetEntries()/centbins <= nsum)
 	    {
 	      cent[n] = hist->GetBinLowEdge(i+1);
