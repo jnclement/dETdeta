@@ -445,7 +445,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   for(int j=0; j<3; ++j)
     {
       options = "p";
-      xlabel = "E_{T} event ("+cal[j]+") [GeV]";
+      xlabel = "E_{T}^{"+cal[j]+"} event [GeV]";
       ylabel = "Counts";
       centoverlayplot(options, c1, ET[1][j], centet[1][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, j);
       centoverlayplot(options, c1, ET[0][j], centet[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, j);
@@ -563,7 +563,10 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_fracsim_100_fracdat_100_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
+    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
+    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_50_scale_1.30_zcut_30_run_21615_ntc.root"
+    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_ntc.root"
+    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_50_scale_1.30_zcut_10_run_21615_ntc.root"
   };
 
   for(int i=0; i<nfiles; ++i)
