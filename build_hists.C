@@ -273,8 +273,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int bins_et = 100;
   for(int i=0; i<centbins; ++i)
     {
-      ettotcent[0][i] = new TH1D(("ettotcent0_"+to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
-      ettotcent[1][i] = new TH1D(("ettotcent1_"+to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
+      ettotcent[0][i] = new TH1D(("ettotcent0_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
+      ettotcent[1][i] = new TH1D(("ettotcent1_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
       centtow[1][0][i] = new TH1D(("centtow10_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range*(10.+i)/20);
       centtow[1][1][i] = new TH1D(("centtow11_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range*(10.+i)/20);
       centtow[1][2][i] = new TH1D(("centtow12_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
