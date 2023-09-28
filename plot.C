@@ -32,8 +32,8 @@
 void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int datorsim, int calnum)
 {
   string typ = "";
-  int kcodes[9] = {0,-4,-7,-9,-10,-8,-5,-1,4};
-  int knames[9] = {kBlue, kGreen};
+  int kcodes[3] = {0,1,2};
+  int knames[6] = {kBlue,kMagenta,kRed,kYellow,kGreen,kCyan};
   int centrange = 90/centbins;
   const int par = 4;
   float parval[par];
@@ -70,10 +70,15 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
   texts[3] = "";
   auto leg = new TLegend(0.55,0.7,0.8,0.9);
   leg->SetTextSize(0.015);
-  mainhist->SetMarkerColor(kRed);
+  mainhist->SetMarkerColor(kBlack);
+  leg->AddEntry(mainhist,(typ+" 0-90% centrality").c_str(),"P");
+  if(calnum==0 || calnum == 3) mainhist->Rebin(2);
   for(int i=0; i<centbins; ++i)
     {
-      hists[i]->SetMarkerColor(knames[i%2]+kcodes[i/2]);
+      if(calnum == 0 || calnum == 3) hists[i]->Rebin(2);
+      hists[i]->SetMarkerColor(knames[i%6]+kcodes[i/6]);
+      hists[i]->SetLineColor(knames[i%6]+kcodes[i/6]);
+      hists[i]->SetFillColorAlpha(knames[i%6]+kcodes[i/6],0.2);
       leg->AddEntry(hists[i],(typ+" " + to_string((centbins-i-1)*centrange)+"-"+to_string((centbins-i)*centrange) + "% centrality").c_str(),"P");
     }
   const int ntext2 = 3;
@@ -106,7 +111,7 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
   //else if(calnum == 2) maxval = 20;
   if(logy) mainhist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
   else mainhist->GetYaxis()->SetRangeUser(min(0,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
-  float ranges[4] = {1800,150,500,2000};
+  float ranges[4] = {1500,150,400,2000};
   mainhist->GetXaxis()->SetRangeUser(0,ranges[calnum]);
   cout << mainhist->GetName() << endl;
   mainhist->GetXaxis()->SetTitle(xlabel.c_str());
@@ -114,7 +119,7 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
   mainhist->GetYaxis()->SetLabelSize(0.025);
   mainhist->GetXaxis()->SetLabelSize(0.025);
   mainhist->Draw(options.c_str());
-  mainhist->SetMarkerColor(kRed);
+  mainhist->SetMarkerColor(kBlack);
   mainhist->Draw(options.c_str());
   for(int i=0; i<centbins; ++i) hists[i]->Draw(("SAME "+options).c_str());
   sphenixtext();
@@ -451,11 +456,11 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   tree->GetEvent(0);
   TCanvas* c1 = new TCanvas("c1","c1",1000,1000);
   cout << "Starting to plot" << endl;
-  string options = "p";
+  string options = "hist";
   xlabel = "E_{T, event}^{all} [GeV]";
   string ylabel = "Counts";
   centoverlayplot(options, c1, sumev[0], ettotcent[0], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, 3);
-  centoverlayplot(options, c1, sumev[1], ettotcent[1], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 1, 3);
+  centoverlayplot(options, c1, sumev[1], ettotcent[1], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, 3);
   xlabel = "MBD Z vertex [cm]";
   ylabel = "Counts";
   options = "";
@@ -473,7 +478,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 		  
   for(int j=0; j<3; ++j)
     {
-      options = "p";
+      options = "hist";
       xlabel = "E_{T, event}^{"+cal[j]+"} [GeV]";
       ylabel = "Counts";
       centoverlayplot(options, c1, ET[1][j], centet[1][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, j);
