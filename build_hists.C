@@ -313,7 +313,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TW[0][2] = new TH1D("tw02","",bins_tw,0,tw_oh_range);
   TW[1][2] = new TH1D("tw12","",bins_tw,0,tw_oh_range);
   sumev[0] = new TH1D("sumev0","",400,0,et_sm_range);
-  sumev[1] = new TH1D("sumev1","",bins_et,0,et_sm_range);
+  sumev[1] = new TH1D("sumev1","",400,0,et_sm_range);
   sumtw[0] = new TH1D("sumtw0","",bins_tw,0,tw_sm_range);
   sumtw[1] = new TH1D("sumtw1","",bins_tw,0,tw_sm_range);
   
