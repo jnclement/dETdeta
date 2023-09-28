@@ -391,11 +391,9 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   TCanvas* c2 = new TCanvas("","");
   c2->cd();
   cout << centet[1][0][17]->GetEntries() << endl;
-  centet[1][0][0]->Draw();
+  centet[1][0][17]->Draw();
   c2->SaveAs("test.png");
-  std::cin.ignore();
   cout << "Finished getting hists" << endl;
-  std::cin.ignore();
   for(int i=0; i<2; ++i)
     {
       for(int j=0; j<3; ++j)
@@ -561,13 +559,14 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 
 int plot()
 {
-  const int nfiles = 1;
-  string filenames[nfiles] = {
-    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
-    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_50_scale_1.30_zcut_30_run_21615_ntc.root"
-    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_ntc.root"
-    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_50_scale_1.30_zcut_10_run_21615_ntc.root"
-  };
+  const int nfiles = 2;
+  string filenames[nfiles] =
+    {
+     //"savedhists_fracsim_100_fracdat_100_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
+     "savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_30_run_21615_ntc.root",
+     "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_ntc.root"
+     //"savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_ntc.root"
+    };
 
   for(int i=0; i<nfiles; ++i)
     {
