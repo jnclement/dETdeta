@@ -127,7 +127,7 @@ void set_em_combined_towers_0(float towers[96][24])
 
 int set_cent_cuts(TH1* hist, float* cent, int centbins)
 {
-  int n=1;
+  int n=0;
   int nsum=0;
   while(n<centbins)
     {
