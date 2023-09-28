@@ -452,6 +452,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  {
 	    if(mbsum < cents[h][j+2*(1-h)])
 	      {
+		if(h==1 && j==17) cout << "j = 17 reached" << endl;
 		zcent[h][j]->Fill(z_v[h]);
 		for(int k=0; k<3; ++k)
 		    {
