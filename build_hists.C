@@ -232,6 +232,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float cents[2][centbins+2] = {0};
   TH1D* centtow[2][3][centbins];
   TH1D* centet[2][3][centbins];
+  TH1D* ettotcent[2][centbins];
   TH1D* dET[2][3];
   TH1D* dETcent[2][3][centbins];
   TH1D* meandiff[3];
@@ -255,12 +256,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
-	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",300,-30,30);
+	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",120,-30,30);
 	    }
 	}
     }
   
-  float et_em_range[centbins] = {100,100,150,150,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
+  float et_em_range[centbins] = {150,150,200,200,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
   float et_oh_range[centbins] = {35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};
   float et_ih_range[centbins] = {10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};
   float et_sm_range = 2000;
@@ -272,6 +273,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int bins_et = 100;
   for(int i=0; i<centbins; ++i)
     {
+      ettotcent[0][i] = new TH1D(("ettotcent0_"+to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
+      ettotcent[1][i] = new TH1D(("ettotcent1_"+to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
       centtow[1][0][i] = new TH1D(("centtow10_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range*(10.+i)/20);
       centtow[1][1][i] = new TH1D(("centtow11_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range*(10.+i)/20);
       centtow[1][2][i] = new TH1D(("centtow12_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
@@ -280,13 +283,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       centtow[0][1][i] = new TH1D(("centtow01_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range*(10.+i)/20);
       centtow[0][2][i] = new TH1D(("centtow02_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
 
-      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",et_em_range[i]/5,0,et_em_range[i]);
-      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",et_ih_range[i],0,et_ih_range[i]);
-      centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",et_oh_range[i]/3,0,et_oh_range[i]);
+      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",400,0,2000);
+      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",200,0,600);
+      centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",200,0,600);
 
-      centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",et_em_range[i]/5,0,et_em_range[i]);
-      centet[0][1][i] = new TH1D(("centet01_" + to_string(i)).c_str(),"",et_ih_range[i],0,et_ih_range[i]);
-      centet[0][2][i] = new TH1D(("centet02_" + to_string(i)).c_str(),"",et_oh_range[i]/3,0,et_oh_range[i]);
+      centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",400,0,2000);
+      centet[0][1][i] = new TH1D(("centet01_" + to_string(i)).c_str(),"",200,0,200);
+      centet[0][2][i] = new TH1D(("centet02_" + to_string(i)).c_str(),"",200,0,600);
     }
 
   TH1D* ET[2][3];
@@ -297,16 +300,16 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   
   mbh[0] = new TH1D("smbh","",500,0,500);
   mbh[1] = new TH1D("dmbh","",1000,0,300000);
-  ET[1][0] = new TH1D("et10","",et_em_range[centbins-1]/5,0,et_em_range[centbins-1]);
-  ET[0][0] = new TH1D("et00","",et_em_range[centbins-1]/5,0,et_em_range[centbins-1]);
+  ET[1][0] = new TH1D("et10","",2000/5,0,2000);
+  ET[0][0] = new TH1D("et00","",2000/5,0,2000);
   TW[0][0] = new TH1D("tw00","",bins_tw,0,tw_em_range);
   TW[1][0] = new TH1D("tw10","",bins_tw,0,tw_em_range);
-  ET[1][1] = new TH1D("et11","",et_ih_range[centbins-1],0,et_ih_range[centbins-1]);
-  ET[0][1] = new TH1D("et01","",et_ih_range[centbins-1],0,et_ih_range[centbins-1]);
+  ET[1][1] = new TH1D("et11","",200,0,200);
+  ET[0][1] = new TH1D("et01","",200,0,200);
   TW[0][1] = new TH1D("tw01","",bins_tw,0,tw_ih_range);
   TW[1][1] = new TH1D("tw11","",bins_tw,0,tw_ih_range);
-  ET[1][2] = new TH1D("et12","",et_oh_range[centbins-1]/3,0,et_oh_range[centbins-1]);
-  ET[0][2] = new TH1D("et02","",et_oh_range[centbins-1]/3,0,et_oh_range[centbins-1]);
+  ET[1][2] = new TH1D("et12","",600/3,0,600);
+  ET[0][2] = new TH1D("et02","",600/3,0,600);
   TW[0][2] = new TH1D("tw02","",bins_tw,0,tw_oh_range);
   TW[1][2] = new TH1D("tw12","",bins_tw,0,tw_oh_range);
   sumev[0] = new TH1D("sumev0","",bins_et,0,et_sm_range);
@@ -348,7 +351,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
   cout << "Branches set" << endl;
-  TH1D* zhist = new TH1D("zhist","",200,-100,100);
+  TH1D* zhist = new TH1D("zhist","",120,-30,30);
   TH1D* f10h[2][3];
   for(int i=0; i<2; ++i)
     {
@@ -520,6 +523,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      
 		    }
 		  sumev[h]->Fill(allsum);
+		  ettotcent[h][j]->Fill(allsum);
 		  for(int k=0; k<64; ++k)
 		    {
 		      for(int l=0; l<hcalbins; ++l)
@@ -608,6 +612,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      if(i==0)
 		{
+		  outf->WriteObject(ettotcent[h][j], ettotcent[h][j]->GetName());
 		  outf->WriteObject(zcent[h][j],zcent[h][j]->GetName());
 		}
 	      outf->WriteObject(deadmap[h][i][j], deadmap[h][i][j]->GetName());

@@ -554,6 +554,11 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 
 	}
     }
+
+  for(int i=0; i<centbins; ++i)
+    {
+      cout << i << " " << centet[0][0][i]->GetBinContent(centet[0][0][i]->GetNbinsX()+2) << endl;
+    }
   return 0;
 }
 
