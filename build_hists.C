@@ -139,6 +139,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 	  if(i==hist->GetNbinsX())
 	    {
 	      cout << "Your centrality bins cannot be set for hist " << hist->GetName() << " centrality bin " << n << " because your hist range is not wide enough. All greater bins will also fail." << endl;
+	      cent[n] = 999999;
 	      return -1;
 	      //exit(1);
 	    }
