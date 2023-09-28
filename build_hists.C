@@ -143,6 +143,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 	      //exit(1);
 	    }
 	  nsum += hist->GetBinContent(i);
+	  if(j>=16) cout << nsum<< " " << (n+1)*hist->GetEntries()/centbins << endl;
 	  if((n+1)*hist->GetEntries()/centbins <= nsum)
 	    {
 	      cent[n] = hist->GetBinLowEdge(i+1);
