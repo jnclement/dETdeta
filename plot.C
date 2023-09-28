@@ -29,6 +29,101 @@
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.h"
 #include "/home/jocl/Documents/main/physics/projects/sphenix_macros/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
+void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int datorsim, int calnum)
+{
+  string typ = "";
+  int kcodes[9] = {0,-4,-7,-9,-10,-8,-5,-1,4};
+  int knames[9] = {kBlue, kGreen};
+  int centrange = 90/centbins;
+  const int par = 4;
+  float parval[par];
+  float mult[par];
+  mult[0] = 1;
+  mult[1] = 1000;
+  mult[2] = 1000;
+  mult[3] = 1;
+  parval[0] = sc;
+  parval[1] = sub;
+  parval[2] = mine;
+  parval[3] = zcut;
+  string params[par];
+  stringstream streams[par];
+  int precision[par];
+  precision[0] = 2;
+  precision[1] = 0;
+  precision[2] = 0;
+  precision[3] = 0;
+  for(int i=0; i<par; ++i)
+    {
+      streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
+      params[i] = streams[i].str();
+    }
+  if(datorsim) typ = "Data";
+  else typ = "HIJING scaled by " + params[0];
+  const int ntext = 4;
+  string texts[ntext];
+  string ztext = ((zcut > 100)?"No z cut,":"|z|<"+params[3]+" cm,");
+  texts[0] = params[1] + " MeV subtracted from each tower";
+  texts[2] = ztext +" min tower E = " +params[2] + " MeV";
+  texts[1] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
+  //if(sc > 1.) texts[3] = "HIJING scaled by " + params[0];
+  texts[3] = "";
+  auto leg = new TLegend(0.6,0.7,0.85,0.9);
+  leg->SetTextSize(0.015);
+  mainhist->SetMarkerColor(kRed);
+  for(int i=0; i<centbins; ++i)
+    {
+      hists[i]->SetMarkerColor(knames[i%2]+kcodes[i/2]);
+      leg->AddEntry(hists[i],(typ+" " + to_string((centbins-i-1)*centrange)+"-"+to_string((centbins-i)*centrange) + "% centrality").c_str(),"P");
+    }
+  const int ntext2 = 3;
+  string texts2[ntext2];
+  texts2[0] = "|z|<" + params[3] + " cm, min tower E " + params[2] + " MeV";
+  texts2[1] = params[1] + " MeV subtracted from each tower";
+  texts2[2] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
+  ca->cd();
+  if(logy) gPad->SetLogy();
+  else gPad->SetLogy(0);
+  gPad->SetTicks(1);
+  float maxval = -999999;
+  maxval = mainhist->GetMaximum();
+  for(int i=0; i<centbins; ++i)
+    {
+      maxval = max(hists[i]->GetMaximum(),maxval);
+    }
+  float minval = 999999;
+  for(int i=0; i<centbins; ++i)
+    {
+      for(int j=0; j<hists[i]->GetNbinsX(); ++j)
+	{
+	  if(hists[i]->GetBinContent(j+1) > 0) minval = min(minval, hists[i]->GetBinContent(j+1));
+	}
+    }
+  if(minval <= 0 && logy) minval = 1E-10;
+  cout << minval << " " << maxval << endl;
+  //if(calnum == 0) maxval = 10;
+  //else if(calnum == 1) maxval = 6;
+  //else if(calnum == 2) maxval = 20;
+  if(logy) mainhist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
+  else mainhist->GetYaxis()->SetRangeUser(min(0,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
+  cout << mainhist->GetName() << endl;
+  mainhist->GetXaxis()->SetTitle(xlabel.c_str());
+  mainhist->GetYaxis()->SetTitle(ylabel.c_str());
+  mainhist->GetYaxis()->SetLabelSize(0.025);
+  mainhist->GetXaxis()->SetLabelSize(0.025);
+  mainhist->Draw(options.c_str());
+  mainhist->SetMarkerColor(kRed);
+  mainhist->Draw(options.c_str());
+  for(int i=0; i<centbins; ++i) hists[i]->Draw(("SAME "+options).c_str());
+  sphenixtext();
+  multitext(texts, ntext, 0.1);
+  drawText(typ.c_str(), 0.15, 0.96, 0, kBlack, 0.04);
+  leg->Draw();
+  ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
+  ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
+}
+
+
 void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int datorsim, int calnum)
 {
   string typ = "";
@@ -285,7 +380,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  dET[i][j] = (TH1D*)histfile->Get(("dET"+to_string(i)+to_string(j)).c_str());
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      if(j==0) zcent[i][k] = (TH1D*)histfile->Get(("zcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
+	      if(j==0) zcent[i][k] = (TH1D*)histfile->Get(("zcent"+to_string(i)+"_"+to_string(k)).c_str());
 	      deadmap[i][j][k] = (TH2D*)histfile->Get(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
 	      centtow[i][j][k] = (TH1D*)histfile->Get(("centtow"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
 	      centet[i][j][k] = (TH1D*)histfile->Get(("centet"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
@@ -343,6 +438,11 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   for(int j=0; j<3; ++j)
     {
       options = "p";
+      xlabel = "E_{T} event ("+cal[j]+") [GeV]";
+      ylabel = "Counts";
+      centoverlayplot(options, c1, ET[1][j], centet[1][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, j);
+      centoverlayplot(options, c1, ET[0][j], centet[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, j);
+      options = "p";
       xlabel = "MBD Centrality [%]";
       ylabel = "#mu_{E_{T} event data}^{"+cal[j]+"}-#mu_{E_{T} event HIJING}^{"+cal[j]+"} [GeV]";
       plotsimdat(options, c1, meandiffnoavg[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiffnoavg", plotdir, "all/", centbins, 0);
@@ -376,6 +476,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       
       multiplot(options, c1, dETcent[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_sim", plotdir, "all/", centbins, 0, j);
       multiplot(options, c1, dETcent[1][j], 0, cal[j], scale[1], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_data", plotdir, "all/", centbins, 1, j);
+      cout << "test" << endl;
       for(int k=0; k<centbins; ++k)
 	{
 	  if(j==0)
@@ -386,7 +487,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	      plotsimdat(options, c1, zcent[1][k], zcent[0][k], 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "zcent", plotdir, "cent/", centbins, 1);
 	    }
 	  //outputon(gSystem);
-	  cout << centet[1][j][k]->GetMean() << " " << dETcent[1][j][k]->Integral() << " " <<centet[0][j][k]->GetMean() << " " << dETcent[0][j][k]->Integral() << endl;
+	  cout << j << " " << k << " " << centet[1][j][k]->GetMean() << " " << dETcent[1][j][k]->Integral() << " " <<centet[0][j][k]->GetMean() << " " << dETcent[0][j][k]->Integral() << endl;
 	  //outputoff(gSystem,"test.txt");
 	  options = "";
 	  ylabel = "Counts";
@@ -407,6 +508,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   options = "COLZ";
   const int ntext = 4;
   string texts[ntext] = {"0 MeV subtracted from each tower","|z|<30 cm, min tower E = 0 MeV","","HIJING scaled by 1.30"};
+  gPad->SetRightMargin(0.1);
+  gPad->SetLeftMargin(0.1);
   for(int i=0; i<centbins; ++i)
     {
       for(int j=0; j<3; ++j)
@@ -436,6 +539,12 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  sphenixtext();
 	  multitext(texts,ntext);
 	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/sim_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
+	  deadmap[1][j][i]->Divide(deadmap[0][j][i]);
+	  deadmap[1][j][i]->GetZaxis()->SetRangeUser(0,5);
+	  deadmap[1][j][i]->Draw("COLZ");
+	  sphenixtext();
+	  multitext(texts,ntext);
+	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/div_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
 
 	}
     }
@@ -447,7 +556,7 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_fracsim_100_fracdat_100_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
+    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
   };
 
   for(int i=0; i<nfiles; ++i)

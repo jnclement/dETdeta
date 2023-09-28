@@ -429,6 +429,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   //for(int i=0; i<centbins+1; ++i) cents[1][i] = mbd_bins[i];
   cout << "Data minbias hist entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done setting centrality bins." << endl;
+  cout << "cent bins sim/dat:" << endl;
+  for(int i=0; i<centbins; ++i)
+    cout << cents[0][i+2] << " " << cents[1][i] << endl;
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
