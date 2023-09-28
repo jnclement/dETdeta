@@ -284,7 +284,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       centtow[0][2][i] = new TH1D(("centtow02_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
 
       centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",400,0,2000);
-      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",200,0,600);
+      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",200,0,200);
       centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",200,0,600);
 
       centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",400,0,2000);
