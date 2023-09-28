@@ -452,7 +452,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  {
 	    if(mbsum < cents[h][j+2*(1-h)])
 	      {
-		if(h==1 && j==17) cout << "j = 17 reached" << z_v[h] << endl;
+		if(h==1 && j==17) cout << "j = 17 reached " << z_v[h] << endl;
 		zcent[h][j]->Fill(z_v[h]);
 		for(int k=0; k<3; ++k)
 		    {
@@ -533,7 +533,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       }
       cout << "Done." << endl;
     }
-  
+  centet[1][0][17]->Draw();
+  gPad->SaveAs("test.png");
   for(int i=0; i<3; ++i)
     {
       for(int k=0; k<centbins; ++k)
