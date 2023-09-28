@@ -388,7 +388,14 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	    }
 	}
     }
+  TCanvas* c2 = new TCanvas("","");
+  c2->cd();
+  cout << centet[1][0][17]->GetEntries() << endl;
+  centet[1][0][0]->Draw();
+  c2->SaveAs("test.png");
+  std::cin.ignore();
   cout << "Finished getting hists" << endl;
+  std::cin.ignore();
   for(int i=0; i<2; ++i)
     {
       for(int j=0; j<3; ++j)
@@ -494,7 +501,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
 	  plotsimdat(options, c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centtow", plotdir, "cent/", centbins, 1);
 	  xlabel = "E_{T," + cal[j] +" event} [GeV]";
-	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins, 1);
+	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins, 0);
 	  options = "hist p";
 	  xlabel = "#eta bin";
 	  ylabel = "dE_{T}/d#eta [GeV]";
@@ -556,7 +563,7 @@ int plot()
 {
   const int nfiles = 1;
   string filenames[nfiles] = {
-    "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
+    "savedhists_fracsim_100_fracdat_100_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
   };
 
   for(int i=0; i<nfiles; ++i)
