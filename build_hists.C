@@ -189,12 +189,12 @@ int check_acceptance(int eta, int phi)
 
 float get_E_T_em(float E, int eta, float sub)
 {
-  return (E-sub)/cosh(em_eta[eta]);//cosh((eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
+  return (E-sub)/cosh(eta);//cosh((eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
 }
 
 float get_E_T_hc(float E, int eta, float sub)
 {
-  return (E-sub)/cosh(eta_hc[eta]);//cosh((eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
+  return (E-sub)/cosh(eta);//cosh((eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
 }
 
 
@@ -216,12 +216,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float towercomb[64][hcalbins];
   bool etavent[centbins][hcalbins] = {false};
   bool eventeta[hcalbins] = {false};
+  float etacor[2][3][25000];
   int sector[2][3];
   int sectormb;
   int npart = 0;
   int neta[2][3][hcalbins] = {0};
   int netacent[2][3][centbins][hcalbins] = {0};
-  float z_v[2];
+  float z_v[2][3];
   //TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
   //TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
   TFile* file = TFile::Open(("datatemp/merged_dEdeta_71"+tag+".root").c_str());
@@ -250,10 +251,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
-	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
+	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.2,1.2);
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-0.5,hcalbins-0.5);
+	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.2,1.2);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",120,-30,30);
@@ -320,14 +321,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Hists initialized" << endl;
   tree[1]->SetBranchAddress("mbenrgy",mbenrgy);
   tree[1]->SetBranchAddress("emcalen",calen[1][0]);
-  tree[1]->SetBranchAddress("emcalet",calet[1][0]);
-  tree[1]->SetBranchAddress("emcalph",calph[1][0]);
+  tree[1]->SetBranchAddress("emcaletabin",calet[1][0]);
+  tree[1]->SetBranchAddress("emcalphibin",calph[1][0]);
   tree[1]->SetBranchAddress("ihcalen",calen[1][1]);
-  tree[1]->SetBranchAddress("ihcalet",calet[1][1]);
-  tree[1]->SetBranchAddress("ihcalph",calph[1][1]);
+  tree[1]->SetBranchAddress("ihcaletabin",calet[1][1]);
+  tree[1]->SetBranchAddress("ihcalphibin",calph[1][1]);
   tree[1]->SetBranchAddress("ohcalen",calen[1][2]);
-  tree[1]->SetBranchAddress("ohcalet",calet[1][2]);
-  tree[1]->SetBranchAddress("ohcalph",calph[1][2]);
+  tree[1]->SetBranchAddress("ohcaletabin",calet[1][2]);
+  tree[1]->SetBranchAddress("ohcalphibin",calph[1][2]);
   tree[1]->SetBranchAddress("mbdtype",mbdtype);
   tree[1]->SetBranchAddress("mbdside",mbdside);
   tree[1]->SetBranchAddress("mbdchan",mbdchan);
@@ -335,18 +336,24 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[1]->SetBranchAddress("sectorih",&sector[1][1]);
   tree[1]->SetBranchAddress("sectoroh",&sector[1][2]);
   tree[1]->SetBranchAddress("sectormb",&sectormb);
-  tree[1]->SetBranchAddress("zvtx",&z_v[1]);
-  tree[0]->SetBranchAddress("zvtx",&z_v[0]);
+  tree[1]->SetBranchAddress("track_vtx",z_v[1]);
+  tree[1]->SetBranchAddress("emetacor",etacor[1][0]);
+  tree[1]->SetBranchAddress("ihetacor",etacor[1][1]);
+  tree[1]->SetBranchAddress("ohetacor",etacor[1][2]);
+  tree[0]->SetBranchAddress("emetacor",etacor[0][0]);
+  tree[0]->SetBranchAddress("ihetacor",etacor[0][1]);
+  tree[0]->SetBranchAddress("ohetacor",etacor[0][2]);
+  tree[0]->SetBranchAddress("track_vtx",z_v[0]);
   tree[0]->SetBranchAddress("npart",&npart);
   tree[0]->SetBranchAddress("emcalen",calen[0][0]);
-  tree[0]->SetBranchAddress("emcalet",calet[0][0]);
-  tree[0]->SetBranchAddress("emcalph",calph[0][0]);
+  tree[0]->SetBranchAddress("emcaletabin",calet[0][0]);
+  tree[0]->SetBranchAddress("emcalphibin",calph[0][0]);
   tree[0]->SetBranchAddress("ihcalen",calen[0][1]);
-  tree[0]->SetBranchAddress("ihcalet",calet[0][1]);
-  tree[0]->SetBranchAddress("ihcalph",calph[0][1]);
+  tree[0]->SetBranchAddress("ihcaletabin",calet[0][1]);
+  tree[0]->SetBranchAddress("ihcalphibin",calph[0][1]);
   tree[0]->SetBranchAddress("ohcalen",calen[0][2]);
-  tree[0]->SetBranchAddress("ohcalet",calet[0][2]);
-  tree[0]->SetBranchAddress("ohcalph",calph[0][2]);
+  tree[0]->SetBranchAddress("ohcaletabin",calet[0][2]);
+  tree[0]->SetBranchAddress("ohcalphibin",calph[0][2]);
   tree[0]->SetBranchAddress("sectorem",&sector[0][0]);
   tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
@@ -411,8 +418,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[0] == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
-      if(abs(z_v[0]) == 0) continue;
-      if(abs(z_v[0]) > zcut) continue;
+      if(abs(z_v[0][2]) == 0) continue;
+      if(abs(z_v[0][2]) > zcut) continue;
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
     }
@@ -423,7 +430,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1], zhist);
+      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist);
     }
   cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
@@ -448,11 +455,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  tree[h]->GetEntry(i);
 	  if(h==0)
 	    {
-	      if(abs(z_v[0]) == 0) continue;
-	      if(abs(z_v[0]) > zcut) continue;
+	      if(abs(z_v[0][2]) == 0) continue;
+	      if(abs(z_v[0][2]) > zcut) continue;
 	      mbsum = npart;
 	    }
-	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1], NULL);
+	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL);
 	  if(mbsum < 0) continue;
 	  for(int j=0; j<centbins; ++j)
 	  {
@@ -466,15 +473,18 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      for(int l=0; l<sector[h][k]; ++l)
 			{
 			  if(calen[h][k][l] < mine) continue;
-			  deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],scale[h]*(k==0?get_E_T_em(calen[h][k][l], calet[h][k][l],subtr):get_E_T_hc(calen[h][k][l],calet[h][k][l],subtr)));
-			  deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
 			  if(k==0)
 			    {
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
-			      eval = scale[h]*get_E_T_em(calen[h][k][l], calet[h][k][l], subtr);
+			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
-			  else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);
+			  else eval = scale[h]*get_E_T_hc(calen[h][k][l], etacor[h][k][l], subtr);
+			  if(calen[h][k][l] > 0.03)
+			    {
+			      deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
+			      deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
+			    }
 			  esum += eval;
 			  TW[h][k]->Fill(eval);
 			  centtow[h][k][j]->Fill(eval);
@@ -482,13 +492,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  if(k==0)
 			    {
-			      dETcent[h][k][j]->Fill(calet[h][k][l]/4,eval);
+			      dETcent[h][k][j]->Fill(etacor[h][k][l],eval);
 			      if(!etavent[j][calet[h][k][l]/4])
 				{
 				  netacent[h][k][j][calet[h][k][l]/4]++;
 				  etavent[j][calet[h][k][l]/4] = true;
 				}
-			      dET[h][k]->Fill(calet[h][k][l]/4,eval);
+			      dET[h][k]->Fill(etacor[h][k][l],eval);
 			      if(!eventeta[calet[h][k][l]/4])
 				{
 				  neta[h][k][calet[h][k][l]/4]++;
@@ -497,13 +507,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			    }
 			  else
 			    {
-			      dETcent[h][k][j]->Fill(calet[h][k][l],eval);
+			      dETcent[h][k][j]->Fill(etacor[h][k][l],eval);
 			      if(!etavent[j][calet[h][k][l]])
 				{
 				  netacent[h][k][j][calet[h][k][l]]++;
 				  etavent[j][calet[h][k][l]] = true;
 				}
-			      dET[h][k]->Fill(calet[h][k][l],eval);
+			      dET[h][k]->Fill(etacor[h][k][l],eval);
 			      if(!eventeta[calet[h][k][l]])
 				{
 				  neta[h][k][calet[h][k][l]]++;
