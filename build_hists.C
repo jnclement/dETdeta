@@ -466,8 +466,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      for(int l=0; l<sector[h][k]; ++l)
 			{
 			  if(calen[h][k][l] < mine) continue;
-			  deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],scale[h]*(k==0?get_E_T_em(calen[h][k][l], calet[h][k][l],subtr):get_E_T_hc(calen[h][k][l],calet[h][k][l],subtr)));
-			  deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
 			  if(k==0)
 			    {
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
@@ -475,6 +473,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], calet[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);
+			  if(calen[h][k][l] > 0.03)
+			    {
+			      deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
+			      deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
+			    }
 			  esum += eval;
 			  TW[h][k]->Fill(eval);
 			  centtow[h][k][j]->Fill(eval);
