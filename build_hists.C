@@ -475,6 +475,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l],calet[h][k][l], subtr);
 			  if(calen[h][k][l] > 0.03)
 			    {
+			      if(calet[h][k][l] == 95 && h==1) cout << "got a 95!" << endl
 			      deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
 			      deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
 			    }
