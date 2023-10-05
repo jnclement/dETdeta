@@ -225,7 +225,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float z_v[2][3];
   //TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
   //TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
-  TFile* file = TFile::Open(("datatemp/merged_dEdeta_newest_data_71.root").c_str());
+  TFile* file = TFile::Open("datatemp/merged_dEdeta_newest_data_71.root");
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
   TFile* simf = TFile::Open("datatemp/merged_dEdeta_newest_mc_555.root");
