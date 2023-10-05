@@ -304,23 +304,42 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   dathist->GetYaxis()->SetTitle(ylabel.c_str());
   dathist->GetYaxis()->SetLabelSize(0.025);
   dathist->GetXaxis()->SetLabelSize(0.025);
-  dathist->Draw(options.c_str());
-  if(simhist) simhist->Draw(("SAME "+options).c_str());
+  TFitResultPtr hp[2];
+  if(simhist && (name=="zcent"))
+    {
+      hp[1] = dathist->Fit("gaus","S");
+      hp[0] = simhist->Fit("gaus","S");
+      dathist->GetFunction("gaus")->SetLineColor(kRed);
+      simhist->GetFunction("gaus")->SetLineColor(kBlue);
+      dathist->Draw(options.c_str());
+      simhist->Draw(("SAME "+options).c_str());
+      dathist->GetFunction("gaus")->Draw("SAME");
+      simhist->GetFunction("gaus")->Draw("SAME");
+    }
+  if(simhist)
+    {
+      dathist->Draw(options.c_str());
+      simhist->Draw(("SAME "+options).c_str());
+    }
+  else
+    {
+      dathist->Draw(options.c_str());
+    }
   sphenixtext();
   multitext(texts, ntext, 0.03, 0.11);
   if(simhist) leg->Draw();
-    if(cal == "MBD")
+  if(name == "zcent" && simhist)
     {
       stringstream stmean, stsig;
-      stmean << std::fixed << std::setprecision(2) << dathist->GetMean();
-      stsig << std::fixed << std::setprecision(2) << dathist->GetRMS();
+      stmean << std::fixed << std::setprecision(2) << hp[1]->Parameter(1);
+      stsig << std::fixed << std::setprecision(2) << hp[1]->Parameter(2);
       drawText(("#mu_{data}="+stmean.str()+", #sigma_{data}="+stsig.str()).c_str(),0.9,0.91,1,kBlack,0.025);
       stmean.str("");
       stsig.str("");
       if(simhist)
 	{
-	  stmean << std::fixed << std::setprecision(2) << simhist->GetMean();
-	  stsig << std::fixed << std::setprecision(2) << simhist->GetRMS();
+	  stmean << std::fixed << std::setprecision(2) << hp[0]->Parameter(1);
+	  stsig << std::fixed << std::setprecision(2) << hp[0]->Parameter(2);
 	  drawText(("#mu_{HIJING}="+stmean.str()+", #sigma_{HIJING}="+stsig.str()).c_str(),0.9,0.88,1,kBlack,0.025);
 	}
     }
@@ -462,7 +481,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   centoverlayplot(options, c1, sumev[0], ettotcent[0], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, 3);
   centoverlayplot(options, c1, sumev[1], ettotcent[1], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, 3);
   xlabel = "MBD Z vertex [cm]";
-  ylabel = "Counts";
+  ylabel = "Normalized Counts";
   options = "";
   plotsimdat(options, c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins, 1);
   xlabel = "MBD charge sum [??]";
@@ -502,7 +521,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins, 0);
       ylabel = "#sigma_{"+cal[j]+"}/#mu_{"+cal[j]+"}";
       plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins, 0);
-      ylabel = "Counts";
+      ylabel = "Normalized Counts";
       options = "";
       xlabel = "E_{T," + cal[j] +" event} [GeV]";
       plotsimdat(options, c1, ET[1][j], ET[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_event", plotdir, "all/", centbins, 1);
@@ -523,7 +542,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  if(j==0)
 	    {
 	      xlabel = "Z-vertex [cm]";
-	      ylabel = "Counts";
+	      ylabel = "Normalized Counts";
 	      options = "p";
 	      plotsimdat(options, c1, zcent[1][k], zcent[0][k], 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "zcent", plotdir, "cent/", centbins, 1);
 	    }
@@ -531,7 +550,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  cout << j << " " << k << " " << centet[1][j][k]->GetMean() << " " << dETcent[1][j][k]->Integral() << " " <<centet[0][j][k]->GetMean() << " " << dETcent[0][j][k]->Integral() << endl;
 	  //outputoff(gSystem,"test.txt");
 	  options = "P";
-	  ylabel = "Counts";
+	  ylabel = "Normalized Counts";
 	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
 	  plotsimdat(options, c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centtow", plotdir, "cent/", centbins, 1);
 	  xlabel = "E_{T," + cal[j] +" event} [GeV]";
@@ -549,7 +568,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   options = "COLZ";
   const int ntext = 4;
   string texts[ntext] = {"0 MeV subtracted from each tower","|z|<10 cm, min tower E = 5 MeV","","HIJING scaled by 1.30"};
-  gPad->SetRightMargin(0.15);
+  gPad->SetRightMargin(0.2);
   gPad->SetLeftMargin(0.15);
   for(int i=0; i<centbins; ++i)
     {
@@ -560,8 +579,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  //deadmap[1][j][i]->Divide(deadmap[0][j][i]);
 	  deadmap[1][j][i]->GetYaxis()->SetTitle(ylabel.c_str());
 	  deadmap[1][j][i]->GetXaxis()->SetTitle(xlabel.c_str());
-	  deadmap[1][j][i]->GetZaxis()->SetTitle("<E^{tower}_{data}> [GeV]");
-	  deadmap[0][j][i]->GetZaxis()->SetTitle("<E^{tower}_{HIJING}> [GeV]");
+	  deadmap[1][j][i]->GetZaxis()->SetTitle((cal[j] +" <E^{tower}_{data}> [GeV]").c_str());
+	  deadmap[0][j][i]->GetZaxis()->SetTitle((cal[j] +" <E^{tower}_{HIJING}> [GeV]").c_str());
 	  deadmap[1][j][i]->GetZaxis()->SetLabelSize(0.025);
 	  //deadmap[1][j][i]->GetZaxis()->SetRangeUser(0,2);
 	  texts[2] = "Run 21615 " + to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+"% centrality";
@@ -583,7 +602,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  multitext(texts,ntext);
 	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/sim_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
 	  deadmap[1][j][i]->Divide(deadmap[0][j][i]);
-	  deadmap[1][j][i]->GetZaxis()->SetTitle("<E^{tower}_{data}>/<E^{tower}_{HIJING}>");
+	  deadmap[1][j][i]->GetZaxis()->SetTitle((cal[j] +" <E^{tower}_{data}>/<E^{tower}_{HIJING}>").c_str());
 	  deadmap[1][j][i]->GetZaxis()->SetRangeUser(0.5,1.5);
 	  deadmap[1][j][i]->Draw("COLZ");
 	  sphenixtext();
@@ -603,14 +622,14 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 
 int plot()
 {
-  const int nfiles = 4;
+  const int nfiles = 1;
   string filenames[nfiles] =
     {
       //"savedhists_fracsim_100_fracdat_100_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
-     "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root",
-     "savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_30_run_21615_ntc.root",
-     "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_ntc.root",
-     "savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_ntc.root"
+      //"savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root",
+      //"savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_30_run_21615_ntc.root",
+      //"savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_ntc.root",
+      "savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_ntc.root"
     };
 
   for(int i=0; i<nfiles; ++i)
