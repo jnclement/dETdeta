@@ -535,7 +535,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
 	  plotsimdat(options, c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centtow", plotdir, "cent/", centbins, 1);
 	  xlabel = "E_{T," + cal[j] +" event} [GeV]";
-	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins, 0);
+	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins, 1);
 	  options = "hist p";
 	  xlabel = "#eta bin";
 	  ylabel = "dE_{T}/d#eta [GeV]";
@@ -548,9 +548,9 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   ylabel = "#phi bin";
   options = "COLZ";
   const int ntext = 4;
-  string texts[ntext] = {"0 MeV subtracted from each tower","|z|<30 cm, min tower E = 0 MeV","","HIJING scaled by 1.30"};
-  gPad->SetRightMargin(0.1);
-  gPad->SetLeftMargin(0.1);
+  string texts[ntext] = {"0 MeV subtracted from each tower","|z|<10 cm, min tower E = 5 MeV","","HIJING scaled by 1.30"};
+  gPad->SetRightMargin(0.15);
+  gPad->SetLeftMargin(0.15);
   for(int i=0; i<centbins; ++i)
     {
       for(int j=0; j<3; ++j)
@@ -560,6 +560,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  //deadmap[1][j][i]->Divide(deadmap[0][j][i]);
 	  deadmap[1][j][i]->GetYaxis()->SetTitle(ylabel.c_str());
 	  deadmap[1][j][i]->GetXaxis()->SetTitle(xlabel.c_str());
+	  deadmap[1][j][i]->GetZaxis()->SetTitle("<E^{tower}_{data}> [GeV]");
+	  deadmap[0][j][i]->GetZaxis()->SetTitle("<E^{tower}_{HIJING}> [GeV]");
 	  deadmap[1][j][i]->GetZaxis()->SetLabelSize(0.025);
 	  //deadmap[1][j][i]->GetZaxis()->SetRangeUser(0,2);
 	  texts[2] = "Run 21615 " + to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+"% centrality";
@@ -581,7 +583,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  multitext(texts,ntext);
 	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/sim_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
 	  deadmap[1][j][i]->Divide(deadmap[0][j][i]);
-	  deadmap[1][j][i]->GetZaxis()->SetRangeUser(0,5);
+	  deadmap[1][j][i]->GetZaxis()->SetTitle("<E^{tower}_{data}>/<E^{tower}_{HIJING}>");
+	  deadmap[1][j][i]->GetZaxis()->SetRangeUser(0.5,1.5);
 	  deadmap[1][j][i]->Draw("COLZ");
 	  sphenixtext();
 	  multitext(texts,ntext);
