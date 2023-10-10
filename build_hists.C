@@ -247,12 +247,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
-	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.2,1.2);
-	  dETcount[i][j] = new TH1I(("dETcount"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.2,1.2);
+	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.15,1.15);
+	  dETcount[i][j] = new TH1I(("dETcount"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.15,1.15);
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.2,1.2);
-	      dETcentcount[i][j][k] = new TH1I(("dETcentcount"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.2,1.2);
+	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.15,1.15);
+	      dETcentcount[i][j][k] = new TH1I(("dETcentcount"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.15,1.15);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",120,-30,30);
