@@ -214,14 +214,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int calet[2][3][25000], calph[2][3][25000];
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
   float towercomb[64][hcalbins];
-  bool etavent[centbins][hcalbins] = {false};
-  bool eventeta[hcalbins] = {false};
   float etacor[2][3][25000];
   int sector[2][3];
   int sectormb;
   int npart = 0;
-  int neta[2][3][hcalbins] = {0};
-  int netacent[2][3][centbins][hcalbins] = {0};
   float z_v[2][3];
   TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_71.root").c_str());
   TTree* tree[2];
@@ -233,13 +229,15 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* centet[2][3][centbins];
   TH1D* ettotcent[2][centbins];
   TH1D* dET[2][3];
+  TH1I* dETcount[2][3];
   TH1D* dETcent[2][3][centbins];
+  TH1I* dETcentcount[2][3][centbins];
   TH1D* meandiff[3];
   TH1D* sigmu[2][3];
   TH1D* meancent[2][3];
   TH2D* deadmap[2][3][centbins];
   TH1D* zcent[2][centbins];
-  TH2I* deadhits[2][3][centbins];
+  TH1I* deadhits[2][3][centbins];
   int phibins[3] = {256,64,64};
   int etabins[3] = {96,24,24};
   for(int j=0; j<3; ++j)
@@ -250,9 +248,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.2,1.2);
+	  dETcount[i][j] = new TH1I(("dETcount"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.2,1.2);
 	  for(int k=0; k<centbins; ++k)
 	    {
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.2,1.2);
+	      dETcentcount[i][j][k] = new TH1I(("dETcentcount"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.2,1.2);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",120,-30,30);
@@ -488,42 +488,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  centtow[h][k][j]->Fill(eval);
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
-			  if(k==0)
-			    {
-			      dETcent[h][k][j]->Fill(etacor[h][k][l],eval);
-			      if(!etavent[j][calet[h][k][l]/4])
-				{
-				  netacent[h][k][j][calet[h][k][l]/4]++;
-				  etavent[j][calet[h][k][l]/4] = true;
-				}
-			      dET[h][k]->Fill(etacor[h][k][l],eval);
-			      if(!eventeta[calet[h][k][l]/4])
-				{
-				  neta[h][k][calet[h][k][l]/4]++;
-				  eventeta[calet[h][k][l]/4] = true;
-				}
-			    }
-			  else
-			    {
-			      dETcent[h][k][j]->Fill(etacor[h][k][l],eval);
-			      if(!etavent[j][calet[h][k][l]])
-				{
-				  netacent[h][k][j][calet[h][k][l]]++;
-				  etavent[j][calet[h][k][l]] = true;
-				}
-			      dET[h][k]->Fill(etacor[h][k][l],eval);
-			      if(!eventeta[calet[h][k][l]])
-				{
-				  neta[h][k][calet[h][k][l]]++;
-				  eventeta[calet[h][k][l]] = true;
-				}
-			    }
-			}
-		      
-		      for(int l=0; l<hcalbins; ++l)
-			{
-			  etavent[j][l] = false;
-			  eventeta[l] = false;
+			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval);
+			  dETcentcount[h][k][j]->Fill(etacor[h][k][l]);
+			  dET[h][k]->Fill(etacor[h][k][l],eval);
+			  dETcount[h][k]->Fill(etacor[h][k][l]);
 			}
 		      allsum += esum;
 		      ET[h][k]->Fill(esum);
@@ -573,8 +541,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	  for(int j=0; j<hcalbins; ++j)
 	    {
-	      dET[h][i]->SetBinContent(j+1,dET[h][i]->GetBinContent(j+1)/neta[h][i][j]);
-	      dET[h][i]->SetBinError(j+1,dET[h][i]->GetBinError(j+1)/neta[h][i][j]);
+	      dET[h][i]->Divide(dETcount[h][i]);
 	      if(i==0 && j<2)
 		{
 		  dET[h][i]->SetBinContent(j+1,0);
@@ -582,14 +549,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		}
 	      for(int k=0; k<centbins; ++k)
 		{
-		  //cout << h << " " << i << " " << j << " " << k << " " << netacent[h][i][k][j] << endl;
-		  dETcent[h][i][k]->SetBinContent(j+1,dETcent[h][i][k]->GetBinContent(j+1)/netacent[h][i][k][j]);
-		  dETcent[h][i][k]->SetBinError(j+1,dETcent[h][i][k]->GetBinError(j+1)/netacent[h][i][k][j]);
-		  if(i==0 && j<2)
-		    {
-		      dETcent[h][i][k]->SetBinContent(j+1,0);
-		      dETcent[h][i][k]->SetBinError(j+1,0);
-		    }
+		  dETcent[h][i][k]->Divide(dETcentcount[h][i][k]);
 		}
 	    }
 	}
