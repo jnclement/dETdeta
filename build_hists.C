@@ -48,7 +48,7 @@ int fullregonly(int phi)
   return 0;
 }
 
-float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist)
+float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist, int cut)
 {
   float mbsum;//, ucmbd;
   //int mbdnn, mbdns;
@@ -106,7 +106,7 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
       return -1;
     }
   if(zhist) zhist->Fill(zvtx);
-  if(abs(zvtx) > zcut)
+  if(abs(zvtx) > zcut && cut)
     {
       return -1;
     }
@@ -417,7 +417,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       if(i%toprint[0] == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
       if(abs(z_v[0][2]) == 0) continue;
-      if(abs(z_v[0][2]) > zcut) continue;
+      //if(abs(z_v[0][2]) > zcut) continue;
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
     }
@@ -428,7 +428,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist);
+      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist, 0);
     }
   cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
@@ -457,7 +457,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      if(abs(z_v[0][2]) > zcut) continue;
 	      mbsum = npart;
 	    }
-	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL);
+	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL, 1);
 	  if(mbsum < 0) continue;
 	  for(int j=0; j<centbins; ++j)
 	  {
