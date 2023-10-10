@@ -10,10 +10,12 @@
 #include "TTree.h"
 #include "TLegend.h"
 #include <iomanip>
+#include <TFitResult.h>
 #include "TLatex.h"
 #include "stdlib.h"
 #include <fstream>
 #include <cstdlib>
+#include <TF1.h>
 #include <cmath>
 #include <math.h>
 #include <TH1D.h>
@@ -270,12 +272,24 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   gPad->SetTicks(1);
   if(norm) dathist->Scale(1./dathist->Integral());
   if(simhist && norm) simhist->Scale(1./simhist->Integral());
-  dathist->SetLineColor(kRed);
-  dathist->SetMarkerColor(kRed);
+  int dcolor;
+  int scolor;
+  if(dir=="/home/jocl/datatemp/plots_unc/")
+    {
+      dcolor = kGreen+2;
+      scolor = kMagenta+2;
+    }
+  else
+    {
+      dcolor = kRed;
+      scolor = kBlue;
+    }
+  dathist->SetLineColor(dcolor);
+  dathist->SetMarkerColor(dcolor);
   if(simhist)
     {
-      simhist->SetLineColor(kBlue);
-      simhist->SetMarkerColor(kBlue);
+      simhist->SetLineColor(scolor);
+      simhist->SetMarkerColor(scolor);
     }
   float maxval;
   if(simhist) maxval = max(dathist->GetMaximum(),simhist->GetMaximum());
@@ -299,6 +313,10 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
     }
   if(logy) dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
   else dathist->GetYaxis()->SetRangeUser(min(0.,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
+  if(name=="sigmu")
+    {
+      dathist->GetYaxis()->SetRangeUser(0,2);
+    }
   if(cal == "MBD") dathist->GetXaxis()->SetRangeUser(-zcut,zcut);
   dathist->GetXaxis()->SetTitle(xlabel.c_str());
   dathist->GetYaxis()->SetTitle(ylabel.c_str());
@@ -309,8 +327,8 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
     {
       hp[1] = dathist->Fit("gaus","S");
       hp[0] = simhist->Fit("gaus","S");
-      dathist->GetFunction("gaus")->SetLineColor(kRed);
-      simhist->GetFunction("gaus")->SetLineColor(kBlue);
+      dathist->GetFunction("gaus")->SetLineColor(dcolor);
+      simhist->GetFunction("gaus")->SetLineColor(scolor);
       dathist->Draw(options.c_str());
       simhist->Draw(("SAME "+options).c_str());
       dathist->GetFunction("gaus")->Draw("SAME");
@@ -348,11 +366,11 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   if(simhist)
     {
       dathist->Divide(simhist);
-      dathist->GetYaxis()->SetTitle("Data/HIJING");
+      dathist->GetYaxis()->SetTitle((cal+" <E_{T}^{event}> Data/("+params[0]+"*HIJING)").c_str());
       maxval = dathist->GetMaximum();
       minval = dathist->GetMinimum();
-      gPad->SetLogy();
-      dathist->GetYaxis()->SetRangeUser(0.1,10);
+      gPad->SetLogy(0);
+      dathist->GetYaxis()->SetRangeUser(0,2);
       dathist->Draw(options.c_str());
       sphenixtext();
       multitext(texts2, ntext2);
@@ -519,7 +537,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       xlabel = "MBD Centrality [%]";
       meandiff[j]->Scale(2.);
       plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins, 0);
-      ylabel = "#sigma_{"+cal[j]+"}/#mu_{"+cal[j]+"}";
+      ylabel = cal[j]+" #sigma_{E_{T}^{event}}/#mu_{E_{T}^{event}}";
       plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins, 0);
       ylabel = "Normalized Counts";
       options = "";
@@ -623,18 +641,27 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 int plot()
 {
   const int nfiles = 1;
+    /*;
+  string tags[nfiles] =
+    {
+      "unc",
+      "cor"
+    };
   string filenames[nfiles] =
     {
       //"savedhists_fracsim_100_fracdat_100_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root"
       //"savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_ntc.root",
       //"savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_30_run_21615_ntc.root",
-      //"savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_ntc.root",
-      "savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_ntc.root"
+      "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_ntc.root"
+      //"savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_newest.root"
     };
 
   for(int i=0; i<nfiles; ++i)
     {
       int dummy = called_plot(filenames[i]);
     }
+    */
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_20231009_cor.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots/");
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_10_run_21615_20231009_unc.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots_unc/");
   return 0;
 }
