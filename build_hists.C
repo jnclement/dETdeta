@@ -198,7 +198,7 @@ float get_E_T_hc(float E, int eta, float sub)
 }
 
 
-int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="")
+int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", int cor = 1)
 {
   cout << "Starting..." << endl;
   mbd_init();
@@ -225,10 +225,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float z_v[2][3];
   //TFile* hottowers = TFile::Open("/home/jocl/datatemp/hot_towers_21518_1.root");
   //TTree* hottree = hottowers->Get<TTree>("T_hot_tower");
-  TFile* file = TFile::Open("datatemp/merged_dEdeta_newest_data_71.root");
+  TFile* file = TFile::Open("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_71.root");
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
-  TFile* simf = TFile::Open("datatemp/merged_dEdeta_newest_mc_555.root");
+  TFile* simf = TFile::Open("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_mc_500.root");
   tree[0] = simf->Get<TTree>("ttree");  
   float cents[2][centbins+2] = {0};
   TH1D* centtow[2][3][centbins];
