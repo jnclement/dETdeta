@@ -237,7 +237,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* meancent[2][3];
   TH2D* deadmap[2][3][centbins];
   TH1D* zcent[2][centbins];
-  TH1I* deadhits[2][3][centbins];
+  TH2I* deadhits[2][3][centbins];
   int phibins[3] = {256,64,64};
   int etabins[3] = {96,24,24};
   for(int j=0; j<3; ++j)
