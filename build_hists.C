@@ -579,6 +579,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      outf->WriteObject(centtow[h][i][j], centtow[h][i][j]->GetName());
 	      outf->WriteObject(centet[h][i][j], centet[h][i][j]->GetName());
 	      outf->WriteObject(dETcent[h][i][j], dETcent[h][i][j]->GetName());
+	      outf->WriteObject(dETcentcount[h][i][j], dETcentcount[h][i][j]->GetName());
 	    }
 	}
     }
