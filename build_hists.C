@@ -539,18 +539,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      deadmap[h][i][j]->Divide(deadhits[h][i][j]);
 	    }
-	  for(int j=0; j<hcalbins; ++j)
+	  dET[h][i]->Divide(dETcount[h][i]);
+	  for(int k=0; k<centbins; ++k)
 	    {
-	      dET[h][i]->Divide(dETcount[h][i]);
-	      if(i==0 && j<2)
-		{
-		  dET[h][i]->SetBinContent(j+1,0);
-		  dET[h][i]->SetBinError(j+1,0);
-		}
-	      for(int k=0; k<centbins; ++k)
-		{
-		  dETcent[h][i][k]->Divide(dETcentcount[h][i][k]);
-		}
+	      dETcent[h][i][k]->Divide(dETcentcount[h][i][k]);
 	    }
 	}
     }
