@@ -217,6 +217,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float etacor[2][3][25000];
   int sector[2][3];
   int sectormb;
+  int truthpar_n;
+  float truthpar_eta[100000];
+  float truthpar_e[100000];
+  TH1I* truthpar_counts[centbins];
+  TH1I* truthpar_hit = new TH1I("truthpar_hit","",hcalbins,-1.2,1.2);
+  TH1D* truthpar_et[centbins];
   int npart = 0;
   float z_v[2][3];
   TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_71.root").c_str());
@@ -273,6 +279,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int bins_et = 100;
   for(int i=0; i<centbins; ++i)
     {
+      truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
+      truthpar_counts[i] = new TH1D(("truthpar_hits_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
       ettotcent[0][i] = new TH1D(("ettotcent0_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
       ettotcent[1][i] = new TH1D(("ettotcent1_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
       centtow[1][0][i] = new TH1D(("centtow10_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range*(10.+i)/20);
@@ -343,6 +351,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[0]->SetBranchAddress("ihetacor",etacor[0][1]);
   tree[0]->SetBranchAddress("ohetacor",etacor[0][2]);
   tree[0]->SetBranchAddress("track_vtx",z_v[0]);
+  tree[0]->SetBranchAddress("truthpar_n",&truthpar_n);
+  tree[0]->SetBranchAddress("truthpar_eta",truthpar_eta);
+  tree[0]->SetBranchAddress("truthpar_e",truthpar_e);
   tree[0]->SetBranchAddress("npart",&npart);
   tree[0]->SetBranchAddress("emcalen",calen[0][0]);
   tree[0]->SetBranchAddress("emcaletabin",calet[0][0]);
@@ -442,8 +453,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Data minbias hist entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done setting centrality bins." << endl;
   cout << "cent bins sim/dat:" << endl;
-  for(int i=0; i<centbins; ++i)
-    cout << cents[0][i+2] << " " << cents[1][i] << endl;
+  for(int i=0; i<centbins; ++i) cout << cents[0][i+2] << " " << cents[1][i] << endl;
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
@@ -461,12 +471,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL, 1);
 	  if(mbsum < 0) continue;
 	  for(int j=0; j<centbins; ++j)
-	  {
-	    if(mbsum < cents[h][j+2*(1-h)])
-	      {
-		//if(h==1 && j==17) cout << "j = 17 reached " << z_v[h] << endl;
-		zcent[h][j]->Fill(z_v[h][2]);
-		for(int k=0; k<3; ++k)
+	    {
+	      if(mbsum < cents[h][j+2*(1-h)])
+		{
+		  //if(h==1 && j==17) cout << "j = 17 reached " << z_v[h] << endl;
+		  zcent[h][j]->Fill(z_v[h][2]);
+		  for(int k=0; k<3; ++k)
 		    {
 		      esum = 0;
 		      for(int l=0; l<sector[h][k]; ++l)
@@ -523,10 +533,21 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		    }
 		  allsum = 0;
 		  break;
-		  
-	      }
-	  }
-      }
+		  if(h==0)
+		    {
+		      truthpar_hit->Reset();
+		      for(int k=0; k<truthpar_n; ++k)
+			{
+			  truthpar_et[j]->Fill(get_E_T_em(truthpar_e[k],truthpar_eta[k]));
+			  if(!truthpar_hit->GetBinContent(truthpar_hit->GetBin(trithpar_eta[k])))
+			    {
+			      truthpar_counts[j]->Fill(truthpar_eta[k]);
+			    }
+			}
+		    }
+		}
+	    }
+	}
       cout << "Done." << endl;
     }
   centet[1][0][17]->Draw();
@@ -545,6 +566,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      meancent[j][i]->SetBinError(centbins-k,fit->Error(1));
 	    }
 	}
+    }
+  for(int i=0; i<centbins; ++i)
+    {
+      truthpar_et[i]->Divide(truthpar_counts[i]);
     }
   cout << "Doing a few histogram operations..." << endl;
   for(int h=0; h<2; ++h)
@@ -569,8 +594,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
   cout << "Saving hists to " << outname << endl;
-  
   outf->WriteObject(zhist, zhist->GetName());
+  for(int i=0; i<centbins; ++i)
+    {
+      outf->WriteObject(truthpar_et[i],truthpar_et[i]->GetName());
+      outf->WriteObject(truthpar_counts[i],truthpar_counts[i]->GetName());
+    }
   for(int i=0; i<3; ++i)
     {
       outf->WriteObject(meandiff[i], meandiff[i]->GetName());
