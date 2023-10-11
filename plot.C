@@ -398,7 +398,6 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
     {
       for(int j=0; j<3; ++j)
 	{
-	  means[i][j] = new TH1D(("mean"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  sigs[i][j] = new TH1D(("sig"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	}
     }
@@ -434,6 +433,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       sumtw[i] = (TH1D*)histfile->Get(("sumtw" + to_string(i)).c_str());
       for(int j=0; j<3; ++j)
 	{
+	  means[i][j] = (TH1D*)histfile->Get(("meancent"+to_string(i)+to_string(j)).c_str());
 	  if(i==0) meandiff[j] = (TH1D*)histfile->Get(("md"+to_string(j)).c_str());
 	  sigmu[i][j] = (TH1D*)histfile->Get(("sigmu"+to_string(i)+to_string(j)).c_str());
 	  ET[i][j] = (TH1D*)histfile->Get(("et"+to_string(i)+to_string(j)).c_str());
@@ -466,10 +466,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	{
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      means[i][j]->SetBinContent(centbins-k,centet[i][j][k]->GetMean());
-	      means[i][j]->SetBinError(centbins-k,0);
-	      sigs[i][j]->SetBinContent(centbins-k,centet[i][j][k]->GetStdDev());
-	      sigs[i][j]->SetBinError(centbins-k,0);
+	      sigs[i][j]->Divide(sigmu[i][j],means[i][j]);
 	    }
 	}
     }
@@ -537,8 +534,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       xlabel = "MBD Centrality [%]";
       meandiff[j]->Scale(2.);
       plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins, 0);
-      ylabel = cal[j]+" #sigma_{E_{T}^{event}}/#mu_{E_{T}^{event}}";
-      plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigmu", plotdir, "all/", centbins, 0);
+      ylabel = cal[j]+" #sigma_{E_{T}^{event}}";
+      plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigdist", plotdir, "all/", centbins, 0); //NOTE THAT THE HIST WITH VARIABLE NAME SIGMU NOW POINTS TO THE SIGMA DISTRIBUTION, AND VICE VERSA
       ylabel = "Normalized Counts";
       options = "";
       xlabel = "E_{T," + cal[j] +" event} [GeV]";
