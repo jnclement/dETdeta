@@ -240,6 +240,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH2I* deadhits[2][3][centbins];
   int phibins[3] = {256,64,64};
   int etabins[3] = {96,24,24};
+  bool hit[3][hcalbins] = {false};
   for(int j=0; j<3; ++j)
     {
       meandiff[j] = new TH1D(("md"+to_string(j)).c_str(),"",centbins,0,90);
@@ -489,9 +490,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval);
-			  dETcentcount[h][k][j]->Fill(etacor[h][k][l]);
 			  dET[h][k]->Fill(etacor[h][k][l],eval);
-			  dETcount[h][k]->Fill(etacor[h][k][l]);
+			  int binhit = (k==0?calet[h][k][l]/4:calet[h][k][l]);
+			  if(!hit[k][binhit])
+			    {
+			      dETcount[h][k]->Fill(etacor[h][k][l]);
+			      dETcentcount[h][k][j]->Fill(etacor[h][k][l]);
+			      hit[binhit] = true;
+			    }
 			}
 		      allsum += esum;
 		      ET[h][k]->Fill(esum);
@@ -500,6 +506,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		    }
 		  sumev[h]->Fill(allsum);
 		  ettotcent[h][j]->Fill(allsum);
+		  for(int k=0; k<3; ++k)
+		    {
+		      for(int l=0; l<hcalbins; ++l)
+			{
+			  hit[k][l] = false;
+			}
+		    }
 		  for(int k=0; k<64; ++k)
 		    {
 		      for(int l=0; l<hcalbins; ++l)
