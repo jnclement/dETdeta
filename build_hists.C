@@ -496,7 +496,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			    {
 			      dETcount[h][k]->Fill(etacor[h][k][l]);
 			      dETcentcount[h][k][j]->Fill(etacor[h][k][l]);
-			      hit[binhit] = true;
+			      hit[k][binhit] = true;
 			    }
 			}
 		      allsum += esum;
