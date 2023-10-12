@@ -532,22 +532,20 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			}
 		    }
 		  allsum = 0;
-		  break;
 		  if(h==0)
 		    {
 		      truthpar_hit->Reset();
-		      cout << truthpar_n << endl;
 		      for(int k=0; k<truthpar_n; ++k)
 			{
 			  truthpar_et[j]->Fill(get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
 			  if(!truthpar_hit->GetBinContent(truthpar_hit->GetBin(truthpar_eta[k])))
 			    {
-			      cout << "Got a hit!" << endl;
 			      truthpar_counts[j]->Fill(truthpar_eta[k]);
 			      truthpar_hit->Fill(truthpar_eta[k]);
 			    }
 			}
 		    }
+		  break;
 		}
 	    }
 	}
