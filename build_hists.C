@@ -538,8 +538,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      truthpar_hit->Reset();
 		      for(int k=0; k<truthpar_n; ++k)
 			{
-			  truthpar_et[j]->Fill(get_E_T_em(truthpar_e[k],truthpar_eta[k]));
-			  if(!truthpar_hit->GetBinContent(truthpar_hit->GetBin(trithpar_eta[k])))
+			  truthpar_et[j]->Fill(get_E_T_em(truthpar_e[k],truthpar_eta[k]),0);
+			  if(!truthpar_hit->GetBinContent(truthpar_hit->GetBin(truthpar_eta[k])))
 			    {
 			      truthpar_counts[j]->Fill(truthpar_eta[k]);
 			    }
