@@ -536,6 +536,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  if(h==0)
 		    {
 		      truthpar_hit->Reset();
+		      cout << truthpar_n << endl;
 		      for(int k=0; k<truthpar_n; ++k)
 			{
 			  truthpar_et[j]->Fill(get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
