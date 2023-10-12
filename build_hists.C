@@ -544,7 +544,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      int gtp = 0;
 		      for(int k=0; k<truthpar_n; ++k)
 			{
-			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > 1.2) continue;
+			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > 1.2 || truthpar_e[k] < mine) continue;
 			  truthparehist->Fill(truthpar_e[k]);
 			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
