@@ -609,8 +609,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
   cout << "Saving hists to " << outname << endl;
   outf->WriteObject(zhist, zhist->GetName());
+  outf->WriteObject(truthparehist,truthparehist->GetName());
+  outf->WriteObject(truthparnhist,truthparnhist->GetName());
   for(int i=0; i<centbins; ++i)
     {
+      outf->WriteObject(truthparecent[i],truthparecent[i]->GetName());
+      outf->WriteObject(truthparncent[i],truthparncent[i]->GetName());
       outf->WriteObject(truthpar_et[i],truthpar_et[i]->GetName());
       outf->WriteObject(truthpar_counts[i],truthpar_counts[i]->GetName());
     }
