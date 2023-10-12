@@ -238,6 +238,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1I* dETcount[2][3];
   TH1D* dETcent[2][3][centbins];
   TH1I* dETcentcount[2][3][centbins];
+  TH1D* truthparnhist = new TH1D("truthparnhist","",10000,0,100000);
+  TH1D* truthparncent;
+  TH1D* truthparehist = new TH1D("truthparehist","",1000,0,200);
+  TH1D* truthparecent;
   TH1D* meandiff[3];
   TH1D* sigmu[2][3];
   TH1D* meancent[2][3];
@@ -279,6 +283,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int bins_et = 100;
   for(int i=0; i<centbins; ++i)
     {
+      truthparecent[i] = new TH1D(("truthparecent_"+to_string(i)).c_str(),"",1000,0,200);
+      truthparncent[i] = new TH1D(("truthparncent_"+to_string(i)).c_str(),"",10000,0,100000);
       truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
       truthpar_counts[i] = new TH1I(("truthpar_counts_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
       ettotcent[0][i] = new TH1D(("ettotcent0_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
@@ -535,16 +541,22 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  if(h==0)
 		    {
 		      truthpar_hit->Reset();
+		      int gtp = 0;
 		      for(int k=0; k<truthpar_n; ++k)
 			{
 			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > 1.2) continue;
+			  truthparehist->fill(truthpar_e[k]);
+			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
 			  if(!truthpar_hit->GetBinContent(truthpar_hit->FindBin(truthpar_eta[k])))
 			    {
 			      truthpar_counts[j]->Fill(truthpar_eta[k]);
 			      truthpar_hit->Fill(truthpar_eta[k]);
 			    }
+			  gtp++;
 			}
+		      truthparncent[j]->Fill(gtp);
+		      truthparnhist->Fill(gtp);
 		    }
 		  break;
 		}
