@@ -280,7 +280,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   for(int i=0; i<centbins; ++i)
     {
       truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
-      truthpar_counts[i] = new TH1D(("truthpar_hits_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
+      truthpar_counts[i] = new TH1I(("truthpar_hits_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
       ettotcent[0][i] = new TH1D(("ettotcent0_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
       ettotcent[1][i] = new TH1D(("ettotcent1_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
       centtow[1][0][i] = new TH1D(("centtow10_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range*(10.+i)/20);
@@ -538,7 +538,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      truthpar_hit->Reset();
 		      for(int k=0; k<truthpar_n; ++k)
 			{
-			  truthpar_et[j]->Fill(get_E_T_em(truthpar_e[k],truthpar_eta[k]),0);
+			  truthpar_et[j]->Fill(get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
 			  if(!truthpar_hit->GetBinContent(truthpar_hit->GetBin(truthpar_eta[k])))
 			    {
 			      truthpar_counts[j]->Fill(truthpar_eta[k]);
