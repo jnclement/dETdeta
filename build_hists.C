@@ -572,6 +572,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
   for(int i=0; i<centbins; ++i)
     {
+      continue;
       truthpar_et[i]->Divide(truthpar_counts[i]);
     }
   cout << "Doing a few histogram operations..." << endl;
