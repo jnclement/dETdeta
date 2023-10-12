@@ -144,7 +144,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 	      //exit(1);
 	    }
 	  nsum += hist->GetBinContent(i);
-	  if(n>=16) cout << nsum<< " " << (n+1)*hist->GetEntries()/centbins << endl;
+	  //if(n>=16) cout << nsum<< " " << (n+1)*hist->GetEntries()/centbins << endl;
 	  if((n+1)*hist->GetEntries()/centbins <= nsum)
 	    {
 	      cent[n] = hist->GetBinLowEdge(i+1);
@@ -541,10 +541,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
 			  if(!truthpar_hit->GetBinContent(truthpar_hit->FindBin(truthpar_eta[k])))
 			    {
-			      cout << i << " " << truthpar_eta[k] << " " << truthpar_hit->FindBin(truthpar_eta[k]) << " " << truthpar_hit->GetBinContent(truthpar_hit->FindBin(truthpar_eta[k])) << endl;
 			      truthpar_counts[j]->Fill(truthpar_eta[k]);
 			      truthpar_hit->Fill(truthpar_eta[k]);
-			      cout << i << " " << truthpar_eta[k] << " " << truthpar_hit->FindBin(truthpar_eta[k]) << " " << truthpar_hit->GetBinContent(truthpar_hit->FindBin(truthpar_eta[k])) << endl;
 			    }
 			}
 		    }
@@ -573,7 +571,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
   for(int i=0; i<centbins; ++i)
     {
-      continue;
       truthpar_et[i]->Divide(truthpar_counts[i]);
     }
   cout << "Doing a few histogram operations..." << endl;
