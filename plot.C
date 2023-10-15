@@ -67,18 +67,20 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
   string texts[ntext];
   string ztext = ((zcut > 100)?"No z cut,":"|z|<"+params[3]+" cm");
   texts[0] = (calnum==4?"":params[1] + " MeV subtracted from each tower");
-  texts[2] = ztext +(calnum==4?"":", min tower E = " +params[2] + " MeV");
+  texts[2] = ztext +(calnum==4?", min particle E = " +params[2] + " MeV":", min tower E = " +params[2] + " MeV");
   texts[1] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
   //if(sc > 1.) texts[3] = "HIJING scaled by " + params[0];
   texts[3] = "";
-  auto leg = new TLegend(0.55,0.7,0.8,0.9);
+  TLegend* leg;
+  if(calnum!=4) leg = new TLegend(0.55,0.7,0.8,0.9);
+  else leg = new TLegend(0.75,0.65,0.9,0.9);
   leg->SetTextSize(0.015);
   mainhist->SetMarkerColor(kBlack);
   leg->AddEntry(mainhist,(typ+" 0-90% centrality").c_str(),"P");
-  if(calnum==0 || calnum == 3) mainhist->Rebin(2);
+  if(calnum==0 || calnum == 3 || calnum==4) mainhist->Rebin(5);
   for(int i=0; i<centbins; ++i)
     {
-      if(calnum == 0 || calnum == 3) hists[i]->Rebin(2);
+      if(calnum == 0 || calnum == 3 || calnum==4) hists[i]->Rebin(5);
       hists[i]->SetMarkerColor(knames[i%6]+kcodes[i/6]);
       hists[i]->SetLineColor(knames[i%6]+kcodes[i/6]);
       hists[i]->SetFillColorAlpha(knames[i%6]+kcodes[i/6],0.2);
@@ -109,7 +111,7 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
   //else if(calnum == 2) maxval = 20;
   if(logy) mainhist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
   else mainhist->GetYaxis()->SetRangeUser(min(0,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
-  float ranges[4] = {1500,150,400,2000};
+  float ranges[5] = {1500,150,400,2000,5000};
   mainhist->GetXaxis()->SetRangeUser(0,ranges[calnum]);
   cout << mainhist->GetName() << endl;
   mainhist->GetXaxis()->SetTitle(xlabel.c_str());
@@ -669,6 +671,6 @@ int plot()
     */
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_cor.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots/");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_unc.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots_unc/");
-  called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_20231011_nopileup_cor.root");
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_20231011_nopileup_cor.root");
   return 0;
 }
