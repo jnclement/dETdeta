@@ -215,6 +215,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int   mbdtype[25000], mbdside[25000], mbdchan[25000];
   float towercomb[64][hcalbins];
   float etacor[2][3][25000];
+  float simmbe[256];
+  int simsecmb;
   int sector[2][3];
   int sectormb;
   int truthpar_n;
@@ -231,6 +233,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
   tree[0] = simf->Get<TTree>("ttree");  
   float cents[2][centbins+2] = {0};
+  float truth_vtx[3];
   TH1D* centtow[2][3][centbins];
   TH1D* centet[2][3][centbins];
   TH1D* ettotcent[2][centbins];
@@ -353,6 +356,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[1]->SetBranchAddress("emetacor",etacor[1][0]);
   tree[1]->SetBranchAddress("ihetacor",etacor[1][1]);
   tree[1]->SetBranchAddress("ohetacor",etacor[1][2]);
+  tree[0]->SetBranchAddress("sectormb",&simsecmb);
+  tree[0]->SetBranchAddress("mbenrgy",simmbe);
+  tree[0]->SetBranchAddress("truth_vtx",truth_vtx);
   tree[0]->SetBranchAddress("emetacor",etacor[0][0]);
   tree[0]->SetBranchAddress("ihetacor",etacor[0][1]);
   tree[0]->SetBranchAddress("ohetacor",etacor[0][2]);
@@ -434,10 +440,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[0] == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
+      /*
       if(abs(z_v[0][2]) == 0) continue;
       //if(abs(z_v[0][2]) > zcut) continue;
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
+      */
+      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, truth_vtx[2], zhist, 0);
     }
   cout << "Sim MBD histogram entries: " << mbh[0]->GetEntries() << endl;
   cout << "Done filling sim MBD hist." << endl;
@@ -446,7 +455,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist, 0);
+      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], NULL, 0);
     }
   cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
@@ -472,7 +481,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      if(abs(z_v[0][2]) == 0) continue;
 	      if(abs(z_v[0][2]) > zcut) continue;
-	      mbsum = npart;
+	      mbsum = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, NULL, zcut, z_v[0][2], NULL, 1);
 	    }
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL, 1);
 	  if(mbsum < 0) continue;
