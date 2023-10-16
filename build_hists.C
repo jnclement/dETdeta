@@ -217,6 +217,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float etacor[2][3][25000];
   float simmbe[256];
   int simsecmb;
+  int nevt[2] = {0};
   int sector[2][3];
   int sectormb;
   int truthpar_n;
@@ -489,6 +490,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      if(mbsum < cents[h][j+2*(1-h)])
 		{
+		  nevt[h]++;
 		  //if(h==1 && j==17) cout << "j = 17 reached " << z_v[h] << endl;
 		  zcent[h][j]->Fill(z_v[h][2]);
 		  for(int k=0; k<3; ++k)
@@ -679,6 +681,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outt->Branch("frac",frac,"frac[2]/I");
   outt->Branch("mine",&mine,"mine/F");
   int nccb = centbins;
+  outt->Branch("nevt",nevt,"nevt[2]/I");
   outt->Branch("cbin",&nccb,"cbin/I");
   outt->Branch("zcut",&zcut,"zcut/F");
   outt->Branch("run",&run,"run/I");
