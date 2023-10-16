@@ -590,10 +590,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
+  /*
   for(int i=0; i<centbins; ++i)
     {
       truthpar_et[i]->Divide(truthpar_counts[i]);
     }
+  */
   cout << "Doing a few histogram operations..." << endl;
   for(int h=0; h<2; ++h)
     {
@@ -612,7 +614,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  cout << "Bin " << l << " in: dETcent " << dETcent[h][i][k]->GetBinContent(l+1) << " dETcentcount " << dETcentcount[h][i][k]->GetBinContent(l+1) << " ratio: " << dETcent[h][i][k]->GetBinContent(l+1)/dETcentcount[h][i][k]->GetBinContent(l+1) << endl;
 		}
 	      */
-	      dETcent[h][i][k]->Divide(dETcentcount[h][i][k]);
+	      //dETcent[h][i][k]->Divide(dETcentcount[h][i][k]);
+	      continue;
 	    }
 	}
     }
