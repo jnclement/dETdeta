@@ -48,7 +48,7 @@ int fullregonly(int phi)
   return 0;
 }
 
-float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist, int cut)
+float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist, int cut, int datsim)
 {
   float mbsum;//, ucmbd;
   //int mbdnn, mbdns;
@@ -63,17 +63,21 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
   for(int i=0; i<sectors; ++i)
     {
       //ucmbd += mbe[i];
-      if(mbt[i] == 1)
+      if(datsim)
 	{
-	  if(mbs[i] == 1)
+	  if(mbt[i] == 1)
 	    {
-	      mbsum += mbe[i];//*gaincorr[mbc[i]+64];
-	    }
-	  else if(mbs[i] == 0)
-	    {
-	      mbsum += mbe[i];//*gaincorr[mbc[i]];
+	      if(mbs[i] == 1)
+		{
+		  mbsum += mbe[i];//*gaincorr[mbc[i]+64];
+		}
+	      else if(mbs[i] == 0)
+		{
+		  mbsum += mbe[i];//*gaincorr[mbc[i]];
+		}
 	    }
 	}
+      else mbsum += mbe[i];
       /*
       else
 	{
@@ -316,7 +320,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* sumtw[2];
   TH1D* mbh[2];
   
-  mbh[0] = new TH1D("smbh","",500,0,500);
+  mbh[0] = new TH1D("smbh","",1000,0,300000);
   mbh[1] = new TH1D("dmbh","",1000,0,300000);
   ET[1][0] = new TH1D("et10","",2000/5,0,2000);
   ET[0][0] = new TH1D("et00","",2000/5,0,2000);
@@ -447,7 +451,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
       */
-      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, truth_vtx[2], zhist, 0);
+      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, truth_vtx[2], zhist, 0, 0);
     }
   cout << "Sim MBD histogram entries: " << mbh[0]->GetEntries() << endl;
   cout << "Done filling sim MBD hist." << endl;
@@ -456,7 +460,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], NULL, 0);
+      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], NULL, 0, 1);
     }
   cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
@@ -482,9 +486,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      if(abs(z_v[0][2]) == 0) continue;
 	      if(abs(z_v[0][2]) > zcut) continue;
-	      mbsum = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, NULL, zcut, z_v[0][2], NULL, 1);
+	      mbsum = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, NULL, zcut, z_v[0][2], NULL, 1, 0);
 	    }
-	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL, 1);
+	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL, 1, 1);
 	  if(mbsum < 0) continue;
 	  for(int j=0; j<centbins; ++j)
 	    {
