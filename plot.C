@@ -321,16 +321,16 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   dathist->GetYaxis()->SetLabelSize(0.025);
   dathist->GetXaxis()->SetLabelSize(0.025);
   TFitResultPtr hp[2];
-  if(simhist && (name=="zcent"))
+  if((simhist && (name=="zcent")) || name=="zvtx")
     {
       hp[1] = dathist->Fit("gaus","S");
-      hp[0] = simhist->Fit("gaus","S");
+      if(simhist) hp[0] = simhist->Fit("gaus","S");
       dathist->GetFunction("gaus")->SetLineColor(dcolor);
-      simhist->GetFunction("gaus")->SetLineColor(scolor);
+      if(simhist) simhist->GetFunction("gaus")->SetLineColor(scolor);
       dathist->Draw(options.c_str());
-      simhist->Draw(("SAME "+options).c_str());
+      if(simhist) simhist->Draw(("SAME "+options).c_str());
       dathist->GetFunction("gaus")->Draw("SAME");
-      simhist->GetFunction("gaus")->Draw("SAME");
+      if(simhist) simhist->GetFunction("gaus")->Draw("SAME");
     }
   if(simhist)
     {
@@ -344,12 +344,12 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   sphenixtext();
   multitext(texts, ntext, 0.03, 0.11);
   if(simhist) leg->Draw();
-  if(name == "zcent" && simhist)
+  if((name == "zcent" && simhist) || name=="zvtx")
     {
       stringstream stmean, stsig;
       stmean << std::fixed << std::setprecision(2) << hp[1]->Parameter(1);
       stsig << std::fixed << std::setprecision(2) << hp[1]->Parameter(2);
-      drawText(("#mu_{data}="+stmean.str()+", #sigma_{data}="+stsig.str()).c_str(),0.9,0.91,1,kBlack,0.025);
+      drawText(("#mu"+(string)(simhist?"_{data}":"")+"="+stmean.str()+", #sigma"+(simhist?"_{data}":"")+"="+stsig.str()).c_str(),0.9,0.91,1,kBlack,0.025);
       stmean.str("");
       stsig.str("");
       if(simhist)
@@ -506,7 +506,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   centoverlayplot(options, c1, sumev[1], ettotcent[1], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, 3);
   xlabel = "Truth Particle N";
   centoverlayplot(options, c1, truthparnhist, truthparncent, 1, "truth particles", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "n_cent_overlay",plotdir, "all/", centbins, 0, 4);
-  xlabel = "MBD Z vertex [cm]";
+  xlabel = "Truth Z Vertex [cm]";
   ylabel = "Normalized Counts";
   options = "";
   plotsimdat(options, c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins, 1);
@@ -671,6 +671,6 @@ int plot()
     */
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_cor.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots/");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_unc.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots_unc/");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_20231011_nopileup_cor.root");
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_20231016_nopileup_cor.root");
   return 0;
 }
