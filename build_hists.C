@@ -227,8 +227,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int truthpar_n;
   float truthpar_eta[100000];
   float truthpar_e[100000];
-  TH1I* truthpar_counts[centbins];
-  TH1I* truthpar_hit = new TH1I("truthpar_hit","",hcalbins,-1.2,1.2);
   TH1D* truthpar_et[centbins];
   int npart = 0;
   float z_v[2][3];
@@ -243,9 +241,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* centet[2][3][centbins];
   TH1D* ettotcent[2][centbins];
   TH1D* dET[2][3];
-  TH1I* dETcount[2][3];
   TH1D* dETcent[2][3][centbins];
-  TH1I* dETcentcount[2][3][centbins];
   TH1D* truthparnhist = new TH1D("truthparnhist","",1000,0,10000);
   TH1D* truthparncent[centbins];
   TH1D* truthparehist = new TH1D("truthparehist","",100,0,50);
@@ -266,12 +262,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
-	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.2,1.2);
-	  dETcount[i][j] = new TH1I(("dETcount"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.2,1.2);
+	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.1,1.1);
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.2,1.2);
-	      dETcentcount[i][j][k] = new TH1I(("dETcentcount"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.2,1.2);
+	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.1,1.1);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",120,-30,30);
@@ -293,8 +287,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       truthparecent[i] = new TH1D(("truthparecent_"+to_string(i)).c_str(),"",100,0,50);
       truthparncent[i] = new TH1D(("truthparncent_"+to_string(i)).c_str(),"",1000,0,10000);
-      truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
-      truthpar_counts[i] = new TH1I(("truthpar_counts_"+to_string(i)).c_str(),"",centbins,-1.2,1.2);
+      truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",centbins,-1.1,1.1);
       ettotcent[0][i] = new TH1D(("ettotcent0_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
       ettotcent[1][i] = new TH1D(("ettotcent1_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
       centtow[1][0][i] = new TH1D(("centtow10_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range*(10.+i)/20);
@@ -522,13 +515,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval);
 			  dET[h][k]->Fill(etacor[h][k][l],eval);
-			  int binhit = (k==0?calet[h][k][l]/4:calet[h][k][l]);
-			  if(!hit[k][binhit])
-			    {
-			      dETcount[h][k]->Fill(etacor[h][k][l]);
-			      dETcentcount[h][k][j]->Fill(etacor[h][k][l]);
-			      hit[k][binhit] = true;
-			    }
 			}
 		      allsum += esum;
 		      ET[h][k]->Fill(esum);
@@ -555,19 +541,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  allsum = 0;
 		  if(h==0)
 		    {
-		      truthpar_hit->Reset();
 		      int gtp = 0;
 		      for(int k=0; k<truthpar_n; ++k)
 			{
-			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > 1.2 || truthpar_e[k] < mine) continue;
+			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > 1.1 || truthpar_e[k] < mine) continue;
 			  truthparehist->Fill(truthpar_e[k]);
 			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
-			  if(!truthpar_hit->GetBinContent(truthpar_hit->FindBin(truthpar_eta[k])))
-			    {
-			      truthpar_counts[j]->Fill(truthpar_eta[k]);
-			      truthpar_hit->Fill(truthpar_eta[k]);
-			    }
 			  gtp++;
 			}
 		      truthparncent[j]->Fill(gtp);
@@ -611,7 +591,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      deadmap[h][i][j]->Divide(deadhits[h][i][j]);
 	    }
-	  dET[h][i]->Divide(dETcount[h][i]);
 	  for(int k=0; k<centbins; ++k)
 	    {
 	      /*
@@ -634,7 +613,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       outf->WriteObject(truthparecent[i],truthparecent[i]->GetName());
       outf->WriteObject(truthparncent[i],truthparncent[i]->GetName());
       outf->WriteObject(truthpar_et[i],truthpar_et[i]->GetName());
-      outf->WriteObject(truthpar_counts[i],truthpar_counts[i]->GetName());
     }
   for(int i=0; i<3; ++i)
     {
@@ -666,7 +644,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      outf->WriteObject(centtow[h][i][j], centtow[h][i][j]->GetName());
 	      outf->WriteObject(centet[h][i][j], centet[h][i][j]->GetName());
 	      outf->WriteObject(dETcent[h][i][j], dETcent[h][i][j]->GetName());
-	      outf->WriteObject(dETcentcount[h][i][j], dETcentcount[h][i][j]->GetName());
 	    }
 	}
     }
