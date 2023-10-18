@@ -206,7 +206,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 {
   cout << "Starting..." << endl;
   mbd_init();
-  
+  float dETrange = 1.2;
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
@@ -255,6 +255,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int phibins[3] = {256,64,64};
   int etabins[3] = {96,24,24};
   bool hit[3][hcalbins] = {false};
+  
+  TH1D* fullcor[3][centbins];
   for(int j=0; j<3; ++j)
     {
       meandiff[j] = new TH1D(("md"+to_string(j)).c_str(),"",centbins,0,90);
@@ -262,10 +264,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
-	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-1.1,1.1);
+	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",hcalbins,-dETrange,dETrange);
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-1.1,1.1);
+	      if(i==0) fullcor[j][k] = new TH1D(("fullcor_"+to_string(i)).c_str(),"",24,-dETrange,dETrange);
+	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",hcalbins,-dETrange,dETrange);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",120,-30,30);
@@ -287,7 +290,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       truthparecent[i] = new TH1D(("truthparecent_"+to_string(i)).c_str(),"",100,0,50);
       truthparncent[i] = new TH1D(("truthparncent_"+to_string(i)).c_str(),"",1000,0,10000);
-      truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",centbins,-1.1,1.1);
+      truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",centbins,-dETrange,dETrange);
       ettotcent[0][i] = new TH1D(("ettotcent0_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
       ettotcent[1][i] = new TH1D(("ettotcent1_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
       centtow[1][0][i] = new TH1D(("centtow10_" + to_string(i)).c_str(),"",bins_tw,0,tw_em_range*(10.+i)/20);
@@ -544,7 +547,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      int gtp = 0;
 		      for(int k=0; k<truthpar_n; ++k)
 			{
-			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > 1.1 || truthpar_e[k] < mine) continue;
+			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > dETrange || truthpar_e[k] < mine) continue;
 			  truthparehist->Fill(truthpar_e[k]);
 			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
@@ -583,6 +586,16 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
   */
   cout << "Doing a few histogram operations..." << endl;
+
+  for(int i=0; i<centbins; ++i)
+    {
+      for(int j=0; j<3; ++j)
+	{
+	  fullcor[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
+	  fullcor[j][i]->Multiply(truthpar_et[i]);
+	  outf->WriteObject(fullcor[i][j],fullcor[i][j]->GetName());
+	}
+    }
   for(int h=0; h<2; ++h)
     {
       for(int i=0; i<3; ++i)
