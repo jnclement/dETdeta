@@ -193,12 +193,12 @@ int check_acceptance(int eta, int phi)
 
 float get_E_T_em(float E, int eta, float sub)
 {
-  return (E-sub)/cosh(eta);//cosh((eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
+  return (E-sub)*abs(sin(atan(exp(-eta))));//cosh((eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
 }
 
 float get_E_T_hc(float E, int eta, float sub)
 {
-  return (E-sub)/cosh(eta);//cosh((eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
+  return (E-sub)*abs(sin(atan(exp(-eta))));//cosh((eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
 }
 
 
@@ -235,7 +235,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_71.root").c_str());
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
-  TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag+"_mc_"+(cor?"cor":"unc")+"_70.root").c_str());
+  TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
   tree[0] = simf->Get<TTree>("ttree");  
   float cents[2][centbins+centoffs] = {0};
   float truth_vtx[3];
