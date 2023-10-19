@@ -210,8 +210,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 9;
-  const int centoffs = 1;
+  const int centbins = 18;
+  const int centoffs = 2;
   const int hcalbins = 24;
   const int ecalbins = 96;
   //int mbd_bins[centbins+1] = {0};
@@ -278,9 +278,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
   
-  float et_em_range[centbins] = {1750}; //{150,150,200,200,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
-  float et_oh_range[centbins] = {400};//{35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};
-  float et_ih_range[centbins] = {150};//{10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};
+  float et_em_range[centbins] = {150,150,200,200,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
+  float et_oh_range[centbins] = {35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};
+  float et_ih_range[centbins] = {10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};
   float et_sm_range = 2000;
   float tw_em_range = 15;
   float tw_oh_range = 20;
@@ -573,6 +573,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  meandiff[i]->SetBinContent(centbins-k,(centet[1][i][k]->GetMean()-centet[0][i][k]->GetMean())/(centet[1][i][k]->GetMean()+centet[0][i][k]->GetMean()));
 	  for(int j=0; j<2; ++j)
 	    {
+	      centet[j][i][k]->Scale(centet[j][i][k]->GetEntries());
 	      TFitResultPtr fit = centet[j][i][k]->Fit("gaus","S");
 	      sigmu[j][i]->SetBinContent(centbins-k,fit->Parameter(2));
 	      sigmu[j][i]->SetBinError(centbins-k,fit->Error(2));
