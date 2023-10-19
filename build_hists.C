@@ -191,14 +191,14 @@ int check_acceptance(int eta, int phi)
 
 //float fill_cal_hist(TH1* tower, TH1* event, TH1* most_tow, TH1* least_tow, TH1* cent_tow, TH1* cent_evt, TH1* most_evt, TH1* least_evt, float* eme, TH1* mbdhist, int* eta, int sectors, int* cents, int centbins, 
 
-float get_E_T_em(float E, int eta, float sub)
+float get_E_T_em(float E, float eta, float sub)
 {
-  return (E-sub)*abs(sin(atan(exp(-eta))));//cosh((eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
+  return (E-sub)/cosh(eta);//*abs(sin(atan(exp(-eta))));//cosh((eta-47.5)*0.024);//*sin(2*atan(exp(-(eta-47.5)*0.024)));
 }
 
-float get_E_T_hc(float E, int eta, float sub)
+float get_E_T_hc(float E, float eta, float sub)
 {
-  return (E-sub)*abs(sin(atan(exp(-eta))));//cosh((eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
+  return (E-sub)/cosh(eta);//*abs(sin(atan(exp(-eta))));//cosh((eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
 }
 
 
