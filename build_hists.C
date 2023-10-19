@@ -248,6 +248,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* truthparncent[centbins];
   TH1D* truthparehist = new TH1D("truthparehist","",100,0,50);
   TH1D* truthparecent[centbins];
+  TH1D* truthpareetac[centbins];
   TH1D* meandiff[3];
   TH1D* sigmu[2][3];
   TH1D* meancent[2][3];
@@ -292,6 +293,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       truthparecent[i] = new TH1D(("truthparecent_"+to_string(i)).c_str(),"",100,0,50);
       truthparncent[i] = new TH1D(("truthparncent_"+to_string(i)).c_str(),"",1000,0,10000);
+      trtuhpareetac[i] = new TH1D(("truthpareetac_"+to_string(i)).c_str(),"",dETbins,-dETrange,dETrange);
       truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",dETbins,-dETrange,dETrange);
       ettotcent[0][i] = new TH1D(("ettotcent0_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
       ettotcent[1][i] = new TH1D(("ettotcent1_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
@@ -553,6 +555,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  truthparehist->Fill(truthpar_e[k]);
 			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
+			  truthpareetac[j]->Fill(truthpar_eta[k],truthpar_e[k]);
 			  gtp++;
 			}
 		      truthparncent[j]->Fill(gtp);
@@ -573,7 +576,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  meandiff[i]->SetBinContent(centbins-k,(centet[1][i][k]->GetMean()-centet[0][i][k]->GetMean())/(centet[1][i][k]->GetMean()+centet[0][i][k]->GetMean()));
 	  for(int j=0; j<2; ++j)
 	    {
-	      centet[j][i][k]->Scale(centet[j][i][k]->GetEntries());
+	      centet[j][i][k]->Scale(1./centet[j][i][k]->Integral());
 	      TFitResultPtr fit = centet[j][i][k]->Fit("gaus","S");
 	      sigmu[j][i]->SetBinContent(centbins-k,fit->Parameter(2));
 	      sigmu[j][i]->SetBinError(centbins-k,fit->Error(2));
