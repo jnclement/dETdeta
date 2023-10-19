@@ -235,7 +235,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_71.root").c_str());
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
-  TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
+  TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag+"_mc_"+(cor?"cor":"unc")+"_70.root").c_str());
   tree[0] = simf->Get<TTree>("ttree");  
   float cents[2][centbins+centoffs] = {0};
   float truth_vtx[3];
