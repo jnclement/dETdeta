@@ -210,7 +210,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 18;
+  const int centbins = 9;
+  const int centoffs = 1;
   const int hcalbins = 24;
   const int ecalbins = 96;
   //int mbd_bins[centbins+1] = {0};
@@ -236,7 +237,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[1] = file->Get<TTree>("ttree");
   TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
   tree[0] = simf->Get<TTree>("ttree");  
-  float cents[2][centbins+2] = {0};
+  float cents[2][centbins+centoffs] = {0};
   float truth_vtx[3];
   TH1D* centtow[2][3][centbins];
   TH1D* centet[2][3][centbins];
@@ -463,7 +464,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Done filling data MBD hist." << endl;
   cout << "Done filling all MBD hists." << endl;
   cout << "Setting centrality bins" << endl;
-  dummy = set_cent_cuts(mbh[0], cents[0], centbins+2);
+  dummy = set_cent_cuts(mbh[0], cents[0], centbins+centoffs);
   cout << "Sim minbias hist entries: " << mbh[0]->GetEntries() << endl;
   dummy = set_cent_cuts(mbh[1], cents[1], centbins);
   //for(int i=0; i<centbins+1; ++i) cents[1][i] = mbd_bins[i];
@@ -489,7 +490,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  if(mbsum < 0) continue;
 	  for(int j=0; j<centbins; ++j)
 	    {
-	      if(mbsum < cents[h][j+2*(1-h)])
+	      if(mbsum < cents[h][j+centoffs*(1-h)])
 		{
 		  nevt[h]++;
 		  //if(h==1 && j==17) cout << "j = 17 reached " << z_v[h] << endl;
@@ -594,7 +595,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  fullcor[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
 	  fullcor[j][i]->Multiply(truthpar_et[i]);
-	  fullcor[j][i]->Scale(1./(nevt[1]/(centbins+2)));
+	  fullcor[j][i]->Scale(1./(nevt[1]/(centbins)));
 	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral()/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
 	}
