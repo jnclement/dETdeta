@@ -293,7 +293,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       truthparecent[i] = new TH1D(("truthparecent_"+to_string(i)).c_str(),"",100,0,50);
       truthparncent[i] = new TH1D(("truthparncent_"+to_string(i)).c_str(),"",1000,0,10000);
-      trtuhpareetac[i] = new TH1D(("truthpareetac_"+to_string(i)).c_str(),"",dETbins,-dETrange,dETrange);
+      truthpareetac[i] = new TH1D(("truthpareetac_"+to_string(i)).c_str(),"",dETbins,-dETrange,dETrange);
       truthpar_et[i] = new TH1D(("truthpar_et_"+to_string(i)).c_str(),"",dETbins,-dETrange,dETrange);
       ettotcent[0][i] = new TH1D(("ettotcent0_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1]);
       ettotcent[1][i] = new TH1D(("ettotcent1_" + to_string(i)).c_str(),"",400,0,2000);//et_em_range[centbins-1];
