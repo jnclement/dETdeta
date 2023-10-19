@@ -634,6 +634,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       outf->WriteObject(truthparecent[i],truthparecent[i]->GetName());
       outf->WriteObject(truthparncent[i],truthparncent[i]->GetName());
       outf->WriteObject(truthpar_et[i],truthpar_et[i]->GetName());
+      outf->WriteObject(truthpareetac[i],truthpareetac[i]->GetName());
     }
   for(int i=0; i<3; ++i)
     {
