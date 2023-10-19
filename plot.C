@@ -377,7 +377,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
     }
 }
 
-int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615.root", string treename = "ttree", string datdir = "/home/jocl/datatemp/", string plotdir = "/home/jocl/datatemp/plots/")
+int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root", string treename = "ttree", string datdir = "/home/jocl/datatemp/", string plotdir = "/home/jocl/datatemp/plots/")
 {   
   //gSystem->RedirectOutput("test.txt");
   gROOT->SetStyle("Plain");
@@ -406,6 +406,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   TH1D* ET[2][3];
   TH1D* dET[2][3];
   TH1D* dETcent[2][3][centbins];
+  TH1D* fullcor[3][centbins];
   TH1D* TW[2][3];
   TH1D* sumev[2];
   TH1D* sumtw[2];
@@ -483,6 +484,9 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	      truthparecent[j] = (TH1D*)histfile->Get(("truthparecent_"+to_string(j)).c_str());
 	      truthparncent[j] = (TH1D*)histfile->Get(("truthparncent_"+to_string(j)).c_str());
 	    }
+	  cout << ("fullcor_"+to_string(i)+to_string(j)).c_str() << endl;
+	  fullcor[i][j] = (TH1D*)histfile->Get(("fullcor_"+to_string(i)+to_string(j)).c_str());
+	  cout << fullcor[i][j] << endl;
 	  meandiffnoavg[i]->SetBinContent(centbins-j,centet[1][i][j]->GetMean()-centet[0][i][j]->GetMean());
 	  meandiffnoavg[i]->SetBinError(centbins-j,0);
 	}
@@ -523,6 +527,11 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 		  
   for(int j=0; j<3; ++j)
     {
+
+      xlabel = "#eta";
+      ylabel = "dE_{T}^{"+cal[j]+"}/d#eta [GeV]";
+      options="p";
+      plotsimdat(options, c1, fullcor[j][centbins-1], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, centbins-1, centbins, "fullcor", plotdir, "cent/", centbins, 0);
       options = "hist";
       xlabel = "E_{T, event}^{"+cal[j]+"} [GeV]";
       ylabel = "Counts";
@@ -671,6 +680,6 @@ int plot()
     */
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_cor.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots/");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_unc.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots_unc/");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.30_zcut_30_run_21615_20231016_nopileup_cor.root");
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root");
   return 0;
 }
