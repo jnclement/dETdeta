@@ -605,7 +605,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  fullcor[j][i]->Scale(1./(nevtcent[1][i]));
 	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral()/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
-	  if(i==centbins-1) cout << test << endl;
+	  if(i==centbins-1) cout << test << " " << fullcor[j][i]->Integral() << endl;
 	}
     }
   for(int h=0; h<2; ++h)
