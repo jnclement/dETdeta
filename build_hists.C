@@ -226,7 +226,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int sector[2][3];
   int sectormb;
   int truthpar_n;
-  int dETbins = 200;
+  int dETbins = 20;
   float truthpar_eta[100000];
   float truthpar_e[100000];
   TH1D* truthpar_et[centbins];
