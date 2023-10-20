@@ -558,6 +558,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  truthparehist->Fill(truthpar_e[k]);
 			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
+			  cout << typeof(get_E_T_em(truthpar_e[k],truthpar_eta[k],0)) << endl;
 			  truthpareetac[j]->Fill(truthpar_eta[k],truthpar_e[k]);
 			  gtp++;
 			}
@@ -606,6 +607,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral()/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
 	  if(i==centbins-1) cout << test << " " << dETcent[0][j][i]->Integral() << " " << dETcent[1][j][i]->Integral() << " " << fullcor[j][i]->Integral() << " " << truthpar_et[i]->Integral() << endl;
+	  cout << typeof(test) << typeof(truthpar_et[i]) << endl;
 	}
     }
   for(int h=0; h<2; ++h)
