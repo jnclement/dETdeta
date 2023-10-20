@@ -559,7 +559,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  truthparehist->Fill(truthpar_e[k]);
 			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
-			  cout << typeid(get_E_T_em(truthpar_e[k],truthpar_eta[k],0)).name() << endl;
 			  truthpareetac[j]->Fill(truthpar_eta[k],truthpar_e[k]);
 			  gtp++;
 			}
