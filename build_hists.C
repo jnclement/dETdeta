@@ -245,6 +245,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* ettotcent[2][centbins];
   TH1D* dET[2][3];
   TH1D* dETcent[2][3][centbins];
+  TH1D* dETcentrat[3][centbins];
   TH1D* truthparnhist = new TH1D("truthparnhist","",1000,0,10000);
   TH1D* truthparncent[centbins];
   TH1D* truthparehist = new TH1D("truthparehist","",100,0,50);
@@ -273,6 +274,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      if(i==0) fullcor[j][k] = new TH1D(("fullcor_"+to_string(j)+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
+	      if(i==0) dETcent[j][k] = new TH1D(("dETcentrat"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",120,-30,30);
@@ -602,6 +604,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       for(int j=0; j<3; ++j)
 	{
 	  fullcor[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
+	  dETcentrat[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
 	  fullcor[j][i]->Multiply(truthpar_et[i]);
 	  fullcor[j][i]->Scale(1./(nevtcent[1][i]));
 	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral("width")/(2*dETrange*175) <<endl;
@@ -615,6 +618,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  for(int j=0; j<centbins; ++j)
 	    {
+	      if(h==0) outf->Write(dETcentrat[i][j],dETcentrat[i][j]->GetName());
 	      deadmap[h][i][j]->Divide(deadhits[h][i][j]);
 	    }
 	  for(int k=0; k<centbins; ++k)
