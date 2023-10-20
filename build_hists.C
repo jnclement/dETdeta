@@ -523,8 +523,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  centtow[h][k][j]->Fill(eval);
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
-			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval);
-			  dET[h][k]->Fill(etacor[h][k][l],eval);
+			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
+			  dET[h][k]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
 			}
 		      allsum += esum;
 		      ET[h][k]->Fill(esum);
@@ -558,7 +558,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(j==centbins-1) test += get_E_T_em(truthpar_e[k],truthpar_eta[k],0);
 			  truthparehist->Fill(truthpar_e[k]);
 			  truthparecent[j]->Fill(truthpar_e[k]);
-			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
+			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0)/(dETrange*2./dETbins));
 			  truthpareetac[j]->Fill(truthpar_eta[k],truthpar_e[k]);
 			  gtp++;
 			}
