@@ -398,6 +398,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   scale[0] = simscale;
   scale[1] = 1;
   int frac[2];
+  int nevtcent[2][centbins] = {0};
   frac[0] = simfrac;
   frac[1] = datfrac;
   int run = 21615;
@@ -495,6 +496,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      if(mbsum < cents[h][j+centoffs*(1-h)])
 		{
 		  nevt[h]++;
+		  nevtcent[h][j]++;
 		  //if(h==1 && j==17) cout << "j = 17 reached " << z_v[h] << endl;
 		  zcent[h][j]->Fill(z_v[h][2]);
 		  for(int k=0; k<3; ++k)
@@ -599,7 +601,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  fullcor[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
 	  fullcor[j][i]->Multiply(truthpar_et[i]);
-	  fullcor[j][i]->Scale(1./(nevt[1]/(centbins)));
+	  fullcor[j][i]->Scale(1./(nevt[1][i]));
 	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral()/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
 	}
@@ -684,6 +686,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outt->Branch("frac",frac,"frac[2]/I");
   outt->Branch("mine",&mine,"mine/F");
   int nccb = centbins;
+  outt->Branch("nevtcent",nevtcent,"nevtcent[2][centbins]/I");
   outt->Branch("nevt",nevt,"nevt[2]/I");
   outt->Branch("cbin",&nccb,"cbin/I");
   outt->Branch("zcut",&zcut,"zcut/F");
