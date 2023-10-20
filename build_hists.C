@@ -420,7 +420,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   precision[1] = 0;
   precision[2] = 0;
   precision[3] = 0;
-
+  float test = 0;
   int counter[2][3] = {0};
   for(int i=0; i<par; ++i)
     {
@@ -554,6 +554,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      for(int k=0; k<truthpar_n; ++k)
 			{
 			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > dETrange || truthpar_e[k] < mine) continue;
+			  if(j==centbins-1) test += get_E_T_em(truthpar_e[k],truthpar_eta[k],0);
 			  truthparehist->Fill(truthpar_e[k]);
 			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0));
@@ -604,6 +605,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  fullcor[j][i]->Scale(1./(nevtcent[1][i]));
 	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral()/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
+	  if(i==centbins-1) cout << test << endl;
 	}
     }
   for(int h=0; h<2; ++h)
