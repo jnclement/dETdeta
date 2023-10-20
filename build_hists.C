@@ -226,7 +226,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int sector[2][3];
   int sectormb;
   int truthpar_n;
-  int dETbins = 20;
+  int dETbins = 2;
   float truthpar_eta[100000];
   float truthpar_e[100000];
   TH1D* truthpar_et[centbins];
@@ -602,7 +602,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  fullcor[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
 	  fullcor[j][i]->Multiply(truthpar_et[i]);
 	  fullcor[j][i]->Scale(1./(nevtcent[1][i]));
-	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral("width")/(2*dETrange*175) <<endl;
+	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral()/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
 	}
     }
