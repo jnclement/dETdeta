@@ -164,8 +164,6 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 
 int check_acceptance(int eta, int phi)
 {
-  if(eta < 9 || phi < 180 || phi > 200) return 1;
-  return 0;
   if (eta < 9) return 1;
   if (eta >= 9 && eta <= 47 && phi >= 32 && phi <= 39) return 1; 
   if (eta >= 9 && eta <= 15 && phi >= 40 && phi <= 47) return 1; 
@@ -213,8 +211,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 18;
-  const int centoffs = 2;
+  const int centbins = 9;
+  const int centoffs = 1;
   const int hcalbins = 24;
   const int ecalbins = 96;
   //int mbd_bins[centbins+1] = {0};
@@ -610,6 +608,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  dETcent[1][j][i]->Scale(1./nevtcent[1][i]);
 	  dETcentrat[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
 	  fullcor[j][i]->Multiply(truthpar_et[i]);
+	  truthpar_et[i]->Scale(1./nevtcent[0][i]);
 	  fullcor[j][i]->Scale(1./(nevtcent[1][i]));
 	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral("width")/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
