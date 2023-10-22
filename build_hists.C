@@ -164,6 +164,8 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 
 int check_acceptance(int eta, int phi)
 {
+  if(eta < 8 || phi < 172 || phi > 207) return 1;
+  return 0;
   if (eta < 9) return 1;
   if (eta >= 9 && eta <= 47 && phi >= 32 && phi <= 39) return 1; 
   if (eta >= 9 && eta <= 15 && phi >= 40 && phi <= 47) return 1; 
