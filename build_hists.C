@@ -608,9 +608,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  dETcent[1][j][i]->Scale(1./nevtcent[1][i]);
 	  dETcentrat[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
 	  fullcor[j][i]->Multiply(truthpar_et[i]);
-	  truthpar_et[i]->Scale(1./nevtcent[0][i]);
+	  if(j==3) truthpar_et[i]->Scale(1./nevtcent[0][i]);
 	  fullcor[j][i]->Scale(1./(nevtcent[1][i]));
-	  cout << dETcent[1][j][i]->GetBinContent(10) << " " << dETcent[0][j][i]->GetBinContent(10) << " " << truthpar_et[i]->GetBinContent(10) << " " << fullcor[j][i]->GetBinContent(10)<< " " << fullcor[j][i]->Integral("width")/(2*dETrange*175) <<endl;
+	  cout <<"bin: " << i << " cal: " << j << " mean dET/deta/(0.5npart): " << fullcor[j][i]->Integral("width")/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
 	  if(i==centbins-1) cout << test << " " << dETcent[0][j][i]->Integral("width") << " " << dETcent[1][j][i]->Integral("width") << " " << fullcor[j][i]->Integral("width") << " " << truthpar_et[i]->Integral("width") << endl;
 	}
