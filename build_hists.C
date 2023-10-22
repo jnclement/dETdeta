@@ -606,6 +606,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       for(int j=0; j<3; ++j)
 	{
 	  fullcor[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
+	  dETcent[0][j][i]->Scale(1./nevtcent[0][i]);
+	  dETcent[1][j][i]->Scale(1./nevtcent[1][i]);
 	  dETcentrat[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
 	  fullcor[j][i]->Multiply(truthpar_et[i]);
 	  fullcor[j][i]->Scale(1./(nevtcent[1][i]));
