@@ -512,7 +512,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
-			      dETcentsimunc[j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
+			      if(h==0) dETcentsimunc[j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
