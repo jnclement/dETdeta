@@ -164,9 +164,6 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 
 int check_acceptance(int eta, int phi)
 {
-  if (eta < 9) return 1;
-  if (phi > 200 || phi < 175) return 1;
-  return 0;
   if (eta >= 9 && eta <= 47 && phi >= 32 && phi <= 39) return 1; 
   if (eta >= 9 && eta <= 15 && phi >= 40 && phi <= 47) return 1; 
   if (eta >= 32 && eta <= 39 && phi >= 0 && phi <= 7) return 1; 
@@ -514,11 +511,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  if(k==0)
 			    {
-			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
-			      //if(fullregonly(calph[h][k][l])) continue;
-			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			      float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			      dETcentsimunc[j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
+			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			      //if(fullregonly(calph[h][k][l])) continue;
+			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(calen[h][k][l] > 0.03)
