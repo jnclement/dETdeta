@@ -164,7 +164,6 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 
 int check_acceptance(int eta, int phi)
 {
-  return 0;
   if (eta < 9) return 1;
   if (phi > 200 || phi < 175) return 1;
   return 0;
@@ -513,7 +512,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  if(k==0)
 			    {
-			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
