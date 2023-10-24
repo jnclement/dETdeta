@@ -257,7 +257,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH2D* deadmap[2][3][centbins];
   TH1D* zcent[2][centbins];
   TH2I* deadhits[2][3][centbins];
-  TH1D* dETcentsimunc[centbins];
+  TH1D* dETcentsimunc[3][centbins];
   int phibins[3] = {256,64,64};
   int etabins[3] = {96,24,24};
   bool hit[3][hcalbins] = {false};
@@ -273,7 +273,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",dETbins,-dETrange,dETrange);
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      if(i==0 && j==0) dETcentsimunc[k] = new TH1D(("dETcentsimunc_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
+	      if(i==0) dETcentsimunc[j][k] = new TH1D(("dETcentsimunc_"+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      if(i==0) fullcor[j][k] = new TH1D(("fullcor_"+to_string(j)+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      if(i==0) dETcentrat[j][k] = new TH1D(("dETcentrat"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
@@ -513,7 +513,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
-			      if(h==0) dETcentsimunc[j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
+			      if(h==0) dETcentsimunc[i][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
@@ -617,9 +617,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  cout <<"bin: " << i << " cal: " << j << " mean dET/deta/(0.5npart): " << fullcor[j][i]->Integral("width")/(2*dETrange*175) <<endl;
 	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
 	  if(i==centbins-1) cout << test << " " << dETcent[0][j][i]->Integral("width") << " " << dETcent[1][j][i]->Integral("width") << " " << fullcor[j][i]->Integral("width") << " " << truthpar_et[i]->Integral("width") << endl;
+	  dETcentsimunc[j][i]->Scale(1./nevtcent[0][i]);
+	  outf->WriteObject(dETcentsimunc[j][i],dETcentsimunc[j][i]->GetName());
 	}
-      dETcentsimunc[i]->Scale(1./nevtcent[0][i]);
-      outf->WriteObject(dETcentsimunc[i],dETcentsimunc[i]->GetName());
     }
   for(int h=0; h<2; ++h)
     {
