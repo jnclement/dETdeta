@@ -510,10 +510,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      for(int l=0; l<sector[h][k]; ++l)
 			{
 			  if(calen[h][k][l] < mine) continue;
+			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
+			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
 			  if(k==0)
 			    {
-			      float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
-			      if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
