@@ -255,15 +255,16 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
   texts[3] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
   texts[4] = "HIJING scaled by " + params[0];
   if(cal=="MBD") texts[4] = "";
-  auto leg = new TLegend(0.8,0.77,0.9,0.82);
+  auto leg = new TLegend(0.6,0.23,0.9,0.3);
   leg->SetTextSize(0.02);
   if(simhist) leg->AddEntry(simhist,"HIJING","P");
-  if(simhist) leg->AddEntry(dathist,"Data","P");
-  const int ntext2 = 3;
+  if(name != "fullcor") leg->AddEntry(dathist,"Data","P");
+  const int ntext2 = 4;
   string texts2[ntext2];
   texts2[0] = "|z|<" + params[3] + " cm, min tower E " + params[2] + " MeV";
   texts2[1] = params[1] + " MeV subtracted from each tower";
   texts2[2] = "Run " + to_string(run) + " " + to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+"% centrality";
+  texts2[3] = "No acceptance cut applied";
   ca->cd();
   if(logy) gPad->SetLogy();
   else gPad->SetLogy(0);
@@ -310,7 +311,8 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
       else minval = dathist->GetMinimum();
     }
   if(logy) dathist->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
-  else dathist->GetYaxis()->SetRangeUser(min(0.,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
+  //else dathist->GetYaxis()->SetRangeUser(min(0.,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
+  else dathist->GetYaxis()->SetRangeUser(minval*0.9,maxval*1.1);
   if(name=="sigmu")
     {
       dathist->GetYaxis()->SetRangeUser(0,2);
@@ -332,18 +334,39 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
       dathist->GetFunction("gaus")->Draw("SAME");
       if(simhist) simhist->GetFunction("gaus")->Draw("SAME");
     }
+  TH1D* simflip;
+  if(simhist) simflip = (TH1D*)simhist->Clone();
+  TH1D* datflip = (TH1D*)dathist->Clone();
+  int etabins = 20;
+  for(int i=0; i<etabins; ++i)
+    {
+      if(simhist) simflip->SetBinContent(i+1,simhist->GetBinContent(etabins-i));
+      if(simhist) simflip->SetBinError(i+1,simhist->GetBinError(etabins-i));
+      datflip->SetBinContent(i+1,dathist->GetBinContent(etabins-i));
+      datflip->SetBinError(i+1,dathist->GetBinError(etabins-i));
+    }
   if(simhist)
     {
       dathist->Draw(options.c_str());
       simhist->Draw(("SAME "+options).c_str());
+      datflip->SetMarkerStyle(4);
+      leg->AddEntry(datflip,"Data reversed over #eta=0","P");
+      datflip->Draw(("SAME "+options).c_str());
+      simflip->SetMarkerStyle(4);
+      leg->AddEntry(simflip,"HIJING reversed over #eta=0","P");
+      simflip->Draw(("SAME "+options).c_str());
     }
   else
     {
       dathist->Draw(options.c_str());
+      datflip->SetMarkerStyle(4);
+      leg->AddEntry(dathist,"Data","P");
+      if(name != "fullcor") leg->AddEntry(datflip,"Data reversed over #eta=0","P");
+      if(name != "fullcor") datflip->Draw(("SAME "+options).c_str());
     }
   sphenixtext();
   multitext(texts, ntext, 0.03, 0.11);
-  if(simhist) leg->Draw();
+  if(name != "fullcor") leg->Draw();
   if((name == "zcent" && simhist) || name=="zvtx")
     {
       stringstream stmean, stsig;
@@ -359,12 +382,16 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
 	  drawText(("#mu_{HIJING}="+stmean.str()+", #sigma_{HIJING}="+stsig.str()).c_str(),0.9,0.88,1,kBlack,0.025);
 	}
     }
+  if(name=="det_no_acc_cor")
+    {
+      drawText("No acceptance cut applied",0.7,0.085,1,kBlack,0.025);
+    }
   ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
   ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
   if(simhist)
     {
       dathist->Divide(simhist);
-      dathist->GetYaxis()->SetTitle((cal+" <E_{T}^{event}> Data/("+params[0]+"*HIJING)").c_str());
+      if(name == "detcent") dathist->GetYaxis()->SetTitle((cal+" dE_{T}/d#eta Data/("+params[0]+"*HIJING)").c_str());
       maxval = dathist->GetMaximum();
       minval = dathist->GetMinimum();
       gPad->SetLogy(0);
@@ -384,7 +411,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   SetsPhenixStyle();
-  const int centbins = 18;
+  const int centbins = 9;
   TH1D* means[2][3];
   TH1D* sigs[2][3];
   TH1D* meandiffnoavg[3];
@@ -421,6 +448,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   TH1D* truthparnhist;
   TH1D* truthparecent[centbins];
   TH1D* truthparncent[centbins];
+  TH1D* truthpar_et[centbins];
+  TH1D* dETcentsimunc[centbins];
   float sub;
   float scale[2];
   int frac[2];
@@ -483,6 +512,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	    {
 	      truthparecent[j] = (TH1D*)histfile->Get(("truthparecent_"+to_string(j)).c_str());
 	      truthparncent[j] = (TH1D*)histfile->Get(("truthparncent_"+to_string(j)).c_str());
+	      truthpar_et[j] = (TH1D*)histfile->Get(("truthpar_et_"+to_string(j)).c_str());
+	      dETcentsimunc[j] = (TH1D*)histfile->Get(("dETcentsimunc_"+to_string(j)).c_str());
 	    }
 	  cout << ("fullcor_"+to_string(i)+to_string(j)).c_str() << endl;
 	  fullcor[i][j] = (TH1D*)histfile->Get(("fullcor_"+to_string(i)+to_string(j)).c_str());
@@ -506,71 +537,81 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   string options = "hist";
   xlabel = "E_{T, event}^{all} [GeV]";
   string ylabel = "Counts";
-  centoverlayplot(options, c1, sumev[0], ettotcent[0], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, 3);
-  centoverlayplot(options, c1, sumev[1], ettotcent[1], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, 3);
+  //centoverlayplot(options, c1, sumev[0], ettotcent[0], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, 3);
+  //centoverlayplot(options, c1, sumev[1], ettotcent[1], 1, "all", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, 3);
   xlabel = "Truth Particle N";
-  centoverlayplot(options, c1, truthparnhist, truthparncent, 1, "truth particles", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "n_cent_overlay",plotdir, "all/", centbins, 0, 4);
+  //centoverlayplot(options, c1, truthparnhist, truthparncent, 1, "truth particles", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "n_cent_overlay",plotdir, "all/", centbins, 0, 4);
   xlabel = "Truth Z Vertex [cm]";
   ylabel = "Normalized Counts";
   options = "";
   plotsimdat(options, c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins, 1);
   xlabel = "MBD charge sum [??]";
-  plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay_dat", plotdir,"all/", centbins, 1);
-  plotsimdat(options, c1, mbh[0], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay_sim", plotdir,"all/", centbins, 1);
+  //plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay_dat", plotdir,"all/", centbins, 1);
+  //plotsimdat(options, c1, mbh[0], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay_sim", plotdir,"all/", centbins, 1);
   //plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mbdat", plotdir);
   //plotsimdat(options, c1, mbh[0], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, 0, 20, "mbsim", plotdir);
   xlabel = "E_{T, event calorimeter sum}";
-  plotsimdat(options, c1, sumev[1], sumev[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_total", plotdir,"all/", centbins, 1);
+  //plotsimdat(options, c1, sumev[1], sumev[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_total", plotdir,"all/", centbins, 1);
   xlabel = "E_{T, stacked calorimeter towers}";
-  plotsimdat(options, c1, sumtw[1], sumtw[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_sumtow", plotdir,"all/", centbins, 1);
+  //plotsimdat(options, c1, sumtw[1], sumtw[0], 1, "total", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_sumtow", plotdir,"all/", centbins, 1);
   cout << "Plotted non-loops" << endl;
 		  
   for(int j=0; j<3; ++j)
     {
 
       xlabel = "#eta";
-      ylabel = "dE_{T}^{"+cal[j]+"}/d#eta [GeV]";
+      ylabel = cal[j]+" Corrected dE_{T}/d#eta [GeV]";
       options="p";
       plotsimdat(options, c1, fullcor[j][centbins-1], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, centbins-1, centbins, "fullcor", plotdir, "cent/", centbins, 0);
+
+      ylabel = "HIJING "+cal[j]+" dE_{T}/d#eta [GeV]";
+      if(j==0) plotsimdat(options, c1, dETcentsimunc[centbins-1],NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, centbins-1, centbins, "det_no_acc_cor",plotdir,"cent/",centbins,0);
+
+      ylabel = "Truth Particle dE_{T}/d#eta [GeV]";
+      if(j==0) plotsimdat(options, c1, truthpar_et[centbins-1], NULL, 0, "", scale[0], sub, run, mine, zcut, xlabel, ylabel, centbins-1,centbins, "truthpar_et", plotdir, "cent/", centbins, 0);
+
+      ylabel = "(Truth dE_{T}/d#eta)/(Reco dE_{T}/d#eta)";
+      if(j==0) plotsimdat(options, c1, truthpar_et[centbins-1],dETcentsimunc[centbins-1],0,cal[j],scale[0],sub,run,mine,zcut,xlabel,ylabel,centbins-1,centbins,"truth_reco_et",plotdir,"cent/",centbins,0);
+      
       options = "hist";
       xlabel = "E_{T, event}^{"+cal[j]+"} [GeV]";
       ylabel = "Counts";
-      centoverlayplot(options, c1, ET[1][j], centet[1][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, j);
-      centoverlayplot(options, c1, ET[0][j], centet[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, j);
+      //centoverlayplot(options, c1, ET[1][j], centet[1][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, j);
+      //centoverlayplot(options, c1, ET[0][j], centet[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, j);
       options = "p";
       xlabel = "MBD Centrality [%]";
       ylabel = "#mu_{E_{T} event data}^{"+cal[j]+"}-#mu_{E_{T} event HIJING}^{"+cal[j]+"} [GeV]";
-      plotsimdat(options, c1, meandiffnoavg[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiffnoavg", plotdir, "all/", centbins, 0);
+      //plotsimdat(options, c1, meandiffnoavg[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiffnoavg", plotdir, "all/", centbins, 0);
 	
       options = "p";
       ylabel = "#mu_{E_{T} event}^{"+cal[j]+"} [GeV]";
       xlabel = "Centrality MBD [%]";
-      plotsimdat(options, c1, means[1][j], means[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandist", plotdir, "all/", centbins, 0);
+      //plotsimdat(options, c1, means[1][j], means[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandist", plotdir, "all/", centbins, 0);
       ylabel = "#sigma_{E_{T} event}^{"+cal[j]+"} [GeV]";
-      plotsimdat(options, c1, sigs[1][j], sigs[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigdist", plotdir, "all/", centbins, 0);
+      //plotsimdat(options, c1, sigs[1][j], sigs[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigdist", plotdir, "all/", centbins, 0);
       
-      options = "hist p";
+      options = "p";
       ylabel = "2(#mu_{data}^{" + cal[j] + "}-#mu_{HIJING}^{" + cal[j] + "})/(#mu_{data}^{" + cal[j] + "}+#mu_{HIJING}^{" + cal[j] + "})";
       xlabel = "MBD Centrality [%]";
       meandiff[j]->Scale(2.);
-      plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins, 0);
+      //plotsimdat(options, c1, meandiff[j], NULL, 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "meandiff", plotdir,"all/", centbins, 0);
       ylabel = cal[j]+" #sigma_{E_{T}^{event}}";
       plotsimdat(options, c1, sigmu[1][j], sigmu[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "sigdist", plotdir, "all/", centbins, 0); //NOTE THAT THE HIST WITH VARIABLE NAME SIGMU NOW POINTS TO THE SIGMA DISTRIBUTION, AND VICE VERSA
       ylabel = "Normalized Counts";
       options = "";
       xlabel = "E_{T," + cal[j] +" event} [GeV]";
-      plotsimdat(options, c1, ET[1][j], ET[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_event", plotdir, "all/", centbins, 1);
+      //plotsimdat(options, c1, ET[1][j], ET[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_event", plotdir, "all/", centbins, 1);
       xlabel = "E_{T," + cal[j] +" tower} [GeV]";
-      plotsimdat(options, c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_tower", plotdir, "all/", centbins, 1);
+      //plotsimdat(options, c1, TW[1][j], TW[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "et_tower", plotdir, "all/", centbins, 1);
       if(j==0) xlabel = "floor{(#eta bin " +cal[j]+")/4}";
       else xlabel = "#eta bin " + cal[j];
-      ylabel = "dE_{T}/d#eta [GeV]";
+      ylabel = cal[j]+" dE_{T}/d#eta [GeV]";
       options = "p";
-      plotsimdat(options, c1, dET[1][j],dET[0][j],0,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins, 0);
+      //plotsimdat(options, c1, dET[1][j],dET[0][j],0,cal[j], scale[0],sub,run,mine,zcut,xlabel,ylabel,0,centbins,"det",plotdir,"all/",centbins, 0);
 
       
-      multiplot(options, c1, dETcent[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_sim", plotdir, "all/", centbins, 0, j);
-      multiplot(options, c1, dETcent[1][j], 0, cal[j], scale[1], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_data", plotdir, "all/", centbins, 1, j);
+      //multiplot(options, c1, dETcent[0][j], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_sim", plotdir, "all/", centbins, 0, j);
+      //multiplot(options, c1, dETcent[1][j], 0, cal[j], scale[1], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "detcent_data", plotdir, "all/", centbins, 1, j);
       cout << "test" << endl;
       for(int k=0; k<centbins; ++k)
 	{
@@ -587,13 +628,13 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  options = "P";
 	  ylabel = "Normalized Counts";
 	  xlabel = "E_{T," + cal[j] +" tower} [GeV]";
-	  plotsimdat(options, c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centtow", plotdir, "cent/", centbins, 1);
+	  //plotsimdat(options, c1, centtow[1][j][k], centtow[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centtow", plotdir, "cent/", centbins, 1);
 	  xlabel = "E_{T," + cal[j] +" event} [GeV]";
-	  plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins, 1);
-	  options = "hist p";
-	  xlabel = "#eta bin";
-	  ylabel = "dE_{T}/d#eta [GeV]";
-	  plotsimdat(options, c1, dETcent[1][j][k], dETcent[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel,k,k+1,"detcent",plotdir,"cent/",centbins, 0);
+	  //plotsimdat(options, c1, centet[1][j][k], centet[0][j][k], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, k, k+1, "centet", plotdir, "cent/", centbins, 1);
+	  options = "p";
+	  xlabel = "#eta";
+	  ylabel = cal[j]+" dE_{T}/d#eta [GeV]";
+	  plotsimdat(options, c1, dETcent[1][j][k], dETcent[0][j][k], 0, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel,k,k+1,"detcent",plotdir,"cent/",centbins, 0);
 	}
     }
   c1->cd();
@@ -635,14 +676,14 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  deadmap[0][j][i]->Draw("COLZ");
 	  sphenixtext();
 	  multitext(texts,ntext);
-	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/sim_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
+	  //c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/sim_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
 	  deadmap[1][j][i]->Divide(deadmap[0][j][i]);
 	  deadmap[1][j][i]->GetZaxis()->SetTitle((cal[j] +" <E^{tower}_{data}>/<E^{tower}_{HIJING}>").c_str());
 	  deadmap[1][j][i]->GetZaxis()->SetRangeUser(0.5,1.5);
 	  deadmap[1][j][i]->Draw("COLZ");
 	  sphenixtext();
 	  multitext(texts,ntext);
-	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/div_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
+	  //c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/div_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
 
 	}
     }
@@ -680,6 +721,6 @@ int plot()
     */
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_cor.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots/");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_unc.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots_unc/");
-  called_plot("savedhists_fracsim_1_fracdat_10_subtr_0_minE_0_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root");
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root");
   return 0;
 }
