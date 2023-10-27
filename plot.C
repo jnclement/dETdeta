@@ -401,6 +401,8 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
       gPad->SetLogy(0);
       dathist->GetYaxis()->SetRangeUser(0,2);
       if(name == "detcent") dathist->GetYaxis()->SetRangeUser(0.8,1.2);
+      if(name == "truth_reco_et" && cal=="EMCal") dathist->GetYaxis()->SetRangeUser(0.65,0.75);
+      else if(name == "truth_reco_et") dathist->GetYaxis()->SetRangeUser(0,0.2);
       dathist->Draw(options.c_str());
       sphenixtext();
       multitext(texts2, ntext2);
@@ -575,7 +577,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       ylabel = "Truth Particle dE_{T}/d#eta [GeV]";
       if(j==0) plotsimdat(options, c1, truthpar_et[centbins-1], NULL, 0, "", scale[0], sub, run, mine, zcut, xlabel, ylabel, centbins-1,centbins, "truthpar_et", plotdir, "cent/", centbins, 0);
 
-      ylabel = "(Truth dE_{T}/d#eta)/(Reco dE_{T}/d#eta)";
+      ylabel = "(Reco dE_{T}/d#eta)/(Truth dE_{T}/d#eta)";
       plotsimdat(options, c1, dETcentsimunc[j][centbins-1],truthpar_et[centbins-1],0,cal[j],scale[0],sub,run,mine,zcut,xlabel,ylabel,centbins-1,centbins,"truth_reco_et",plotdir,"cent/",centbins,0);
       
       options = "hist";
@@ -669,7 +671,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  sphenixtext();
 	  multitext(texts,ntext);
 	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/dat_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
-	  
+	  c1->SaveAs(("/home/jocl/datatemp/plots/pdf/cent/dat_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".pdf").c_str());
 	  deadmap[0][j][i]->GetYaxis()->SetLabelSize(0.025);
 	  deadmap[0][j][i]->GetXaxis()->SetLabelSize(0.025);
 	  //deadmap[1][j][i]->Divide(deadmap[0][j][i]);
