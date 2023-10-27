@@ -390,7 +390,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
   cout << "Branches set" << endl;
-  TH1D* zhist = new TH1D("zhist","",120,-30,30);
+  TH1D* zhist[2];
+  zhist[0] = new TH1D("zhist_0","",120,-30,30);
+  zhist[1] = new TH1D("zhist_1","",120,-30,30);
   TH1D* f10h[2][3];
   for(int i=0; i<2; ++i)
     {
@@ -457,7 +459,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
       */
-      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, truth_vtx[2], zhist, 0, 0);
+      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, truth_vtx[2], zhist[0], 0, 0);
     }
   cout << "Sim MBD histogram entries: " << mbh[0]->GetEntries() << endl;
   cout << "Done filling sim MBD hist." << endl;
@@ -466,7 +468,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], NULL, 0, 1);
+      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist[1], 0, 1);
     }
   cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
@@ -644,7 +646,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
   cout << "Saving hists to " << outname << endl;
-  outf->WriteObject(zhist, zhist->GetName());
+  outf->WriteObject(zhist[0], zhist[0]->GetName());
+  outf->WriteObject(zhist[1], zhist[1]->GetName());
   outf->WriteObject(truthparehist,truthparehist->GetName());
   outf->WriteObject(truthparnhist,truthparnhist->GetName());
   for(int i=0; i<centbins; ++i)
