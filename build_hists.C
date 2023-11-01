@@ -588,7 +588,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  meandiff[i]->SetBinContent(centbins-k,(centet[1][i][k]->GetMean()-centet[0][i][k]->GetMean())/(centet[1][i][k]->GetMean()+centet[0][i][k]->GetMean()));
 	  for(int j=0; j<2; ++j)
 	    {
-	      centet[j][i][k]->Scale(1./centet[j][i][k]->Integral());
+	      //centet[j][i][k]->Scale(1./centet[j][i][k]->Integral());
 	      TFitResultPtr fit = centet[j][i][k]->Fit("gaus","S");
 	      sigmu[j][i]->SetBinContent(centbins-k,fit->Parameter(2));
 	      sigmu[j][i]->SetBinError(centbins-k,fit->Error(2));
