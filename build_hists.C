@@ -310,7 +310,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       centtow[0][1][i] = new TH1D(("centtow01_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range*(10.+i)/20);
       centtow[0][2][i] = new TH1D(("centtow02_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
 
-      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",et_em_range[i],0,et_em_range[i]);
+      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",et_em_range[i]/4,0,et_em_range[i]);
       centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",et_ih_range[i],0,et_ih_range[i]);
       centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",et_oh_range[i],0,et_oh_range[i]);
 
@@ -327,7 +327,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   
   mbh[0] = new TH1D("smbh","",1000,0,300000);
   mbh[1] = new TH1D("dmbh","",1000,0,300000);
-  ET[1][0] = new TH1D("et10","",2000/5,0,2000);
+  ET[1][0] = new TH1D("et10","",300,0,1200);
   ET[0][0] = new TH1D("et00","",2000/5,0,2000);
   TW[0][0] = new TH1D("tw00","",bins_tw,0,tw_em_range);
   TW[1][0] = new TH1D("tw10","",bins_tw,0,tw_em_range);
