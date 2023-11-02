@@ -60,7 +60,7 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  if(datorsim) typ = "Data";
+  if(datorsim) typ = "Run-23 Au+Au";
   else typ = "HIJING scaled by " + params[0];
   if(calnum==4) typ = "";
   const int ntext = 4;
@@ -72,11 +72,11 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
   //if(sc > 1.) texts[3] = "HIJING scaled by " + params[0];
   texts[3] = "";
   TLegend* leg;
-  if(calnum!=4) leg = new TLegend(0.55,0.7,0.8,0.9);
-  else leg = new TLegend(0.75,0.65,0.9,0.9);
+  if(calnum!=4) leg = new TLegend(0.75,0.7,0.9,0.9);
+  else leg = new TLegend(0.85,0.65,0.9,0.9);
   leg->SetTextSize(0.015);
   mainhist->SetMarkerColor(kBlack);
-  leg->AddEntry(mainhist,(typ+" 0-90% centrality").c_str(),"P");
+  leg->AddEntry(mainhist,("0-90% centrality"),"P");
   if(calnum==0 || calnum == 3 || calnum==4) mainhist->Rebin(5);
   for(int i=0; i<centbins; ++i)
     {
@@ -84,7 +84,7 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
       hists[i]->SetMarkerColor(knames[i%6]+kcodes[i/6]);
       hists[i]->SetLineColor(knames[i%6]+kcodes[i/6]);
       hists[i]->SetFillColorAlpha(knames[i%6]+kcodes[i/6],0.2);
-      leg->AddEntry(hists[i],(typ+" " + to_string((centbins-i-1)*centrange)+"-"+to_string((centbins-i)*centrange) + "% centrality").c_str(),"P");
+      leg->AddEntry(hists[i],(to_string((centbins-i-1)*centrange)+"-"+to_string((centbins-i)*centrange) + "% centrality").c_str(),"P");
     }
   ca->cd();
   if(logy) gPad->SetLogy();
@@ -123,7 +123,7 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
   mainhist->Draw(options.c_str());
   for(int i=0; i<centbins; ++i) hists[i]->Draw(("SAME "+options).c_str());
   sphenixtext();
-  multitext(texts, ntext, 0.1);
+  //multitext(texts, ntext, 0.1);
   drawText(typ.c_str(), 0.15, 0.96, 0, kBlack, 0.04);
   leg->Draw();
   ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
@@ -159,7 +159,7 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
       params[i] = streams[i].str();
     }
-  if(datorsim) typ = "Data";
+  if(datorsim) typ = "Run-23 Au+Au";
   else typ = "HIJING scaled by " + params[0];
   const int ntext = 4;
   string texts[ntext];
@@ -212,7 +212,7 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
   hists[0]->Draw(options.c_str());
   for(int i=0; i<centbins; ++i) hists[i]->Draw(("SAME "+options).c_str());
   sphenixtext();
-  multitext(texts, ntext, 0.2);
+  //multitext(texts, ntext, 0.2);
   drawText(typ.c_str(), 0.15, 0.96, 0, kBlack, 0.04);
   leg->Draw();
   ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
@@ -445,7 +445,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   TH1D* sumev[2];
   TH1D* sumtw[2];
   TH1D* mbh[2];
-  TH1D* zhist;
+  TH1D* zhist[2];
   TH1D* meandiff[3];
   TH1D* sigmu[2][3];
   TH1D* zcent[2][centbins];
@@ -467,7 +467,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   truthparnhist = (TH1D*)histfile->Get("truthparnhist");
   mbh[0] = (TH1D*)histfile->Get("smbh");
   mbh[1] = (TH1D*)histfile->Get("dmbh");
-  zhist = (TH1D*)histfile->Get("zhist");
+  zhist[0] = (TH1D*)histfile->Get("zhist_0");
+  zhist[1] = (TH1D*)histfile->Get("zhist_1");
   for(int i=0; i<2; ++i)
     {
       sumev[i] = (TH1D*)histfile->Get(("sumev" + to_string(i)).c_str());
@@ -551,7 +552,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   xlabel = "Truth Z Vertex [cm]";
   ylabel = "Normalized Counts";
   options = "";
-  plotsimdat(options, c1, zhist, NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins, 1);
+  plotsimdat(options, c1, zhist[0], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "zvtx", plotdir,"all/", centbins, 1);
   xlabel = "MBD charge sum [??]";
   //plotsimdat(options, c1, mbh[1], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay_dat", plotdir,"all/", centbins, 1);
   //plotsimdat(options, c1, mbh[0], NULL, 1, "MBD", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0, centbins, "mboverlay_sim", plotdir,"all/", centbins, 1);
@@ -581,9 +582,9 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       plotsimdat(options, c1, dETcentsimunc[j][centbins-1],truthpar_et[centbins-1],0,cal[j],scale[0],sub,run,mine,zcut,xlabel,ylabel,centbins-1,centbins,"truth_reco_et",plotdir,"cent/",centbins,0);
       
       options = "hist";
-      xlabel = "E_{T, event}^{"+cal[j]+"} [GeV]";
+      xlabel = "#Sigma #it{E}_{T}^{"+cal[j]+"} [GeV]";
       ylabel = "Counts";
-      //centoverlayplot(options, c1, ET[1][j], centet[1][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, j);
+      centoverlayplot(options, c1, ET[1][j], centet[1][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_dat", plotdir, "all/", centbins, 1, j);
       //centoverlayplot(options, c1, ET[0][j], centet[0][j], 1, cal[j], scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,centbins, "cent_overlay_sim", plotdir, "all/", centbins, 0, j);
       options = "p";
       xlabel = "MBD Centrality [%]";
@@ -728,6 +729,6 @@ int plot()
     */
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_cor.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots/");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_unc.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots_unc/");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root");
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_10_run_21615_20231018_nopileup_cor.root");
   return 0;
 }

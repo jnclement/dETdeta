@@ -136,7 +136,7 @@ void drawText(const char *text, float xp, float yp, bool isRightAlign=0, int tex
 
 void sphenixtext()
 {
-  drawText("#bf{#it{sPHENIX}} internal", 0.9, 0.96, 1, kBlack, 0.04);
+  drawText("#bf{#it{sPHENIX}} Internal", 0.9, 0.96, 1, kBlack, 0.04);
 }
 
 void multitext(string* texts, int ntext, float xp = 0.03, float ytop = 0.1, bool rightalign = 0, int textColor = kBlack, double textsize = 0.025)

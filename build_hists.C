@@ -211,8 +211,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 9;
-  const int centoffs = 1;
+  const int centbins = 18;
+  const int centoffs = 2;
   const int hcalbins = 24;
   const int ecalbins = 96;
   //int mbd_bins[centbins+1] = {0};
