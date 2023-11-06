@@ -72,11 +72,11 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
   //if(sc > 1.) texts[3] = "HIJING scaled by " + params[0];
   texts[3] = "";
   TLegend* leg;
-  if(calnum!=4) leg = new TLegend(0.75,0.7,0.9,0.9);
-  else leg = new TLegend(0.85,0.65,0.9,0.9);
+  if(calnum!=4) leg = new TLegend(0.4,0.75,0.9,0.9);
+  else leg = new TLegend(0.4,0.65,0.9,0.9);
+  leg->SetNColumns(3);
   leg->SetTextSize(0.015);
   mainhist->SetMarkerColor(kBlack);
-  leg->AddEntry(mainhist,("0-90% centrality"),"P");
   if(calnum==0 || calnum == 3 || calnum==4) mainhist->Rebin(5);
   for(int i=0; i<centbins; ++i)
     {
@@ -86,6 +86,7 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
       hists[i]->SetFillColorAlpha(knames[i%6]+kcodes[i/6],0.2);
       leg->AddEntry(hists[i],(to_string((centbins-i-1)*centrange)+"-"+to_string((centbins-i)*centrange) + "% centrality").c_str(),"P");
     }
+  leg->AddEntry(mainhist,("0-90% centrality"),"P");
   ca->cd();
   if(logy) gPad->SetLogy();
   else gPad->SetLogy(0);
@@ -418,7 +419,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   SetsPhenixStyle();
-  const int centbins = 9;
+  const int centbins = 18;
   TH1D* means[2][3];
   TH1D* sigs[2][3];
   TH1D* meandiffnoavg[3];
@@ -729,6 +730,6 @@ int plot()
     */
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_cor.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots/");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_5_scale_1.30_zcut_10_run_21615_20231009_unc.root", "ttree","/home/jocl/datatemp/","/home/jocl/datatemp/plots_unc/");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_10_run_21615_20231018_nopileup_cor.root");
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root");
   return 0;
 }

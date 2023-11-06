@@ -211,8 +211,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 18;
-  const int centoffs = 2;
+  const int centbins = 9;
+  const int centoffs = 1;
   const int hcalbins = 24;
   const int ecalbins = 96;
   //int mbd_bins[centbins+1] = {0};
@@ -284,9 +284,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
   
-  float et_em_range[centbins] = {1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200,1200};//{150,200,275,350,400,600,800,1200,1750};//{150,150,200,200,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
-  float et_oh_range[centbins] = {0};//{35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};
-  float et_ih_range[centbins] = {0};//{10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};
+  float et_em_range[centbins] = {100,150,200,275,350,400,600,800,1200};//{150,150,200,200,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
+  float et_oh_range[centbins] = {35,50,80,100,140,175,225,300,400};//{35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};
+  float et_ih_range[centbins] = {10,15,25,35,50,75,100,120,150};//{10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};
   float et_sm_range = 1200;
   float tw_em_range = 15;
   float tw_oh_range = 20;
@@ -320,6 +320,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
 
   TH1D* ET[2][3];
+  TH1D* truthpar_total_ET = new TH1D("truthpar_total_ET","",2000,0,2000);
   TH1D* TW[2][3];
   TH1D* sumev[2];
   TH1D* sumtw[2];
@@ -560,6 +561,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  if(h==0)
 		    {
 		      int gtp = 0;
+		      float total_et = 0;
 		      for(int k=0; k<truthpar_n; ++k)
 			{
 			  if(truthpar_eta[k] == 0 || abs(truthpar_eta[k]) > dETrange || truthpar_e[k] < mine) continue;
@@ -568,10 +570,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  truthparecent[j]->Fill(truthpar_e[k]);
 			  truthpar_et[j]->Fill(truthpar_eta[k],get_E_T_em(truthpar_e[k],truthpar_eta[k],0)/(dETrange*2./dETbins));
 			  truthpareetac[j]->Fill(truthpar_eta[k],truthpar_e[k]);
+			  total_et += get_E_T_em(truthpar_e[k], truthpar_eta[k],0);
 			  gtp++;
 			}
 		      truthparncent[j]->Fill(gtp);
 		      truthparnhist->Fill(gtp);
+		      truthpar_total_ET->Fill(total_et);
 		    }
 		  break;
 		}
@@ -579,8 +583,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
       cout << "Done." << endl;
     }
-  centet[1][0][17]->Draw();
-  gPad->SaveAs("test.png");
+  //centet[1][0][17]->Draw();
+  //gPad->SaveAs("test.png");
   for(int i=0; i<3; ++i)
     {
       for(int k=0; k<centbins; ++k)
@@ -604,7 +608,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
   */
   cout << "Doing a few histogram operations..." << endl;
-
+  outf->WriteObject(truthpar_total_ET,truthpar_total_ET->GetName());
   for(int i=0; i<centbins; ++i)
     {
       for(int j=0; j<3; ++j)
