@@ -718,7 +718,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outf->WriteObject(outt,outt->GetName());
   cout << "Done writing parameters to file" << endl;
   cout << "All done!" << endl;
-
+  /*
   TCanvas* c1 = new TCanvas("","");
   c1->cd();
   for(int i=0; i<2; ++i)
@@ -729,6 +729,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  c1->SaveAs(("f10h"+to_string(i)+to_string(j)+".pdf").c_str());
 	}
     }
-  
+  */
   return 0;
 }
