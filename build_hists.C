@@ -636,7 +636,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      if(h==0) outf->WriteObject(dETcentrat[i][j],dETcentrat[i][j]->GetName());
 	      //deadmap[h][i][j]->Divide(deadhits[h][i][j]);
-	      deadmap[h][i][j]->Scale(1./nevt[h])
+	      deadmap[h][i][j]->Scale(1./nevt[h]);
 	    }
 	  for(int k=0; k<centbins; ++k)
 	    {
