@@ -523,7 +523,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l], etacor[h][k][l], subtr);
-			  if(calen[h][k][l] > 0.03)
+			  //if(calen[h][k][l] > 0.03)
 			    {
 			      deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
 			      deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
@@ -635,7 +635,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  for(int j=0; j<centbins; ++j)
 	    {
 	      if(h==0) outf->WriteObject(dETcentrat[i][j],dETcentrat[i][j]->GetName());
-	      deadmap[h][i][j]->Divide(deadhits[h][i][j]);
+	      //deadmap[h][i][j]->Divide(deadhits[h][i][j]);
+	      deadmap[h][i][j]->Scale(1./nevt[h])
 	    }
 	  for(int k=0; k<centbins; ++k)
 	    {
