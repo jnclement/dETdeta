@@ -531,7 +531,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
 			  if(k>0 && calph[h][k][l] > 29 && calph[h][k][l] < 39)
 			    {
-			      rawhcals[h][k][calph[h][k][l]-29]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
+			      rawhcals[h][k][calph[h][k][l]-30]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
 			    }
 			  if(k==0)
 			    {
