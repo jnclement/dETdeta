@@ -529,10 +529,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(k>0 && calph[h][k][l] > 29 && calph[h][k][l] < 39 && j==centbins-1)
-			    {
-			      rawhcals[h][k-1][calph[h][k][l]-30]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			    }
 			  if(k==0)
 			    {
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
@@ -544,6 +540,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			    {
 			      deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
 			      deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
+			    }
+			    if(k>0 && calph[h][k][l] > 29 && calph[h][k][l] < 40 && j==centbins-1)
+			    {
+			      rawhcals[h][k-1][calph[h][k][l]-30]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
 			    }
 			  esum += eval;
 			  TW[h][k]->Fill(eval);
