@@ -330,16 +330,16 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   
   mbh[0] = new TH1D("smbh","",1000,0,300000);
   mbh[1] = new TH1D("dmbh","",1000,0,3000);
-  ET[1][0] = new TH1D("et10","",1200,0,1200);
-  ET[0][0] = new TH1D("et00","",1200,0,1200);
+  ET[1][0] = new TH1D("et10","",1300,-100,1200);
+  ET[0][0] = new TH1D("et00","",1300,-100,1200);
   TW[0][0] = new TH1D("tw00","",bins_tw,0,tw_em_range);
   TW[1][0] = new TH1D("tw10","",bins_tw,0,tw_em_range);
-  ET[1][1] = new TH1D("et11","",200,0,200);
-  ET[0][1] = new TH1D("et01","",200,0,200);
+  ET[1][1] = new TH1D("et11","",220,-20,200);
+  ET[0][1] = new TH1D("et01","",220,-20,200);
   TW[0][1] = new TH1D("tw01","",bins_tw,0,tw_ih_range);
   TW[1][1] = new TH1D("tw11","",bins_tw,0,tw_ih_range);
-  ET[1][2] = new TH1D("et12","",600,0,600);
-  ET[0][2] = new TH1D("et02","",600,0,600);
+  ET[1][2] = new TH1D("et12","",660,-60,600);
+  ET[0][2] = new TH1D("et02","",660,-60,600);
   TW[0][2] = new TH1D("tw02","",bins_tw,0,tw_oh_range);
   TW[1][2] = new TH1D("tw12","",bins_tw,0,tw_oh_range);
   sumev[0] = new TH1D("sumev0","",400,0,et_sm_range);
