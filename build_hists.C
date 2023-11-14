@@ -64,6 +64,7 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
   for(int i=0; i<sectors; ++i)
     {
       //ucmbd += mbe[i];
+      /*
       if(datsim)
 	{
 	  if(mbt[i] == 1)
@@ -78,7 +79,8 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
 		}
 	    }
 	}
-      else mbsum += mbe[i];
+	else*/
+      mbsum += mbe[i];
       /*
       else
 	{
