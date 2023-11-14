@@ -286,9 +286,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
   
-  float et_em_range[centbins] = {100,150,200,275,350,400,600,800,1200};//{150,150,200,200,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};
-  float et_oh_range[centbins] = {35,50,80,100,140,175,225,300,400};//{35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};
-  float et_ih_range[centbins] = {10,15,25,35,50,75,100,120,150};//{10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};
+  float et_em_range[centbins] = {150,150,200,200,275,275,350,350,400,400,600,600,800,800,1200,1200,1750,1750};//{100,150,200,275,350,400,600,800,1200};//
+  float et_oh_range[centbins] = {35,35,50,50,80,80,100,100,140,140,175,175,225,225,300,300,400,400};//{35,50,80,100,140,175,225,300,400};//
+  float et_ih_range[centbins] = {10,10,15,15,25,25,35,35,50,50,75,75,100,100,120,120,150,150};//{10,15,25,35,50,75,100,120,150};//
   float et_sm_range = 1200;
   float tw_em_range = 15;
   float tw_oh_range = 20;
@@ -312,13 +312,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       centtow[0][1][i] = new TH1D(("centtow01_" + to_string(i)).c_str(),"",bins_tw,0,tw_ih_range*(10.+i)/20);
       centtow[0][2][i] = new TH1D(("centtow02_" + to_string(i)).c_str(),"",bins_tw,0,tw_oh_range*(10.+i)/20);
 
-      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",et_em_range[i],0,et_em_range[i]);
-      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",et_ih_range[i],0,et_ih_range[i]);
-      centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",et_oh_range[i],0,et_oh_range[i]);
+      centet[1][0][i] = new TH1D(("centet10_" + to_string(i)).c_str(),"",et_em_range[i]+20,-20,et_em_range[i]);
+      centet[1][1][i] = new TH1D(("centet11_" + to_string(i)).c_str(),"",et_ih_range[i]+10,-10,et_ih_range[i]);
+      centet[1][2][i] = new TH1D(("centet12_" + to_string(i)).c_str(),"",et_oh_range[i]+20,-20,et_oh_range[i]);
 
-      centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",et_em_range[i],0,et_em_range[i]);
-      centet[0][1][i] = new TH1D(("centet01_" + to_string(i)).c_str(),"",et_ih_range[i],0,et_ih_range[i]);
-      centet[0][2][i] = new TH1D(("centet02_" + to_string(i)).c_str(),"",et_oh_range[i],0,et_oh_range[i]);
+      centet[0][0][i] = new TH1D(("centet00_" + to_string(i)).c_str(),"",et_em_range[i]+20,-20,et_em_range[i]);
+      centet[0][1][i] = new TH1D(("centet01_" + to_string(i)).c_str(),"",et_ih_range[i]+10,-10,et_ih_range[i]);
+      centet[0][2][i] = new TH1D(("centet02_" + to_string(i)).c_str(),"",et_oh_range[i]+20,-20,et_oh_range[i]);
     }
 
   TH1D* ET[2][3];
