@@ -529,7 +529,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(k>0 && calph[h][k][l] > 29 && calph[h][k][l] < 39)
+			  if(k>0 && calph[h][k][l] > 29 && calph[h][k][l] < 39 && j==centbins-1)
 			    {
 			      rawhcals[h][k][calph[h][k][l]-30]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
 			    }
@@ -633,6 +633,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  for(int k=0; k<10; ++k)
 	    {
+	      rawhcals[i][j][k]->Scale(1./nevtcent[i][centbins-1]);
 	      outf->WriteObject(rawhcals[i][j][k],rawhcals[i][j][k]->GetName());
 	    }
 	}
