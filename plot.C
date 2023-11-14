@@ -526,7 +526,9 @@ void newplot(string options, TCanvas* ca, TH1* hist1, TH1* hist2, int logy, stri
 	  simcopy->SetBinContent(i,simhist->GetBinContent(i));
 	  simcopy->SetBinError(i,simhist->GetBinError(i));
 	}
+      cout << "test" << endl;
       rathist->Divide(datcopy,simcopy);
+      cout << "test2" << endl;
       rathist->SetLineColor(kRed);
       rathist->SetMarkerColor(kRed);
       rathist->GetYaxis()->SetLabelSize(0.025);
@@ -607,7 +609,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
   SetsPhenixStyle();
-  const int centbins = 9;
+  const int centbins = 18;
   TH1D* means[2][3];
   TH1D* sigs[2][3];
   TH1D* meandiffnoavg[3];
@@ -716,7 +718,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  dETcentsimunc[i][j] = (TH1D*)histfile->Get(("dETcentsimunc_"+to_string(i)+"_"+to_string(j)).c_str());
 	  //cout << ("fullcor_"+to_string(i)+to_string(j)).c_str() << endl;
 	  fullcor[i][j] = (TH1D*)histfile->Get(("fullcor_"+to_string(i)+to_string(j)).c_str());
-	  //cout << fullcor[i][j] << endl;
+	  cout << j << " " << centet[1][i][j] << endl;
 	  meandiffnoavg[i]->SetBinContent(centbins-j,centet[1][i][j]->GetMean()-centet[0][i][j]->GetMean());
 	  meandiffnoavg[i]->SetBinError(centbins-j,0);
 	}
@@ -892,7 +894,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  texts[2] = "Run 21615 " + to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+"% centrality";
 	  deadmap[1][j][i]->Draw("COLZ");
 	  sphenixtext();
-	  multitext(texts,ntext);
+	  //multitext(texts,ntext);
 	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/dat_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
 	  c1->SaveAs(("/home/jocl/datatemp/plots/pdf/cent/dat_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".pdf").c_str());
 	  deadmap[0][j][i]->GetYaxis()->SetLabelSize(0.025);
@@ -1003,7 +1005,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   phnxline->SetLineColor(kBlue);
   phnxbox->SetFillColorAlpha(kBlue,0.3);
   fullcor[0][centbins-1]->GetYaxis()->SetTitle("Fully Corrected dE_{T}/d#eta [GeV]");
-  fullcor[0][centbins-1]->GetYaxis()->SetRangeUser(500,900);
+  fullcor[0][centbins-1]->GetYaxis()->SetRangeUser(550,1100);
   fullcor[0][centbins-1]->SetMarkerColor(kRed);
   fullcor[1][centbins-1]->SetMarkerColor(kRed-9);
   fullcor[2][centbins-1]->SetMarkerColor(kRed+3);
@@ -1069,6 +1071,8 @@ int plot()
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root","new18");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231106_nopileup_nzs_cor.root","nzs");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231026_nopileup_cor.root","new26");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231108_nopileup_wzs_nodanvtx_cor.root","nodan");
+  //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231108_nopileup_wzs_nodanvtx_cor.root","nodan");
+  called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newsmallnzs");
+  //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
   return 0;
 }
