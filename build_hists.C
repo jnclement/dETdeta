@@ -211,8 +211,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
   gStyle->SetOptTitle(0);
-  const int centbins = 9;
-  const int centoffs = 1;
+  const int centbins = 18;
+  const int centoffs = 2;
   const int hcalbins = 24;
   const int ecalbins = 96;
   //int mbd_bins[centbins+1] = {0};
@@ -233,7 +233,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* truthpar_et[centbins];
   int npart = 0;
   float z_v[2][3];
-  TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_71.root").c_str());
+  TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_600.root").c_str());
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
   TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
