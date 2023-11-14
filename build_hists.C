@@ -327,6 +327,17 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* sumev[2];
   TH1D* sumtw[2];
   TH1D* mbh[2];
+  TH1D* rawhcals[2][2][10];
+  for(int i=0; i<2; ++i)
+    {
+      for(int j=0; j<2; ++j)
+	{
+	  for(int k=0; k<10; ++k)
+	    {
+	      rawhcals[i][j][k] = new TH1D(("hcalraw_"+to_string(i)+"_"+to_string(j+1)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
+	    }
+	}
+    }
   
   mbh[0] = new TH1D("smbh","",1000,0,300000);
   mbh[1] = new TH1D("dmbh","",1000,0,3000);
@@ -518,6 +529,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
+			  if(k>0 && calph[h][k][l] > 29 && calph[h][k][l] < 39)
+			    {
+			      rawhcals[h][k][calph[h][k][l]-29]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
+			    }
 			  if(k==0)
 			    {
 			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
@@ -612,6 +627,16 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   */
   cout << "Doing a few histogram operations..." << endl;
   outf->WriteObject(truthpar_total_ET,truthpar_total_ET->GetName());
+  for(int i=0; i<2; ++i)
+    {
+      for(int j=0; j<2; ++j)
+	{
+	  for(int k=0; k<10; ++k)
+	    {
+	      outf->WriteObject(rawhcals[i][j][k],rawhcals[i][j][k]->GetName());
+	    }
+	}
+    }
   for(int i=0; i<centbins; ++i)
     {
       for(int j=0; j<3; ++j)
