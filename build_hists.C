@@ -329,7 +329,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* mbh[2];
   
   mbh[0] = new TH1D("smbh","",1000,0,300000);
-  mbh[1] = new TH1D("dmbh","",1000,0,300000);
+  mbh[1] = new TH1D("dmbh","",1000,0,3000);
   ET[1][0] = new TH1D("et10","",1200,0,1200);
   ET[0][0] = new TH1D("et00","",1200,0,1200);
   TW[0][0] = new TH1D("tw00","",bins_tw,0,tw_em_range);
