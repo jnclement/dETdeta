@@ -637,7 +637,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outf->mkdir("deadmap");
   outf->mkdir("zvtx");
   outf->cd("truthpar");
-  outf->WriteObject(truthpar_total_ET,truthpar_total_ET->GetName());
+  gDirectory->WriteObject(truthpar_total_ET,truthpar_total_ET->GetName());
   for(int i=0; i<2; ++i)
     {
       for(int j=0; j<2; ++j)
@@ -646,7 +646,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      hcalraw[i][j][k]->Scale(1./nevtcent[i][centbins-1]);
 	      outf->cd("hcalraw");
-	      outf->WriteObject(hcalraw[i][j][k],hcalraw[i][j][k]->GetName());
+	      gDirectory->WriteObject(hcalraw[i][j][k],hcalraw[i][j][k]->GetName());
 	    }
 	}
     }
@@ -663,11 +663,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  //fullcor[j][i]->Scale(1./(nevtcent[1][i]));
 	  cout <<"bin: " << i << " cal: " << j << " mean dET/deta/(0.5npart): " << fullcor[j][i]->Integral("width")/(2*dETrange*175) <<endl;
 	  outf->cd("fullcor");
-	  outf->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
+	  gDirectory->WriteObject(fullcor[j][i],fullcor[j][i]->GetName());
 	  if(i==centbins-1) cout << test << " " << dETcent[0][j][i]->Integral("width") << " " << dETcent[1][j][i]->Integral("width") << " " << fullcor[j][i]->Integral("width") << " " << truthpar_et[i]->Integral("width") << endl;
 	  dETcentsimunc[j][i]->Scale(1./nevtcent[0][i]);
 	  outf->cd("dETcent");
-	  outf->WriteObject(dETcentsimunc[j][i],dETcentsimunc[j][i]->GetName());
+	  gDirectory->WriteObject(dETcentsimunc[j][i],dETcentsimunc[j][i]->GetName());
 	}
     }
   for(int h=0; h<2; ++h)
@@ -677,7 +677,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  for(int j=0; j<centbins; ++j)
 	    {
 	      outf->cd("dETcentrat");
-	      if(h==0) outf->WriteObject(dETcentrat[i][j],dETcentrat[i][j]->GetName());
+	      if(h==0) gDirectory->WriteObject(dETcentrat[i][j],dETcentrat[i][j]->GetName());
 	      //deadmap[h][i][j]->Divide(deadhits[h][i][j]);
 	      deadmap[h][i][j]->Scale(1./nevt[h]);
 	    }
@@ -696,36 +696,36 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
   cout << "Saving hists to " << outname << endl;
   outf->cd("zvtx");
-  outf->WriteObject(zhist[0], zhist[0]->GetName());
-  outf->WriteObject(zhist[1], zhist[1]->GetName());
+  gDirectory->WriteObject(zhist[0], zhist[0]->GetName());
+  gDirectory->WriteObject(zhist[1], zhist[1]->GetName());
   outf->cd("truthpar");
-  outf->WriteObject(truthparehist,truthparehist->GetName());
-  outf->WriteObject(truthparnhist,truthparnhist->GetName());
+  gDirectory->WriteObject(truthparehist,truthparehist->GetName());
+  gDirectory->WriteObject(truthparnhist,truthparnhist->GetName());
   for(int i=0; i<centbins; ++i)
     {
-      outf->WriteObject(truthparecent[i],truthparecent[i]->GetName());
-      outf->WriteObject(truthparncent[i],truthparncent[i]->GetName());
-      outf->WriteObject(truthpar_et[i],truthpar_et[i]->GetName());
-      outf->WriteObject(truthpareetac[i],truthpareetac[i]->GetName());
+      gDirectory->WriteObject(truthparecent[i],truthparecent[i]->GetName());
+      gDirectory->WriteObject(truthparncent[i],truthparncent[i]->GetName());
+      gDirectory->WriteObject(truthpar_et[i],truthpar_et[i]->GetName());
+      gDirectory->WriteObject(truthpareetac[i],truthpareetac[i]->GetName());
     }
   outf->cd("meanstuff");
   for(int i=0; i<3; ++i)
     {
-      outf->WriteObject(meandiff[i], meandiff[i]->GetName());
+      gDirectory->WriteObject(meandiff[i], meandiff[i]->GetName());
     }
   for(int h=0; h<2; ++h)
     {
       for(int i=0; i<3; ++i)
 	{
 	  outf->cd("global");
-	  outf->WriteObject(dET[h][i], dET[h][i]->GetName());
+	  gDirectory->WriteObject(dET[h][i], dET[h][i]->GetName());
 	  outf->cd("meanstuff");
-	  outf->WriteObject(sigmu[h][i], sigmu[h][i]->GetName());
+	  gDirectory->WriteObject(sigmu[h][i], sigmu[h][i]->GetName());
 	  outf->cd("global");
-	  outf->WriteObject(ET[h][i], ET[h][i]->GetName());
-	  outf->WriteObject(TW[h][i], TW[h][i]->GetName());
+	  gDirectory->WriteObject(ET[h][i], ET[h][i]->GetName());
+	  gDirectory->WriteObject(TW[h][i], TW[h][i]->GetName());
 	  outf->cd("meanstuff");
-	  outf->WriteObject(meancent[h][i],meancent[h][i]->GetName());
+	  gDirectory->WriteObject(meancent[h][i],meancent[h][i]->GetName());
 	}
     }
   for(int h=0; h<2; ++h)
@@ -737,26 +737,26 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      if(i==0)
 		{
 		  outf->cd("global");
-		  outf->WriteObject(ettotcent[h][j], ettotcent[h][j]->GetName());
+		  gDirectory->WriteObject(ettotcent[h][j], ettotcent[h][j]->GetName());
 		  outf->cd("zvtx");
-		  outf->WriteObject(zcent[h][j],zcent[h][j]->GetName());
+		  gDirectory->WriteObject(zcent[h][j],zcent[h][j]->GetName());
 		}
 	      outf->cd("deadmap");
-	      outf->WriteObject(deadmap[h][i][j], deadmap[h][i][j]->GetName());
+	      gDirectory->WriteObject(deadmap[h][i][j], deadmap[h][i][j]->GetName());
 	      outf->cd("centet");
-	      outf->WriteObject(centtow[h][i][j], centtow[h][i][j]->GetName());
-	      outf->WriteObject(centet[h][i][j], centet[h][i][j]->GetName());
+	      gDirectory->WriteObject(centtow[h][i][j], centtow[h][i][j]->GetName());
+	      gDirectory->WriteObject(centet[h][i][j], centet[h][i][j]->GetName());
 	      outf->cd("dETcent");
-	      outf->WriteObject(dETcent[h][i][j], dETcent[h][i][j]->GetName());
+	      gDirectory->WriteObject(dETcent[h][i][j], dETcent[h][i][j]->GetName());
 	    }
 	}
     }
   outf->cd("global");
   for(int h=0; h<2; ++h)
     {
-      outf->WriteObject(sumev[h], sumev[h]->GetName());
-      outf->WriteObject(sumtw[h], sumtw[h]->GetName());
-      outf->WriteObject(mbh[h], mbh[h]->GetName());
+      gDirectory->WriteObject(sumev[h], sumev[h]->GetName());
+      gDirectory->WriteObject(sumtw[h], sumtw[h]->GetName());
+      gDirectory->WriteObject(mbh[h], mbh[h]->GetName());
     }
 
   cout << "Done writing hists." << endl;
