@@ -135,7 +135,9 @@ void centoverlayplot(string options, TCanvas* ca, TH1D* mainhist, TH1D** hists, 
 void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int datorsim, int calnum)
 {
   string typ = "";
-  int kcodes[9] = {0,-4,-7,-9,-10,-8,-5,-1,4};
+  //int kcodes[9] = {0,-4,-7,-9,-10,-8,-5,-1,4};
+  int kcodes[11] = {0,1,2,3,-4,-3,-2,-7,-6,-9,-8};
+  int baseco[6] = {kRed,kYellow,kGreen,kCyan,kBlue,kMagenta};
   int centrange = 90/centbins;
   const int par = 4;
   float parval[par];
@@ -174,7 +176,9 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
   leg->SetTextSize(0.015);
   for(int i=0; i<centbins; ++i)
     {
-      hists[i]->SetMarkerColor(kRed+kcodes[i]);
+      cout << i << " " << hists[i] << endl;
+      hists[i]->SetMarkerColor(baseco[i%6]+kcodes[i%11]);
+      hists[i]->SetLineColor(baseco[i%6]+kcodes[i%11]);
       leg->AddEntry(hists[i],(typ+" " + to_string((centbins-i-1)*centrange)+"-"+to_string((centbins-i)*centrange) + "% centrality").c_str(),"P");
     }
   const int ntext2 = 3;
@@ -192,7 +196,6 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
       maxval = max(hists[i]->GetMaximum(),maxval);
     }
   float minval = 999999;
-  
   for(int i=0; i<centbins; ++i)
     {
       for(int j=0; j<hists[i]->GetNbinsX(); ++j)
@@ -201,11 +204,12 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
 	}
     }
   if(minval < 0 && logy) minval = 1E-10;
-  if(calnum == 0) maxval = 10;
-  else if(calnum == 1) maxval = 6;
-  else if(calnum == 2) maxval = 20;
+  //if(calnum == 0) maxval = 10;
+  //else if(calnum == 1) maxval = 6;
+  //else if(calnum == 2) maxval = 20;
   if(logy) hists[0]->GetYaxis()->SetRangeUser(minval/2.,maxval*2.);
   else hists[0]->GetYaxis()->SetRangeUser(min(0,minval)-abs(min(0,minval))/10.,maxval+abs(maxval)/10.);
+  cout << minval << " " << maxval << endl;
   hists[0]->GetXaxis()->SetTitle(xlabel.c_str());
   hists[0]->GetYaxis()->SetTitle(ylabel.c_str());
   hists[0]->GetYaxis()->SetLabelSize(0.025);
@@ -214,10 +218,10 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
   for(int i=0; i<centbins; ++i) hists[i]->Draw(("SAME "+options).c_str());
   sphenixtext();
   //multitext(texts, ntext, 0.2);
-  drawText(typ.c_str(), 0.15, 0.96, 0, kBlack, 0.04);
-  leg->Draw();
-  ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
-  ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
+  //drawText(typ.c_str(), 0.15, 0.96, 0, kBlack, 0.04);
+  //leg->Draw();
+  //ca->SaveAs((dir+"pdf/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
+  //ca->SaveAs((dir+"png/"+subdir+name+"_"+cal+"_scale_"+params[0]+"_subtr_"+params[1]+"_mine_"+params[2]+"_zcut_"+params[3]+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
 }
 
 void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int logy, string cal, float sc, float sub, int run, float mine, float zcut, string xlabel, string ylabel, int percent0, int percent1, string name, string dir, string subdir, int centbins, int norm)
@@ -649,43 +653,55 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   TH1D* truthpar_et[centbins];
   TH1D* dETcentsimunc[3][centbins];
   TH1D* truthpar_total_ET;
+  TH1D* hcalraw[2][2][64];
   float sub;
   float scale[2];
   int frac[2];
   float mine;
   float zcut;
   int run;
-  truthpar_total_ET = (TH1D*)histfile->Get("truthpar_total_ET");
-  truthparehist = (TH1D*)histfile->Get("truthparehist");
-  truthparnhist = (TH1D*)histfile->Get("truthparnhist");
-  mbh[0] = (TH1D*)histfile->Get("smbh");
-  mbh[1] = (TH1D*)histfile->Get("dmbh");
-  zhist[0] = (TH1D*)histfile->Get("zhist_0");
-  zhist[1] = (TH1D*)histfile->Get("zhist_1");
+  truthpar_total_ET = (TH1D*)histfile->Get("truthpar/truthpar_total_ET");
+  truthparehist = (TH1D*)histfile->Get("truthpar/truthparehist");
+  truthparnhist = (TH1D*)histfile->Get("truthpar/truthparnhist");
+  mbh[0] = (TH1D*)histfile->Get("global/smbh");
+  mbh[1] = (TH1D*)histfile->Get("global/dmbh");
+  zhist[0] = (TH1D*)histfile->Get("zvtx/zhist_0");
+  zhist[1] = (TH1D*)histfile->Get("zvtx/zhist_1");
   for(int i=0; i<2; ++i)
     {
-      sumev[i] = (TH1D*)histfile->Get(("sumev" + to_string(i)).c_str());
-      sumtw[i] = (TH1D*)histfile->Get(("sumtw" + to_string(i)).c_str());
+      for(int j=1; j<3; ++j)
+	{
+	  for(int k=0; k<64; ++k)
+	    {
+	      hcalraw[i][j-1][k] = (TH1D*)histfile->Get(("hcalraw/hcalraw_"+to_string(i)+"_"+to_string(j)+"_"+to_string(k)).c_str());
+	      hcalraw[i][j-1][k]->Scale(64.);
+	    }
+	}
+    }
+  for(int i=0; i<2; ++i)
+    {
+      sumev[i] = (TH1D*)histfile->Get(("global/sumev" + to_string(i)).c_str());
+      sumtw[i] = (TH1D*)histfile->Get(("global/sumtw" + to_string(i)).c_str());
       for(int j=0; j<3; ++j)
 	{
-	  means[i][j] = (TH1D*)histfile->Get(("meancent"+to_string(i)+to_string(j)).c_str());
-	  if(i==0) meandiff[j] = (TH1D*)histfile->Get(("md"+to_string(j)).c_str());
-	  sigmu[i][j] = (TH1D*)histfile->Get(("sigmu"+to_string(i)+to_string(j)).c_str());
-	  ET[i][j] = (TH1D*)histfile->Get(("et"+to_string(i)+to_string(j)).c_str());
-	  TW[i][j] = (TH1D*)histfile->Get(("tw"+to_string(i)+to_string(j)).c_str());
-	  dET[i][j] = (TH1D*)histfile->Get(("dET"+to_string(i)+to_string(j)).c_str());
+	  means[i][j] = (TH1D*)histfile->Get(("meanstuff/meancent"+to_string(i)+to_string(j)).c_str());
+	  if(i==0) meandiff[j] = (TH1D*)histfile->Get(("meanstuff/md"+to_string(j)).c_str());
+	  sigmu[i][j] = (TH1D*)histfile->Get(("meanstuff/sigmu"+to_string(i)+to_string(j)).c_str());
+	  ET[i][j] = (TH1D*)histfile->Get(("global/et"+to_string(i)+to_string(j)).c_str());
+	  TW[i][j] = (TH1D*)histfile->Get(("global/tw"+to_string(i)+to_string(j)).c_str());
+	  dET[i][j] = (TH1D*)histfile->Get(("global/dET"+to_string(i)+to_string(j)).c_str());
 	  for(int k=0; k<centbins; ++k)
 	    {
 	      if(j==0)
 		{
-		  zcent[i][k] = (TH1D*)histfile->Get(("zcent"+to_string(i)+"_"+to_string(k)).c_str());
-		  ettotcent[i][k] = (TH1D*)histfile->Get(("ettotcent"+to_string(i)+"_"+to_string(k)).c_str());
+		  zcent[i][k] = (TH1D*)histfile->Get(("zvtx/zcent"+to_string(i)+"_"+to_string(k)).c_str());
+		  ettotcent[i][k] = (TH1D*)histfile->Get(("global/ettotcent"+to_string(i)+"_"+to_string(k)).c_str());
 		}
 	      
-	      deadmap[i][j][k] = (TH2D*)histfile->Get(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
-	      centtow[i][j][k] = (TH1D*)histfile->Get(("centtow"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
-	      centet[i][j][k] = (TH1D*)histfile->Get(("centet"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
-	      dETcent[i][j][k] = (TH1D*)histfile->Get(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
+	      deadmap[i][j][k] = (TH2D*)histfile->Get(("deadmap/deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
+	      centtow[i][j][k] = (TH1D*)histfile->Get(("centet/centtow"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
+	      centet[i][j][k] = (TH1D*)histfile->Get(("centet/centet"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
+	      dETcent[i][j][k] = (TH1D*)histfile->Get(("dETcent/dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str());
 	    }
 	}
     }
@@ -711,14 +727,13 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	{
 	  if(i==0)
 	    {
-	      truthparecent[j] = (TH1D*)histfile->Get(("truthparecent_"+to_string(j)).c_str());
-	      truthparncent[j] = (TH1D*)histfile->Get(("truthparncent_"+to_string(j)).c_str());
-	      truthpar_et[j] = (TH1D*)histfile->Get(("truthpar_et_"+to_string(j)).c_str());
+	      truthparecent[j] = (TH1D*)histfile->Get(("truthpar/truthparecent_"+to_string(j)).c_str());
+	      truthparncent[j] = (TH1D*)histfile->Get(("truthpar/truthparncent_"+to_string(j)).c_str());
+	      truthpar_et[j] = (TH1D*)histfile->Get(("truthpar/truthpar_et_"+to_string(j)).c_str());
 	    }
-	  dETcentsimunc[i][j] = (TH1D*)histfile->Get(("dETcentsimunc_"+to_string(i)+"_"+to_string(j)).c_str());
+	  dETcentsimunc[i][j] = (TH1D*)histfile->Get(("dETcent/dETcentsimunc_"+to_string(i)+"_"+to_string(j)).c_str());
 	  //cout << ("fullcor_"+to_string(i)+to_string(j)).c_str() << endl;
-	  fullcor[i][j] = (TH1D*)histfile->Get(("fullcor_"+to_string(i)+to_string(j)).c_str());
-	  cout << j << " " << centet[1][i][j] << endl;
+	  fullcor[i][j] = (TH1D*)histfile->Get(("fullcor/fullcor_"+to_string(i)+to_string(j)).c_str());
 	  meandiffnoavg[i]->SetBinContent(centbins-j,centet[1][i][j]->GetMean()-centet[0][i][j]->GetMean());
 	  meandiffnoavg[i]->SetBinError(centbins-j,0);
 	}
@@ -760,6 +775,28 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   string simleg = "HIJING";
   string raty = "";
   int norm = 0;
+  xlabel = "#eta";
+  ylabel = "dE_{T}/d#eta [GeV]";
+  multiplot(options, c1, hcalraw[0][0], 0, "IHCal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, "ihcalstrips_sim", plotdir, "all/", 64, 0, 1);
+  dETcent[0][1][centbins-1]->SetMarkerColor(kBlack);
+  dETcent[0][1][centbins-1]->Draw("SAME P");
+  c1->SaveAs("/home/jocl/datatemp/plots/pdf/all/ihcalstrips_sim.pdf");
+
+  multiplot(options, c1, hcalraw[0][1], 0, "OHCal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, "ohcalstrips_sim", plotdir, "all/", 64, 0, 1);
+  dETcent[0][2][centbins-1]->SetMarkerColor(kBlack);
+  dETcent[0][2][centbins-1]->Draw("SAME P");
+  c1->SaveAs("/home/jocl/datatemp/plots/pdf/all/Ohcalstrips_sim.pdf");
+
+  multiplot(options, c1, hcalraw[1][0], 0, "IHCal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, "ihcalstrips_dat", plotdir, "all/", 64, 0, 1);
+  dETcent[1][1][centbins-1]->SetMarkerColor(kBlack);
+  dETcent[1][1][centbins-1]->Draw("SAME P");
+  c1->SaveAs("/home/jocl/datatemp/plots/pdf/all/ihcalstrips_dat.pdf");
+
+  multiplot(options, c1, hcalraw[1][1], 0, "OHCal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, "ohcalstrips_dat", plotdir, "all/", 64, 0, 1);
+  dETcent[1][2][centbins-1]->SetMarkerColor(kBlack);
+  dETcent[1][2][centbins-1]->Draw("SAME P");
+  c1->SaveAs("/home/jocl/datatemp/plots/pdf/all/ohcalstrips_dat.pdf");
+  
   for(int j=0; j<3; ++j)
     {
       norm = 0;
@@ -1072,7 +1109,7 @@ int plot()
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231106_nopileup_nzs_cor.root","nzs");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231026_nopileup_cor.root","new26");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231108_nopileup_wzs_nodanvtx_cor.root","nodan");
-  called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newsmallnzs");
+  called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
   return 0;
 }
