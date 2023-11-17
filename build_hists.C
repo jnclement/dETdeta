@@ -327,14 +327,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* sumev[2];
   TH1D* sumtw[2];
   TH1D* mbh[2];
-  TH1D* hcalraw[2][2][64];
+  TH1D* hcalraw[2][3][256];
   for(int i=0; i<2; ++i)
     {
-      for(int j=0; j<2; ++j)
+      for(int j=0; j<3; ++j)
 	{
-	  for(int k=0; k<64; ++k)
+	  for(int k=0; k<(j==0?256:64); ++k)
 	    {
-	      hcalraw[i][j][k] = new TH1D(("hcalraw_"+to_string(i)+"_"+to_string(j+1)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
+	      hcalraw[i][j][k] = new TH1D(("hcalraw_"+to_string(i)+"_"+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	    }
 	}
     }
@@ -541,9 +541,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			      deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
 			      deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
 			    }
-			    if(k>0 && j==centbins-1)
+			    if(j==centbins-1)
 			    {
-			      hcalraw[h][k-1][calph[h][k][l]]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
+			      hcalraw[h][k][calph[h][k][l]]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
 			    }
 			  esum += eval;
 			  TW[h][k]->Fill(eval);
@@ -640,9 +640,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   gDirectory->WriteObject(truthpar_total_ET,truthpar_total_ET->GetName());
   for(int i=0; i<2; ++i)
     {
-      for(int j=0; j<2; ++j)
+      for(int j=0; j<3; ++j)
 	{
-	  for(int k=0; k<64; ++k)
+	  for(int k=0; k<(j==0?256:64); ++k)
 	    {
 	      hcalraw[i][j][k]->Scale(1./nevtcent[i][centbins-1]);
 	      outf->cd("hcalraw");
