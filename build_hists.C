@@ -680,7 +680,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  gDirectory->WriteObject(nfillcent[0][j][i],nfillcent[0][j][i]->GetName());
 	  gDirectory->WriteObject(nfillcent[1][j][i],nfillcent[1][j][i]->GetName());
 	  dETcent[0][j][i]->Divide(nfillcent[0][j][i]);
-	  dETcent[1][j][i]->Divide(nfillcent[0][j][i]);
+	  dETcent[1][j][i]->Divide(nfillcent[1][j][i]);
 	  //dETcent[0][j][i]->Scale(1./nevtcent[0][i]);
 	  //dETcent[1][j][i]->Scale(1./nevtcent[1][i]);
 	  if(j==0) truthpar_et[i]->Scale(1./nevtcent[0][i]);
