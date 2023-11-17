@@ -578,6 +578,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      centet[h][k][j]->Fill(esum);
 		      
 		    }
+		  hits.clear();
 		  sumev[h]->Fill(allsum);
 		  ettotcent[h][j]->Fill(allsum);
 		  for(int k=0; k<3; ++k)
