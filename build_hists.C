@@ -566,7 +566,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
-			  if(!check_eta_hit(etacor[h][k][l],hits)
+			  if(!check_eta_hit(etacor[h][k][l],hits))
 			    {
 			      nfillcent[h][k][j]->Fill(etacor[h][k][l]);
 			      hits.push_back(etacor[h][k][l]);
