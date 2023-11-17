@@ -679,6 +679,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  gDirectory->WriteObject(dETcentsimunc[j][i],dETcentsimunc[j][i]->GetName());
 	}
     }
+
+  cout << nevtcent[0][centbins-1] << " " << nevtcent[1][centbins-1] << endl;
+  for(int i=0; i<dETbins; ++i)
+    {
+      cout << nfillcent[0][0][centbins-1]->GetBinContent(i+1) << endl;
+      cout << nfillcent[1][0][centbins-1]->GetBinContent(i+1) << endl;
+    }
   for(int h=0; h<2; ++h)
     {
       for(int i=0; i<3; ++i)
