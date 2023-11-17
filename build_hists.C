@@ -247,6 +247,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* ettotcent[2][centbins];
   TH1D* dET[2][3];
   TH1D* dETcent[2][3][centbins];
+  TH1I* nfillcent[2][3][centbins];
   TH1D* dETcentrat[3][centbins];
   TH1D* truthparnhist = new TH1D("truthparnhist","",1000,0,10000);
   TH1D* truthparncent[centbins];
@@ -275,6 +276,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",dETbins,-dETrange,dETrange);
 	  for(int k=0; k<centbins; ++k)
 	    {
+	      nfillcent[i][j][k] = new TH1D(("nfillcent_"+to_string(i)+"_"+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      if(i==0) dETcentsimunc[j][k] = new TH1D(("dETcentsimunc_"+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      if(i==0) fullcor[j][k] = new TH1D(("fullcor_"+to_string(j)+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
@@ -551,6 +553,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
+			  nfillcent[h][k][j]->Fill(etacor[h][k][l]);
 			  dET[h][k]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
 			}
 		      allsum += esum;
@@ -636,6 +639,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outf->mkdir("centet");
   outf->mkdir("deadmap");
   outf->mkdir("zvtx");
+  outf->mkdir("nfill");
   outf->cd("truthpar");
   gDirectory->WriteObject(truthpar_total_ET,truthpar_total_ET->GetName());
   for(int i=0; i<2; ++i)
@@ -654,8 +658,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       for(int j=0; j<3; ++j)
 	{
-	  dETcent[0][j][i]->Scale(1./nevtcent[0][i]);
-	  dETcent[1][j][i]->Scale(1./nevtcent[1][i]);
+	  outf->cd("nfill");
+	  gDirectory->WriteObject(nfillcent[0][j][i],nfillcent[0][j][i]->GetName());
+	  gDirectory->WriteObject(nfillcent[1][j][i],nfillcent[1][j][i]->GetName());
+	  dETcent[0][j][i]->Divide(nfillcent[0][j][i]);
+	  dETcent[1][j][i]->Divide(nfillcent[0][j][i]);
+	  //dETcent[0][j][i]->Scale(1./nevtcent[0][i]);
+	  //dETcent[1][j][i]->Scale(1./nevtcent[1][i]);
 	  if(j==0) truthpar_et[i]->Scale(1./nevtcent[0][i]);
 	  fullcor[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
 	  dETcentrat[j][i]->Divide(dETcent[1][j][i],dETcent[0][j][i]);
