@@ -666,7 +666,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  for(int k=0; k<(j==0?256:64); ++k)
 	    {
-	      hcalraw[i][j][k]->Scale(1./nevtcent[i][centbins-1]);
+	      hcalraw[i][j][k]->Divide(nfillcent[i][j][k]);
 	      outf->cd("hcalraw");
 	      gDirectory->WriteObject(hcalraw[i][j][k],hcalraw[i][j][k]->GetName());
 	    }
