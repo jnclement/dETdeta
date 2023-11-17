@@ -28,6 +28,7 @@
 #include "dlUtility.h"
 #include "mbd_info.h"
 #include "TProfile.h"
+#include <vector.h>
 #include <TSystem.h>
 
 const float eta_hc[] = {-1.05417,-0.9625,-0.870833,-0.779167,-0.6875,-0.595833,-0.504167,-0.4125,-0.320833,-0.229167,-0.1375,-0.0458333,0.0458333,0.1375,0.229167,0.320833,0.4125,0.504167,0.595833,0.6875,0.779167,0.870833,0.9625,1.05417};
@@ -204,6 +205,18 @@ float get_E_T_hc(float E, float eta, float sub)
   return (E-sub)/cosh(eta);//*abs(sin(atan(exp(-eta))));//cosh((eta-11.5)*0.096);//*sin(2*atan(exp(-(eta-11.5)*0.096)));
 }
 
+bool check_eta_hit(float eta, vector<float> hits)
+{
+  float eps = 0.01;
+  for(int i=0; i<hits.size(); ++i)
+    {
+      if(abs(hits.at(i) - eta) < eps)
+	{
+	  return true;
+	}
+    }
+  return false;
+}
 
 int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", int cor = 1)
 {
@@ -264,7 +277,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int phibins[3] = {256,64,64};
   int etabins[3] = {96,24,24};
   bool hit[3][hcalbins] = {false};
-  
+  vector<float> hits;
   TH1D* fullcor[3][centbins];
   for(int j=0; j<3; ++j)
     {
@@ -553,7 +566,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
-			  nfillcent[h][k][j]->Fill(etacor[h][k][l]);
+			  if(!check_eta_hit(etacor[h][k][l],hits)
+			    {
+			      nfillcent[h][k][j]->Fill(etacor[h][k][l]);
+			      hits.push_back(etacor[h][k][l]);
+			    }
 			  dET[h][k]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
 			}
 		      allsum += esum;
