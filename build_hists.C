@@ -207,7 +207,7 @@ float get_E_T_hc(float E, float eta, float sub)
 
 bool check_eta_hit(float eta, vector<float> hits)
 {
-  float eps = 0.01;
+  float eps = 0.0001;
   for(int i=0; i<hits.size(); ++i)
     {
       if(abs(hits.at(i) - eta) < eps)
@@ -488,7 +488,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
       */
-      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, truth_vtx[2], zhist[0], 0, 0);
+      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, z_v[0][2], zhist[0], 0, 0);
     }
   cout << "Sim MBD histogram entries: " << mbh[0]->GetEntries() << endl;
   cout << "Done filling sim MBD hist." << endl;
@@ -527,7 +527,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL, 1, 1);
 	  if(mbsum < 0) continue;
-	  if(h==0 && mbsum < cents[0][0]) continue;
+	  if(h==0 && mbsum < cents[0][centoffs-1]) continue;
 	  for(int j=0; j<centbins; ++j)
 	    {
 	      if(mbsum < cents[h][j+centoffs*(1-h)])
@@ -576,9 +576,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      allsum += esum;
 		      ET[h][k]->Fill(esum);
 		      centet[h][k][j]->Fill(esum);
-		      
+		      hits.clear();    
 		    }
-		  hits.clear();
+		  
 		  sumev[h]->Fill(allsum);
 		  ettotcent[h][j]->Fill(allsum);
 		  for(int k=0; k<3; ++k)
@@ -699,10 +699,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
 
   cout << nevtcent[0][centbins-1] << " " << nevtcent[1][centbins-1] << endl;
-  for(int i=0; i<dETbins; ++i)
+  for(int j=0; j<3; ++j)
     {
-      cout << nfillcent[0][1][centbins-1]->GetBinContent(i+1) << endl;
-      cout << nfillcent[1][1][centbins-1]->GetBinContent(i+1) << endl;
+      for(int i=0; i<dETbins; ++i)
+	{
+	  cout << j << " " << i << " " << nfillcent[0][j][centbins-1]->GetBinContent(i+1) << " " << nfillcent[1][j][centbins-1]->GetBinContent(i+1) << endl;
+	}
     }
   for(int h=0; h<2; ++h)
     {
