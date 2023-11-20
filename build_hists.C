@@ -141,7 +141,7 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
     {
       //cout << n << endl;
       nsum = 0;
-      for(int i=0; i<hist->GetNbinsX()+1; ++i)
+      for(int i=1; i<hist->GetNbinsX()+1; ++i)
 	{
 	  //if(j>=16) cout << i << endl;
 	  if(i==hist->GetNbinsX())
