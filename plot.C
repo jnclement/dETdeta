@@ -176,7 +176,7 @@ void multiplot(string options, TCanvas* ca, TH1D** hists, int logy, string cal, 
   leg->SetTextSize(0.015);
   for(int i=0; i<centbins; ++i)
     {
-      cout << i << " " << hists[i] << endl;
+      //cout << i << " " << hists[i] << endl;
       hists[i]->SetMarkerColor(baseco[i%6]+kcodes[i%11]);
       hists[i]->SetLineColor(baseco[i%6]+kcodes[i%11]);
       leg->AddEntry(hists[i],(typ+" " + to_string((centbins-i-1)*centrange)+"-"+to_string((centbins-i)*centrange) + "% centrality").c_str(),"P");
@@ -653,7 +653,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   TH1D* truthpar_et[centbins];
   TH1D* dETcentsimunc[3][centbins];
   TH1D* truthpar_total_ET;
-  TH1D* hcalraw[2][2][64];
+  TH1D* hcalraw[2][3][256];
   float sub;
   float scale[2];
   int frac[2];
@@ -669,12 +669,12 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   zhist[1] = (TH1D*)histfile->Get("zvtx/zhist_1");
   for(int i=0; i<2; ++i)
     {
-      for(int j=1; j<3; ++j)
+      for(int j=0; j<3; ++j)
 	{
-	  for(int k=0; k<64; ++k)
+	  for(int k=0; k<(j==0?256:64); ++k)
 	    {
-	      hcalraw[i][j-1][k] = (TH1D*)histfile->Get(("hcalraw/hcalraw_"+to_string(i)+"_"+to_string(j)+"_"+to_string(k)).c_str());
-	      hcalraw[i][j-1][k]->Scale(64.);
+	      hcalraw[i][j][k] = (TH1D*)histfile->Get(("hcalraw/hcalraw_"+to_string(i)+"_"+to_string(j)+"_"+to_string(k)).c_str());
+	      hcalraw[i][j][k]->Scale((j==0?256.:64.));
 	    }
 	}
     }
@@ -777,26 +777,21 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   int norm = 0;
   xlabel = "#eta";
   ylabel = "dE_{T}/d#eta [GeV]";
-  multiplot(options, c1, hcalraw[0][0], 0, "IHCal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, "ihcalstrips_sim", plotdir, "all/", 64, 0, 1);
-  dETcent[0][1][centbins-1]->SetMarkerColor(kBlack);
-  dETcent[0][1][centbins-1]->Draw("SAME P");
-  c1->SaveAs("/home/jocl/datatemp/plots/pdf/all/ihcalstrips_sim.pdf");
-
-  multiplot(options, c1, hcalraw[0][1], 0, "OHCal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, "ohcalstrips_sim", plotdir, "all/", 64, 0, 1);
-  dETcent[0][2][centbins-1]->SetMarkerColor(kBlack);
-  dETcent[0][2][centbins-1]->Draw("SAME P");
-  c1->SaveAs("/home/jocl/datatemp/plots/pdf/all/Ohcalstrips_sim.pdf");
-
-  multiplot(options, c1, hcalraw[1][0], 0, "IHCal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, "ihcalstrips_dat", plotdir, "all/", 64, 0, 1);
-  dETcent[1][1][centbins-1]->SetMarkerColor(kBlack);
-  dETcent[1][1][centbins-1]->Draw("SAME P");
-  c1->SaveAs("/home/jocl/datatemp/plots/pdf/all/ihcalstrips_dat.pdf");
-
-  multiplot(options, c1, hcalraw[1][1], 0, "OHCal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, "ohcalstrips_dat", plotdir, "all/", 64, 0, 1);
-  dETcent[1][2][centbins-1]->SetMarkerColor(kBlack);
-  dETcent[1][2][centbins-1]->Draw("SAME P");
-  c1->SaveAs("/home/jocl/datatemp/plots/pdf/all/ohcalstrips_dat.pdf");
-  
+  string simdat[2] = {"sim","dat"};
+  for(int j=0; j<3; ++j)
+    {
+      for(int i=0; i<2; ++i)
+	{
+	  multiplot(options, c1, hcalraw[i][j], 0, "Cal", scale[0], sub, run, mine, zcut, xlabel, ylabel, 0,10, cal[j]+"strips_"+simdat[i], plotdir, "all/", (j==0?256:64), i, j);
+	  cout << "plotted" << endl;
+	  dETcent[i][j][centbins-1]->SetMarkerColor(kBlack);
+	  dETcent[i][j][centbins-1]->Draw("SAME P");
+	  dETcent[i][j][centbins-1]->SetMarkerSize(2);
+	  cout << "set markers" << endl;
+	  c1->SaveAs(("/home/jocl/datatemp/plots/pdf/all/"+cal[j]+"strips_"+simdat[i]+".pdf").c_str());
+	  cout << "saved" << endl;
+	}
+    }
   for(int j=0; j<3; ++j)
     {
       norm = 0;
@@ -1109,7 +1104,8 @@ int plot()
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231106_nopileup_nzs_cor.root","nzs");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231026_nopileup_cor.root","new26");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231108_nopileup_wzs_nodanvtx_cor.root","nodan");
-  called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
+  //called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
+  called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231117_nomanshift_nopileup_nzs_cor.root","nomanshift");
   return 0;
 }
