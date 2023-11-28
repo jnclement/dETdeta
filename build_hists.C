@@ -541,6 +541,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		      esum = 0;
 		      for(int l=0; l<sector[h][k]; ++l)
 			{
+			  if(!check_eta_hit(etacor[h][k][l],hits))
+			    {
+			      nfillcent[h][k][j]->Fill(etacor[h][k][l]);
+			      hits.push_back(etacor[h][k][l]);
+			    }
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
@@ -566,11 +571,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0) towercomb[calph[h][k][l]/4][calet[h][k][l]/4] += eval;
 			  else towercomb[calph[h][k][l]][calet[h][k][l]] += eval;
 			  dETcent[h][k][j]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
-			  if(!check_eta_hit(etacor[h][k][l],hits))
-			    {
-			      nfillcent[h][k][j]->Fill(etacor[h][k][l]);
-			      hits.push_back(etacor[h][k][l]);
-			    }
 			  dET[h][k]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
 			}
 		      allsum += esum;
