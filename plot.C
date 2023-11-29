@@ -593,9 +593,9 @@ void newplot(string options, TCanvas* ca, TH1* hist1, TH1* hist2, int logy, stri
       ca->SaveAs((dir+"pdf/"+subdir+name+"_zoom_"+maintag+"_"+cal+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
 	}
       gPad->SetLogy(0);
-      if(name == "truthreco_detdeta" && (maintag == "upweight" || maintag == "noupweight")) rathist->Scale(1./30.);
+      if(name == "truthreco_detdeta" && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")) rathist->Scale(1./30.);
       if(rathist->GetMaximum() > 20) rathist->GetYaxis()->SetRangeUser(0,20);
-      if(name == "truthreco_detdeta" && (maintag == "upweight" || maintag == "noupweight")) rathist->GetYaxis()->SetRangeUser(7,10);
+      if(name == "truthreco_detdeta" && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")) rathist->GetYaxis()->SetRangeUser(7,10);
       rathist->Draw();
       leg2->Draw();
       drawText(toprint.c_str(),0.15,0.96,0,kBlack,0.025);
@@ -837,7 +837,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  raw2dstrips[i][j]->GetXaxis()->SetTitle("#eta");
 	  raw2dstrips[i][j]->GetZaxis()->SetTitle(("dE^{"+cal[j]+"}_{T}/d#eta").c_str());
 	  gPad->SetRightMargin(0.2);
-	  if(i==0 && (maintag == "upweight" || maintag == "noupweight")) raw2dstrips[i][j]->Scale(1./uwscale[j]);
+	  if(i==0 && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")) raw2dstrips[i][j]->Scale(1./uwscale[j]);
 	  raw2dstrips[i][j]->Draw("COLZ");
 	  drawText("Run 23696 Production 387",0.15,0.96,0,kBlack,0.025);
 	  sphenixtext();
@@ -1124,16 +1124,16 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   c3->SaveAs("/home/jocl/datatemp/plots/pdf/all/detcomp.pdf");
   c3->SaveAs("/home/jocl/datatemp/plots/png/all/detcomp.png");
 
-  TLine* starline = new TLine(0,620,1,620);
+  TLine* starline = new TLine(-1,620,1,620);
   TLine* phnxline = new TLine(-0.35,597,0.35,597);
-  TBox* starbox = new TBox(0,620-33,1,620+33);
+  TBox* starbox = new TBox(-1,620-33,1,620+33);
   TBox* phnxbox = new TBox(-0.35,597-35,0.35,597+35);
   starline->SetLineColor(kGreen);
   starbox->SetFillColorAlpha(kGreen,0.3);
   phnxline->SetLineColor(kBlue);
   phnxbox->SetFillColorAlpha(kBlue,0.3);
   fullcor[0][centbins-1]->GetYaxis()->SetTitle("Fully Corrected dE_{T}/d#eta [GeV]");
-    if(maintag == "upweight" || maintag == "noupweight")
+    if(maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")
     {
   fullcor[0][centbins-1]->Scale(0.02);
   fullcor[1][centbins-1]->Scale(0.162);
@@ -1200,10 +1200,12 @@ int plot()
     */
   gErrorIgnoreLevel = kWarning;
   //called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231117_nomanshift_nopileup_nzs_cor.root","no_upweight");
+  //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
+  //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231117_nomanshift_nopileup_nzs_cor.root","no_upweight");
   //called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231117_23696_nzs_cor.root","23696");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nzs_cor.root","noupweight");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nzs_cor.root","upweight");
+  //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nzs_cor.root","noupweight");
+  //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nzs_cor.root","upweight");
+  //called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nzs_cor.root","nouw_newhit");
+  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nodoublecount_nzs_cor.root","nodouble");
   return 0;
 }
