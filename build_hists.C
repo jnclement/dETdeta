@@ -169,7 +169,7 @@ int check_acceptance(int eta, int phi)
 {
   if (eta < 9) return 1;
   if (eta >= 48 && phi <=215 && phi >= 208) return 1;
-  if (phi >= 64 && phi <= 72 && eta <= 72 && eta >= 72) return 1;
+  if (phi >= 64 && phi <= 72 && eta <= 72 && eta >= 64) return 1;
   if (eta >= 9 && eta <= 47 && phi >= 32 && phi <= 39) return 1; 
   if (eta >= 9 && eta <= 15 && phi >= 40 && phi <= 47) return 1; 
   if (eta >= 32 && eta <= 39 && phi >= 0 && phi <= 7) return 1; 
