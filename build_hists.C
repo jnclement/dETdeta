@@ -558,12 +558,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l], etacor[h][k][l], subtr);
+			  if (calph[h][k][l] >= 64 && calph[h][k][l] <= 72 && calet[h][k][l] <= 72 && calet[h][k][l] >= 64) cout << calph[h][k][l] << " " << calet[h][k][l] << endl;
 			  //if(calen[h][k][l] > 0.03)
-			    {
-			      deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
-			      deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
-			    }
-			    if(j==centbins-1)
+			  {
+			    deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
+			    deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
+			  }
+			  if(j==centbins-1)
 			    {
 			      hcalraw[h][k][calph[h][k][l]]->Fill(etacor[h][k][l],eval/(dETrange*2./dETbins));
 			    }
