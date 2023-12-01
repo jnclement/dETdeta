@@ -50,7 +50,7 @@ int fullregonly(int phi)
   return 0;
 }
 
-float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist, int cut, int datsim)
+float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* hist, float zcut, float zval, TH1* zhist, int cut, int datsim, int fillz)
 {
   float mbsum;//, ucmbd;
   //int mbdnn, mbdns;
@@ -113,8 +113,8 @@ float fill_mbd_dat(int sectors, float* mbe, int* mbt, int* mbs, int* mbc, TH1* h
     {
       return -1;
     }
-  if(zhist) zhist->Fill(zvtx);
-  if(abs(zvtx) > zcut && cut)
+  if(fillz) zhist->Fill(zvtx);
+  if(abs(zvtx-zhist->GetMean()) > zcut && cut)
     {
       return -1;
     }
@@ -492,7 +492,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       if(npart == 0) continue;
       mbh[0]->Fill(npart);
       */
-      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, z_v[0][2], zhist[0], 0, 0);
+      dummy = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, mbh[0], zcut, z_v[0][2], zhist[0], 0, 0, 1);
     }
   cout << "Sim MBD histogram entries: " << mbh[0]->GetEntries() << endl;
   cout << "Done filling sim MBD hist." << endl;
@@ -501,7 +501,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist[1], 0, 1);
+      dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist[1], 0, 1, 1);
     }
   cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
@@ -527,9 +527,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      if(abs(z_v[0][2]) == 0) continue;
 	      if(abs(z_v[0][2]) > zcut) continue;
-	      mbsum = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, NULL, zcut, z_v[0][2], NULL, 1, 0);
+	      mbsum = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, NULL, zcut, z_v[0][2], zhist[0], 1, 0, 0);
 	    }
-	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], NULL, 1, 1);
+	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], zhist[0], 1, 1, 0);
 	  if(mbsum < 0) continue;
 	  if(h==0 && mbsum < cents[0][centoffs-1]) continue;
 	  for(int j=0; j<centbins; ++j)
