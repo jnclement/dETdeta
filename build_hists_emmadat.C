@@ -222,7 +222,7 @@ bool check_eta_hit(float eta, vector<float> hits)
   return false;
 }
 
-int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", int cor = 1)
+int build_hists_emmadat(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", int cor = 1)
 {
   cout << "Starting..." << endl;
   mbd_init();
