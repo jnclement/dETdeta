@@ -525,8 +525,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  tree[h]->GetEntry(i);
 	  if(h==0)
 	    {
-	      if(abs(z_v[0][2]) == 0) continue;
-	      if(abs(z_v[0][2]) > zcut) continue;
 	      mbsum = fill_mbd_dat(simsecmb, simmbe, NULL, NULL, NULL, NULL, zcut, z_v[0][2], zhist[0], 1, 0, 0);
 	    }
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], zhist[0], 1, 1, 0);
