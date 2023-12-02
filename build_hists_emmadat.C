@@ -518,6 +518,60 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Done setting centrality bins." << endl;
   cout << "cent bins sim/dat:" << endl;
   for(int i=0; i<centbins; ++i) cout << cents[0][i+centoffs] << " " << cents[1][i] << endl;
+    }
+
+  for(int m=0; m<600; ++m)
+    {
+
+      TFile* file = TFile::Open(("/sphenix/user/egm2153/calib_study/detdeta/runsimana0/output/evt/events_20231129_p004_data_cor_"+to_string(m)+".root").c_str());
+  TTree* tree[2];
+  tree[1] = file->Get<TTree>("ttree");
+  TFile* simf = TFile::Open(("/sphenix/user/egm2153/calib_study/detdeta/runsimana0/output/evt/events_20231122_nopileup_mc_cor_"+to_string(m)+".root").c_str());
+  tree[0] = simf->Get<TTree>("ttree");  
+  tree[1]->SetBranchAddress("mbenrgy",mbenrgy);
+  tree[1]->SetBranchAddress("emcalen",calen[1][0]);
+  tree[1]->SetBranchAddress("emcaletabin",calet[1][0]);
+  tree[1]->SetBranchAddress("emcalphibin",calph[1][0]);
+  tree[1]->SetBranchAddress("ihcalen",calen[1][1]);
+  tree[1]->SetBranchAddress("ihcaletabin",calet[1][1]);
+  tree[1]->SetBranchAddress("ihcalphibin",calph[1][1]);
+  tree[1]->SetBranchAddress("ohcalen",calen[1][2]);
+  tree[1]->SetBranchAddress("ohcaletabin",calet[1][2]);
+  tree[1]->SetBranchAddress("ohcalphibin",calph[1][2]);
+  tree[1]->SetBranchAddress("mbdtype",mbdtype);
+  tree[1]->SetBranchAddress("mbdside",mbdside);
+  tree[1]->SetBranchAddress("mbdchan",mbdchan);
+  tree[1]->SetBranchAddress("sectorem",&sector[1][0]);
+  tree[1]->SetBranchAddress("sectorih",&sector[1][1]);
+  tree[1]->SetBranchAddress("sectoroh",&sector[1][2]);
+  tree[1]->SetBranchAddress("sectormb",&sectormb);
+  tree[1]->SetBranchAddress("track_vtx",z_v[1]);
+  tree[1]->SetBranchAddress("emetacor",etacor[1][0]);
+  tree[1]->SetBranchAddress("ihetacor",etacor[1][1]);
+  tree[1]->SetBranchAddress("ohetacor",etacor[1][2]);
+  tree[0]->SetBranchAddress("sectormb",&simsecmb);
+  tree[0]->SetBranchAddress("mbenrgy",simmbe);
+  tree[0]->SetBranchAddress("truth_vtx",truth_vtx);
+  tree[0]->SetBranchAddress("emetacor",etacor[0][0]);
+  tree[0]->SetBranchAddress("ihetacor",etacor[0][1]);
+  tree[0]->SetBranchAddress("ohetacor",etacor[0][2]);
+  tree[0]->SetBranchAddress("track_vtx",z_v[0]);
+  tree[0]->SetBranchAddress("truthpar_n",&truthpar_n);
+  tree[0]->SetBranchAddress("truthpar_eta",truthpar_eta);
+  tree[0]->SetBranchAddress("truthpar_e",truthpar_e);
+  tree[0]->SetBranchAddress("npart",&npart);
+  tree[0]->SetBranchAddress("emcalen",calen[0][0]);
+  tree[0]->SetBranchAddress("emcaletabin",calet[0][0]);
+  tree[0]->SetBranchAddress("emcalphibin",calph[0][0]);
+  tree[0]->SetBranchAddress("ihcalen",calen[0][1]);
+  tree[0]->SetBranchAddress("ihcaletabin",calet[0][1]);
+  tree[0]->SetBranchAddress("ihcalphibin",calph[0][1]);
+  tree[0]->SetBranchAddress("ohcalen",calen[0][2]);
+  tree[0]->SetBranchAddress("ohcaletabin",calet[0][2]);
+  tree[0]->SetBranchAddress("ohcalphibin",calph[0][2]);
+  tree[0]->SetBranchAddress("sectorem",&sector[0][0]);
+  tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
+  tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
