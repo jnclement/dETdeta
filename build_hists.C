@@ -211,7 +211,7 @@ float get_E_T_hc(float E, float eta, float sub)
 
 bool check_eta_hit(float eta, vector<float> hits)
 {
-  float eps = 0.0001;
+  float eps = 0.001;
   for(int i=0; i<hits.size(); ++i)
     {
       if(abs(hits.at(i) - eta) < eps)
@@ -558,7 +558,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l], etacor[h][k][l], subtr);
-			  if (calph[h][k][l] >= 64 && calph[h][k][l] <= 72 && calet[h][k][l] <= 72 && calet[h][k][l] >= 64) cout << calph[h][k][l] << " " << calet[h][k][l] << endl;
+			  //if (calph[h][k][l] >= 64 && calph[h][k][l] <= 72 && calet[h][k][l] <= 72 && calet[h][k][l] >= 64) cout << calph[h][k][l] << " " << calet[h][k][l] << endl;
 			  //if(calen[h][k][l] > 0.03)
 			  {
 			    deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
