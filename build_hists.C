@@ -222,7 +222,7 @@ bool check_eta_hit(float eta, vector<float> hits)
   return false;
 }
 
-int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", int cor = 1)
+int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", string tag2="", int cor = 1)
 {
   cout << "Starting..." << endl;
   mbd_init();
@@ -255,7 +255,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_600.root").c_str());
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
-  TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
+  TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag2+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
   tree[0] = simf->Get<TTree>("ttree");  
   float cents[2][centbins+centoffs] = {0};
   float truth_vtx[3];
