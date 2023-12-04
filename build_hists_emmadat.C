@@ -519,10 +519,7 @@ int build_hists_emmadat(int simfrac = 1, int datfrac = 1, float zcut = 30, float
   cout << "cent bins sim/dat:" << endl;
   for(int i=0; i<centbins; ++i) cout << cents[0][i+centoffs] << " " << cents[1][i] << endl;
   delete file;
-  delete simf;
-  delete tree[0];
-  delete tree[1];
-    }
+  delete simf;    }
 
   for(int m=0; m<600; ++m)
     {
