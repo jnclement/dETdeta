@@ -682,6 +682,8 @@ int build_hists_emmadat(int simfrac = 1, int datfrac = 1, float zcut = 30, float
 	}
       cout << "Done." << endl;
     }
+  file->Close();
+  simf->Close();
     }
   //centet[1][0][17]->Draw();
   //gPad->SaveAs("test.png");
