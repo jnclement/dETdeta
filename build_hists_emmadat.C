@@ -682,6 +682,8 @@ int build_hists_emmadat(int simfrac = 1, int datfrac = 1, float zcut = 30, float
 	}
       cout << "Done." << endl;
     }
+  delete tree[0];
+  delete tree[1];
   file->Close();
   simf->Close();
     }
