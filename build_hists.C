@@ -550,12 +550,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   
   for(int i=0; i<3 ++i)
     {
-      accavg[3] = accmaps[i]->Integral()/(accmaps[i]->GetNBinsX()*accmaps[i]->GetNBinsY());
-      for(int j=0; j<accmaps[i]->GetNBinsX(); ++j)
+      accavg[3] = accmaps[i]->Integral()/(accmaps[i]->GetNbinsX()*accmaps[i]->GetNbinsY());
+      for(int j=0; j<accmaps[i]->GetNbinsX(); ++j)
 	{
-	  for(int k=0; k<accmaps[i]->GetNBinsY(); k++)
+	  for(int k=0; k<accmaps[i]->GetNbinsY(); k++)
 	    {
-	      accrms[i]+=pow(accmaps[i]->GetBincontent(j+1,k+1),2)/(accmaps[i]->GetNBinsX()*accmaps[i]->GetNBinsY());
+	      accrms[i]+=pow(accmaps[i]->GetBincontent(j+1,k+1),2)/(accmaps[i]->GetNbinsX()*accmaps[i]->GetNbinsY());
 	    }
 	}
     }
