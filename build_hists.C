@@ -201,7 +201,7 @@ int check_acceptance(int eta, int phi)
 int check_acc_map(TH2I* accmap, float mean, float std, int eta, int phi)
 {
   float accbinc = accmap->GetBinContent(eta,phi);
-  if(accbinc < (mean-std) || accbinc > (mean-std)) return 1;
+  if(accbinc < (mean-2*std) || accbinc > (mean-2*std)) return 1;
   return 0;
 }
   
@@ -558,6 +558,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	      accrms[i]+=pow(accmaps[i]->GetBinContent(j+1,k+1)-accavg[i],2)/(accmaps[i]->GetNbinsX()*accmaps[i]->GetNbinsY());
 	    }
 	}
+      accrms[i] = sqrt(accrms[i]);
     }
   cout << accavg[0] << " " << accrms[0] << endl;
   for(int h=0; h<2; ++h)
