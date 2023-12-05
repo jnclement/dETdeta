@@ -555,7 +555,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  for(int k=0; k<accmaps[i]->GetNbinsY(); k++)
 	    {
-	      accrms[i]+=pow(accmaps[i]->GetBincontent(j+1,k+1),2)/(accmaps[i]->GetNbinsX()*accmaps[i]->GetNbinsY());
+	      accrms[i]+=pow(accmaps[i]->GetBinContent(j+1,k+1),2)/(accmaps[i]->GetNbinsX()*accmaps[i]->GetNbinsY());
 	    }
 	}
     }
