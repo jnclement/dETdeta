@@ -197,6 +197,17 @@ int check_acceptance(int eta, int phi)
   return 0;
 }
 
+
+int check_acc_map(TH2I* accmap, int eta, int phi)
+{
+  float accmean = accmap->GetMean(3);
+  float accstdv = accmap->GetStdDev(3);
+  float accbinc = accmap->GetBinContent(eta,phi);
+  if(accbinc < (accmean - 3*accstdv) || accbinc > (accmean + 3*accstdv)) return 0;
+  return 1;
+}
+  
+
 //float fill_cal_hist(TH1* tower, TH1* event, TH1* most_tow, TH1* least_tow, TH1* cent_tow, TH1* cent_evt, TH1* most_evt, TH1* least_evt, float* eme, TH1* mbdhist, int* eta, int sectors, int* cents, int centbins, 
 
 float get_E_T_em(float E, float eta, float sub)
@@ -427,7 +438,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   zhist[0] = new TH1D("zhist_0","",120,-30,30);
   zhist[1] = new TH1D("zhist_1","",120,-30,30);
   TH1D* f10h[2][3];
-  for(int i=0; i<2; ++i)
+  for(int i=0; i<2; i++)
     {
       f10h[i][0] = new TH1D(("f10h"+to_string(i)+"0").c_str(),"",400,0,400);
       f10h[i][1] = new TH1D(("f10h"+to_string(i)+"1").c_str(),"",50,0,50);
@@ -462,6 +473,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   precision[3] = 0;
   float test = 0;
   int counter[2][3] = {0};
+  TH2I accmaps[3];
+  accmaps[0] = new TH2I("accmap0","",96,-0.5,95.5,256,-0.5,255.5);
+  accmaps[1] = new TH2I("accmap1","",24,-0.5,23.5,96,-0.5,95.5);
+  accmaps[2] = new TH2I("accmap2","",24,-0.5,23.5,96,-0.5,95.5);
+  
   for(int i=0; i<par; ++i)
     {
       streams[i] << std::fixed << std::setprecision(precision[i]) << parval[i]*mult[i];
@@ -515,6 +531,21 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Done setting centrality bins." << endl;
   cout << "cent bins sim/dat:" << endl;
   for(int i=0; i<centbins; ++i) cout << cents[0][i+centoffs] << " " << cents[1][i] << endl;
+
+  for(int i=0; i<tree[1]->GetEntries()/10; ++i)
+    {
+      tree[1]->GetEntry(i);
+      mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], zhist[0], 1, 1, 0);
+      if(mbsum < 0) continue;
+      for(int k=0; k<3; ++k)
+	{
+	  for(int l=0; l<sector[h][k]; ++l)
+	    {
+	      accmaps[k]->Fill(calet[1][k][l],calph[1][k][l]);
+	    }
+	}
+    }
+  
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
@@ -553,7 +584,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
 			  if(k==0)
 			    {
-			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			      if(!check_acc_map(accmaps[k],calet[h][k][l],calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
