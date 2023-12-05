@@ -529,7 +529,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Done setting centrality bins." << endl;
   cout << "cent bins sim/dat:" << endl;
   for(int i=0; i<centbins; ++i) cout << cents[0][i+centoffs] << " " << cents[1][i] << endl;
-
+  /*
   for(int i=0; i<tree[1]->GetEntries()/100; ++i)
     {
       if(i%toprint[1]==0) cout << "Filling accmap for event " << i << endl;
@@ -544,7 +544,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
-
   float accrms[3] = {0};
   float accavg[3] = {0};
   
@@ -560,6 +559,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
       accrms[i] = sqrt(accrms[i]);
     }
+  */
   cout << accavg[0] << " " << accrms[0] << endl;
   for(int h=0; h<2; ++h)
     {
@@ -597,8 +597,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(i%toprint[h]==0) cout << accmaps[k]->GetBinContent(calet[h][k][l],calph[h][k][l]) << endl;
-			  if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
+			  //if(i%toprint[h]==0) cout << accmaps[k]->GetBinContent(calet[h][k][l],calph[h][k][l]) << endl;
+			  //if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
 			  if(k==0)
 			    {
 			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
