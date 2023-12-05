@@ -563,9 +563,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 
   TFile* hdf = TFile::Open("datatemp/hdm.root");
   TH2D* hdm[3];
-  hdm[0] = (TH1D*)hdf->Get("hd0");
-  hdm[1] = (TH1D*)hdf->Get("hd1");
-  hdm[2] = (TH1D*)hdf->Get("hd2");
+  hdm[0] = (TH2D*)hdf->Get("hd0");
+  hdm[1] = (TH2D*)hdf->Get("hd1");
+  hdm[2] = (TH2D*)hdf->Get("hd2");
   
   for(int h=0; h<2; ++h)
     {
