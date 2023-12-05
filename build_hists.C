@@ -546,7 +546,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
-  TGraph2DErrors accgraph[3];
+  TGraph2DErrors* accgraph[3];
   accgraph[0] = new TGraph2DErrors(accmap[0]);
   accgraph[1] = new TGraph2DErrors(accmap[1]);
   accgraph[2] = new TGraph2DErrors(accmap[2]);
