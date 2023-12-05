@@ -198,12 +198,10 @@ int check_acceptance(int eta, int phi)
 }
 
 
-int check_acc_map(TGraph2DErrors* accgraph, TH2I* accmap, int eta, int phi)
+int check_acc_map(TH2I* accmap, float mean, float std, int eta, int phi)
 {
-  float accmean = accgraph->GetMean(3);
-  float accstdv = accgraph->GetStdDev(3);
   float accbinc = accmap->GetBinContent(eta,phi);
-  if(accbinc < (accmean - accstdv) || accbinc > (accmean + accstdv)) return 1;
+  if(accbinc < (mean-std) || accbinc > (mean-std)) return 1;
   return 0;
 }
   
@@ -546,10 +544,21 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
-  TGraph2DErrors* accgraph[3];
-  accgraph[0] = new TGraph2DErrors(accmap[0]);
-  accgraph[1] = new TGraph2DErrors(accmap[1]);
-  accgraph[2] = new TGraph2DErrors(accmap[2]);
+
+  float accrms[3] = {0};
+  float accavg[3] = {0};
+  
+  for(int i=0; i<3 ++i)
+    {
+      accavg[3] = accmaps[i]->Integral()/(accmaps[i]->GetNBinsX()*accmaps[i]->GetNBinsY());
+      for(int j=0; j<accmaps[i]->GetNBinsX(); ++j)
+	{
+	  for(int k=0; k<accmaps[i]->GetNBinsY(); k++)
+	    {
+	      accrms[i]+=pow(accmaps[i]->GetBincontent(j+1,k+1),2)/(accmaps[i]->GetNBinsX()*accmaps[i]->GetNBinsY());
+	    }
+	}
+    }
   
   cout << accmaps[0]->GetBinContent(12,12) << endl;
   cout << accmaps[0]->GetMean(3) << " " << accmaps[0]->GetStdDev(3) << endl;
@@ -589,7 +598,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(check_acc_map(accgraph[k], accmaps[k],calet[h][k][l],calph[h][k][l])) continue;
+			  if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
 			  if(k==0)
 			    {
 			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
