@@ -546,7 +546,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
-  
+  cout << accmaps[0]->GetMean(3) << " " << accmaps[0]->GetStdDev(3) << endl;
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
@@ -583,10 +583,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
+			  if(check_acc_map(accmaps[k],calet[h][k][l],calph[h][k][l])) continue;
 			  if(k==0)
 			    {
 			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
-			      if(check_acc_map(accmaps[k],calet[h][k][l],calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
