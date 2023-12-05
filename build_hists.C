@@ -542,6 +542,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  for(int l=0; l<sector[1][k]; ++l)
 	    {
+	      cout << k << " " << l <<  " " << calet[1][k][l] << " " << calph[1][k][l] << endl;
 	      accmaps[k]->Fill(calet[1][k][l],calph[1][k][l]);
 	    }
 	}
