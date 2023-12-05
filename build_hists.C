@@ -560,6 +560,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       accrms[i] = sqrt(accrms[i]);
     }
   */
+
+  TFile* hdf = TFile::Open("datatemp/hdm.root");
+  TH2D* hdm[3];
+  hdm[0] = (TH1D*)hdf->Get("hd0");
+  hdm[1] = (TH1D*)hdf->Get("hd1");
+  hdm[2] = (TH1D*)hdf->Get("hd2");
+  
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
@@ -596,6 +603,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
+			  if(!hdm[k]->GetBinContent(calet[h][k][l],calph[h][k][l])) continue;
 			  //if(i%toprint[h]==0) cout << accmaps[k]->GetBinContent(calet[h][k][l],calph[h][k][l]) << endl;
 			  //if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
 			  if(k==0)
