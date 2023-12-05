@@ -534,6 +534,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 
   for(int i=0; i<tree[1]->GetEntries()/10; ++i)
     {
+      if(i%toprint[1]==0) cout << "Filling accmap for event " << i << endl;
       tree[1]->GetEntry(i);
       mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], zhist[0], 1, 1, 0);
       if(mbsum < 0) continue;
