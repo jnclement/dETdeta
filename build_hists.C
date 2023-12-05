@@ -473,7 +473,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   precision[3] = 0;
   float test = 0;
   int counter[2][3] = {0};
-  TH2I accmaps[3];
+  TH2I* accmaps[3];
   accmaps[0] = new TH2I("accmap0","",96,-0.5,95.5,256,-0.5,255.5);
   accmaps[1] = new TH2I("accmap1","",24,-0.5,23.5,96,-0.5,95.5);
   accmaps[2] = new TH2I("accmap2","",24,-0.5,23.5,96,-0.5,95.5);
