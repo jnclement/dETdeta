@@ -250,6 +250,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float towercomb[64][hcalbins];
   float etacor[2][3][25000];
   float simmbe[256];
+  float nhigh[3][96][256];
+  float nlow[3][96][256];
   int simsecmb;
   int nevt[2] = {0};
   int sector[2][3];
@@ -265,7 +267,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
   TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag2+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
-  tree[0] = simf->Get<TTree>("ttree");  
+  tree[0] = simf->Get<TTree>("ttree");
+  TTree* hdtree = file->Get<TTree>("outt");
   float cents[2][centbins+centoffs] = {0};
   float truth_vtx[3];
   TH1D* centtow[2][3][centbins];
@@ -431,6 +434,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[0]->SetBranchAddress("sectorem",&sector[0][0]);
   tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
+  hdtree->SetBranchAddress("nhighem",nhigh[0]);
+  hdtree->SetBranchAddress("nhighih",nhigh[1]);
+  hdtree->SetBranchAddress("nhighoh",nhigh[2]);
+  hdtree->SetBranchAddress("nlowem",nlow[0]);
+  hdtree->SetBranchAddress("nlowih",nlow[1]);
+  hdtree->SetBranchAddress("nlowoh",nlow[2]);
   cout << "Branches set" << endl;
   TH1D* zhist[2];
   zhist[0] = new TH1D("zhist_0","",120,-30,30);
@@ -603,7 +612,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(!hdm[k]->GetBinContent(calet[h][k][l],calph[h][k][l])) continue;
+			  if(nhigh[k][calet[h][k][l]][calph[h][k][l]] > 0.05 || nlow[k][calet[h][k][l]][calph[h][k][l]] > 0.95) continue;
+			  //if(!hdm[k]->GetBinContent(calet[h][k][l],calph[h][k][l])) continue;
 			  //if(i%toprint[h]==0) cout << accmaps[k]->GetBinContent(calet[h][k][l],calph[h][k][l]) << endl;
 			  //if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
 			  if(k==0)
