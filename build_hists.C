@@ -203,8 +203,8 @@ int check_acc_map(TH2I* accmap, int eta, int phi)
   float accmean = accmap->GetMean(3);
   float accstdv = accmap->GetStdDev(3);
   float accbinc = accmap->GetBinContent(eta,phi);
-  if(accbinc < (accmean - 3*accstdv) || accbinc > (accmean + 3*accstdv)) return 0;
-  return 1;
+  if(accbinc < (accmean - accstdv) || accbinc > (accmean + accstdv)) return 1;
+  return 0;
 }
   
 
@@ -532,7 +532,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "cent bins sim/dat:" << endl;
   for(int i=0; i<centbins; ++i) cout << cents[0][i+centoffs] << " " << cents[1][i] << endl;
 
-  for(int i=0; i<tree[1]->GetEntries()/10; ++i)
+  for(int i=0; i<tree[1]->GetEntries()/100; ++i)
     {
       if(i%toprint[1]==0) cout << "Filling accmap for event " << i << endl;
       tree[1]->GetEntry(i);
@@ -586,7 +586,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(k==0)
 			    {
 			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
-			      if(!check_acc_map(accmaps[k],calet[h][k][l],calph[h][k][l])) continue;
+			      if(check_acc_map(accmaps[k],calet[h][k][l],calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
