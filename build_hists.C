@@ -559,9 +559,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	}
     }
-  
-  cout << accmaps[0]->GetBinContent(12,12) << endl;
-  cout << accmaps[0]->GetMean(3) << " " << accmaps[0]->GetStdDev(3) << endl;
+  cout << accmean[0] << " " << accrms[0] << endl;
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
