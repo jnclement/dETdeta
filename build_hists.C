@@ -273,7 +273,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       try
 	{
-      tree[0]->Add(("run/output/evt/events"+tag+"_data_cor_"+to_string(i)+".root").c_str());
+      tree[1]->Add(("run/output/evt/events"+tag+"_data_cor_"+to_string(i)+".root").c_str());
 	}
       catch(...)
 	{
@@ -285,7 +285,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       try
 	{
-      tree[1]->Add(("run/output/evt/events"+tag2+"_mc_cor_"+to_string(i)+".root").c_str());
+      tree[0]->Add(("run/output/evt/events"+tag2+"_mc_cor_"+to_string(i)+".root").c_str());
 	}
       catch(...)
 	{
@@ -322,7 +322,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 
   for(int i=0; i<outt->GetEntries(); ++i)
     {
-      if(i%1000 == 0) cout << "Getting hot/dead for entry " << i << endl;
+      if(i%100 == 0) cout << "Getting hot/dead for entry " << i << endl;
       outt->GetEntry(i);
       sumntot += ntot;
       for(int j=0; j<3; ++j)
