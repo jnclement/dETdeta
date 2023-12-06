@@ -264,6 +264,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float z_v[2][3];
   TChain* tree[2];
   TChain* outt;
+  TTree* outpt = new TTree("outpt","the output tree");
 
   tree[0] = new TChain("ttree");
   tree[1] = new TChain("ttree");
@@ -961,18 +962,19 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Done writing hists." << endl;
   cout << "Saving parameters to file." << endl;
 
-  outt->Branch("sub",&subtr,"sub/F");
-  outt->Branch("scale",scale,"scale[2]/F");
-  outt->Branch("frac",frac,"frac[2]/I");
-  outt->Branch("mine",&mine,"mine/F");
+  
+  outpt->Branch("sub",&subtr,"sub/F");
+  outpt->Branch("scale",scale,"scale[2]/F");
+  outpt->Branch("frac",frac,"frac[2]/I");
+  outpt->Branch("mine",&mine,"mine/F");
   int nccb = centbins;
-  outt->Branch("nevtcent",nevtcent,"nevtcent[2][centbins]/I");
-  outt->Branch("nevt",nevt,"nevt[2]/I");
-  outt->Branch("cbin",&nccb,"cbin/I");
-  outt->Branch("zcut",&zcut,"zcut/F");
-  outt->Branch("run",&run,"run/I");
-  outt->Fill();
-  outf->WriteObject(outt,outt->GetName());
+  outpt->Branch("nevtcent",nevtcent,"nevtcent[2][centbins]/I");
+  outpt->Branch("nevt",nevt,"nevt[2]/I");
+  outpt->Branch("cbin",&nccb,"cbin/I");
+  outpt->Branch("zcut",&zcut,"zcut/F");
+  outpt->Branch("run",&run,"run/I");
+  outpt->Fill();
+  outf->WriteObject(outpt,outpt->GetName());
   cout << "Done writing parameters to file" << endl;
   cout << "All done!" << endl;
   /*
