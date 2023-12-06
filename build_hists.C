@@ -308,7 +308,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   
   float hotmap[3][96][256] = {0};
 
-  outt->Branch("hotmap",hotmap);
+  outt->SetBranchAddress("hotmap",hotmap);
   outt->GetEntry(0);
 
   /*
