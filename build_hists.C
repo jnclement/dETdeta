@@ -305,59 +305,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  continue;
 	}
     }
-
-  int ntot = 0;
-  long int sumntot = 0;
-  float totnhigh[3][96][256] = {0};
-  float totnlow[3][96][256] = {0};
-  float nhigh[3][96][256] = {0};
-  float nlow[3][96][256] = {0};
-
-  outt->SetBranchAddress("nhighem",nhigh[0]);
-  outt->SetBranchAddress("nhighih",nhigh[1]);
-  outt->SetBranchAddress("nhighoh",nhigh[2]);
-  outt->SetBranchAddress("nlowem",nlow[0]);
-  outt->SetBranchAddress("nlowih",nlow[1]);
-  outt->SetBranchAddress("nlowoh",nlow[2]);
-  outt->SetBranchAddress("ntot",&ntot);
-
-  for(int i=0; i<outt->GetEntries(); ++i)
-    {
-      if(i%100 == 0) cout << "Getting hot/dead for entry " << i << endl;
-      outt->GetEntry(i);
-      sumntot += ntot;
-      for(int j=0; j<3; ++j)
-	{
-	  for(int k=0; k<(j==0?96:24); ++k)
-	    {
-	      for(int l=0; l<(j==0?256:64); ++l)
-		{
-		  totnhigh[j][k][l] += nhigh[j][k][l];
-		  totnlow[j][k][l] += nlow[j][k][l];
-		}
-	    }
-	}
-    }
-
-  TH2D* lowmap[3];
-  lowmap[0] = new TH2D("lowmap0","",96,-0.5,95.5,256,-0.5,255.5);
-  lowmap[1] = new TH2D("lowmap1","",24,-0.5,23.5,64,-0.5,63.5);
-  lowmap[2] = new TH2D("lowmap2","",24,-0.5,23.5,64,-0.5,63.5);
   
-  for(int i=0; i<3; ++i)
-    {
-      for(int j=0; j<(i==0?96:24); ++j)
-	{
-	  for(int k=0; k<(i==0?256:64); ++k)
-	    {
-	      totnhigh[i][j][k]/=sumntot;
-	      totnlow[i][j][k]/=sumntot;
-	      lowmap[i]->SetBinContent(j+1,k+1,totnlow[i][j][k]);
-	    }
-	}
-    }
+  float hotmap[3][96][256] = {0};
 
-  cout << totnlow[0][25][36] << endl;
+  outt->Branch("hotmap",hotmap);
+  outt->GetEntry(0);
 
   /*
   TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_600.root").c_str());
@@ -532,14 +484,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[0]->SetBranchAddress("sectorem",&sector[0][0]);
   tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
-  /*
-  hdtree->SetBranchAddress("nhighem",nhigh[0]);
-  hdtree->SetBranchAddress("nhighih",nhigh[1]);
-  hdtree->SetBranchAddress("nhighoh",nhigh[2]);
-  hdtree->SetBranchAddress("nlowem",nlow[0]);
-  hdtree->SetBranchAddress("nlowih",nlow[1]);
-  hdtree->SetBranchAddress("nlowoh",nlow[2]);
-  */
+
   cout << "Branches set" << endl;
   TH1D* zhist[2];
   zhist[0] = new TH1D("zhist_0","",120,-30,30);
@@ -714,19 +659,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(totnhigh[k][calet[h][k][l]][calph[h][k][l]] > 0.05 || totnlow[k][calet[h][k][l]][calph[h][k][l]] > 0.5 || totnlow[k][calet[h][k][l]][calph[h][k][l]] < 0) continue;
-			  //if(!hdm[k]->GetBinContent(calet[h][k][l],calph[h][k][l])) continue;
-			  //if(i%toprint[h]==0) cout << accmaps[k]->GetBinContent(calet[h][k][l],calph[h][k][l]) << endl;
-			  //if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
+			  if(hotmap[k][calet[h][k][l]][calph[h][k][l]]) continue;
 			  if(k==0)
 			    {
-			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l], etacor[h][k][l], subtr);
-			  //if (calph[h][k][l] >= 64 && calph[h][k][l] <= 72 && calet[h][k][l] <= 72 && calet[h][k][l] >= 64) cout << calph[h][k][l] << " " << calet[h][k][l] << endl;
-			  //if(calen[h][k][l] > 0.03)
 			  {
 			    deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
 			    deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
@@ -828,7 +768,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outf->mkdir("deadmap");
   outf->mkdir("zvtx");
   outf->mkdir("nfill");
-  outf->mkdir("hilowmap");
   outf->cd("truthpar");
   gDirectory->WriteObject(truthpar_total_ET,truthpar_total_ET->GetName());
   for(int i=0; i<2; ++i)
@@ -971,11 +910,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       gDirectory->WriteObject(mbh[h], mbh[h]->GetName());
     }
 
-  outf->cd("hilowmap");
-  for(int i=0; i<3; ++i)
-    {
-      gDirectory->WriteObject(lowmap[i],lowmap[i]->GetName());
-    }
 
   cout << "Done writing hists." << endl;
   cout << "Saving parameters to file." << endl;
