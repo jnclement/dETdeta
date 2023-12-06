@@ -168,8 +168,9 @@ int set_cent_cuts(TH1* hist, float* cent, int centbins)
 int check_acceptance(int eta, int phi)
 {
   if (eta < 9) return 1;
-  if (eta >= 48 && phi <=215 && phi >= 208) return 1;
   if (eta < 48 && phi < 64) return 1;
+  return 0;
+  if (eta >= 48 && phi <=215 && phi >= 208) return 1;
   if ((eta == 80 || eta == 81) && phi == 237) return 1;
   if (phi >= 64 && phi <= 72 && eta <= 72 && eta >= 64) return 1;
   if (eta >= 9 && eta <= 47 && phi >= 32 && phi <= 39) return 1; 
@@ -263,12 +264,80 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* truthpar_et[centbins];
   int npart = 0;
   float z_v[2][3];
+  TChain* tree[2];
+  TChain* outt;
+
+  tree[0] = new TChain("ttree");
+  tree[1] = new TChain("ttree");
+  outt = new TChain("outt");
+  
+  for(int i=0; i<600; ++i)
+    {
+      tree[0]->Add(("run/output/evt/events"+tag+"_data_cor_"+to_string(i)+".root").c_str());
+    }
+
+  for(int i=0; i<555; ++i)
+    {
+      tree[1]->Add(("run/output/evt/events"+tag+"_mc_cor_"+to_string(i)+".root").c_str());
+    }
+
+  for(int i=0; i<600; ++i)
+    {
+      outt->Add(("run/output/evt/events"+tag+"_data_cor_"+to_string(i)+".root").c_str());
+    }
+
+  long int ntot = 0;
+  long int sumntot = 0;
+  float totnhigh[3][96][256] = {0};
+  float totnlow[3][96][256] = {0};
+  float nhigh[3][96][256] = {0};
+  float nlow[3][96][256] = {0};
+
+  outt->SetBranchAddress("nhighem",nhigh[0]);
+  outt->SetBranchAddress("nhighih",nhigh[1]);
+  outt->SetBranchAddress("nhighoh",nhigh[2]);
+  outt->SetBranchAddress("nlowem",nlow[0]);
+  outt->SetBranchAddress("nlowih",nlow[1]);
+  outt->SetBranchAddress("nlowoh",nlow[2]);
+  outt->SetBranchAddress("ntot",&ntot);
+
+  for(int i=0; i<outt->GetEntries(); ++i)
+    {
+      outt->GetEntry(i);
+      sumntot += ntot;
+      for(int j=0; j<3; ++j)
+	{
+	  for(int k=0; k<(j==0?96:24); ++k)
+	    {
+	      for(int l=0; l<(j==0?256:64); ++l)
+		{
+		  totnhigh[j][k][l] += nhigh[j][k][l];
+		  totnlow[j][k][l] += nlow[j][k][l];
+		}
+	    }
+	}
+    }
+
+  for(int i=0; i<3; ++i)
+    {
+      for(int j=0; j<(i==0?96:24); ++j)
+	{
+	  for(int k=0; k<(i==0?256:64); ++k)
+	    {
+	      totnhigh[i][j][k]/=sumntot;
+	      totnlow[i][j][k]/=sumntot;
+	    }
+	}
+    }
+
+  /*
   TFile* file = TFile::Open(("datatemp/merged_dEdeta"+tag+"_data_"+(cor?"cor":"unc")+"_600.root").c_str());
   TTree* tree[2];
   tree[1] = file->Get<TTree>("ttree");
   TFile* simf = TFile::Open(("datatemp/merged_dEdeta"+tag2+"_mc_"+(cor?"cor":"unc")+"_555.root").c_str());
   tree[0] = simf->Get<TTree>("ttree");
   TTree* hdtree = file->Get<TTree>("outt");
+  */
   float cents[2][centbins+centoffs] = {0};
   float truth_vtx[3];
   TH1D* centtow[2][3][centbins];
@@ -434,12 +503,14 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[0]->SetBranchAddress("sectorem",&sector[0][0]);
   tree[0]->SetBranchAddress("sectorih",&sector[0][1]);
   tree[0]->SetBranchAddress("sectoroh",&sector[0][2]);
+  /*
   hdtree->SetBranchAddress("nhighem",nhigh[0]);
   hdtree->SetBranchAddress("nhighih",nhigh[1]);
   hdtree->SetBranchAddress("nhighoh",nhigh[2]);
   hdtree->SetBranchAddress("nlowem",nlow[0]);
   hdtree->SetBranchAddress("nlowih",nlow[1]);
   hdtree->SetBranchAddress("nlowoh",nlow[2]);
+  */
   cout << "Branches set" << endl;
   TH1D* zhist[2];
   zhist[0] = new TH1D("zhist_0","",120,-30,30);
@@ -612,13 +683,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(nhigh[k][calet[h][k][l]][calph[h][k][l]] > 0.05 || nlow[k][calet[h][k][l]][calph[h][k][l]] > 0.95) continue;
+			  if(totnhigh[k][calet[h][k][l]][calph[h][k][l]] > 0.05 || totnlow[k][calet[h][k][l]][calph[h][k][l]] > 0.8) continue;
 			  //if(!hdm[k]->GetBinContent(calet[h][k][l],calph[h][k][l])) continue;
 			  //if(i%toprint[h]==0) cout << accmaps[k]->GetBinContent(calet[h][k][l],calph[h][k][l]) << endl;
 			  //if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
 			  if(k==0)
 			    {
-			      //if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
+			      if(check_acceptance(calet[h][k][l], calph[h][k][l])) continue;
 			      //if(fullregonly(calph[h][k][l])) continue;
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
