@@ -251,8 +251,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float towercomb[64][hcalbins];
   float etacor[2][3][25000];
   float simmbe[256];
-  float nhigh[3][96][256];
-  float nlow[3][96][256];
   int simsecmb;
   int nevt[2] = {0};
   int sector[2][3];
@@ -564,7 +562,6 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Now opening output file..." << endl;
   string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+tag+"_"+(cor?"cor":"unc")+ ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
-  TTree* outt = new TTree("ttree","");
   float dummy;
   float eval;
   float allsum;
