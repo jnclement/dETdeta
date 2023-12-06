@@ -169,8 +169,8 @@ int check_acceptance(int eta, int phi)
 {
   if (eta < 9) return 1;
   if (eta < 48 && phi < 64) return 1;
-  return 0;
   if (eta >= 48 && phi <=215 && phi >= 208) return 1;
+  return 0;
   if ((eta == 80 || eta == 81) && phi == 237) return 1;
   if (phi >= 64 && phi <= 72 && eta <= 72 && eta >= 64) return 1;
   if (eta >= 9 && eta <= 47 && phi >= 32 && phi <= 39) return 1; 
@@ -703,7 +703,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(totnhigh[k][calet[h][k][l]][calph[h][k][l]] > 0.05 || totnlow[k][calet[h][k][l]][calph[h][k][l]] > 0.8) continue;
+			  if(totnhigh[k][calet[h][k][l]][calph[h][k][l]] > 0.05 || totnlow[k][calet[h][k][l]][calph[h][k][l]] > 0.5) continue;
 			  //if(!hdm[k]->GetBinContent(calet[h][k][l],calph[h][k][l])) continue;
 			  //if(i%toprint[h]==0) cout << accmaps[k]->GetBinContent(calet[h][k][l],calph[h][k][l]) << endl;
 			  //if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
