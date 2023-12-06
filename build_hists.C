@@ -340,9 +340,9 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     }
 
   TH2D* lowmap[3];
-  lowmap[0] = new TH2D("lowmap0",96,-0.5,95.5,256,-0.5,255.5);
-  lowmap[1] = new TH2D("lowmap1",24,-0.5,23.5,64,-0.5,63.5);
-  lowmap[2] = new TH2D("lowmap2",24,-0.5,23.5,64,-0.5,63.5);
+  lowmap[0] = new TH2D("lowmap0","",96,-0.5,95.5,256,-0.5,255.5);
+  lowmap[1] = new TH2D("lowmap1","",24,-0.5,23.5,64,-0.5,63.5);
+  lowmap[2] = new TH2D("lowmap2","",24,-0.5,23.5,64,-0.5,63.5);
   
   for(int i=0; i<3; ++i)
     {
