@@ -284,7 +284,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       outt->Add(("run/output/evt/events"+tag+"_data_cor_"+to_string(i)+".root").c_str());
     }
 
-  long int ntot = 0;
+  int ntot = 0;
   long int sumntot = 0;
   float totnhigh[3][96][256] = {0};
   float totnlow[3][96][256] = {0};
