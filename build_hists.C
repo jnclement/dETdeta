@@ -271,17 +271,38 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   
   for(int i=0; i<600; ++i)
     {
+      try
+	{
       tree[0]->Add(("run/output/evt/events"+tag+"_data_cor_"+to_string(i)+".root").c_str());
+	}
+      catch(...)
+	{
+	  continue;
+	}
     }
 
   for(int i=0; i<555; ++i)
     {
-      tree[1]->Add(("run/output/evt/events"+tag+"_mc_cor_"+to_string(i)+".root").c_str());
+      try
+	{
+      tree[1]->Add(("run/output/evt/events"+tag2+"_mc_cor_"+to_string(i)+".root").c_str());
+	}
+      catch(...)
+	{
+	  continue;
+	}
     }
 
   for(int i=0; i<600; ++i)
     {
+      try
+	{
       outt->Add(("run/output/evt/events"+tag+"_data_cor_"+to_string(i)+".root").c_str());
+	}
+      catch(...)
+	{
+	  continue;
+	}
     }
 
   int ntot = 0;
