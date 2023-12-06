@@ -171,7 +171,7 @@ int check_acceptance(int eta, int phi)
   if (eta < 48 && phi < 64) return 1;
   if (eta >= 48 && phi <=215 && phi >= 208) return 1;
   if (eta >= 32 && eta <=39 && phi <= 151 && phi >= 144) return 1;
-  if (eta > 48 && phi <= 246 && phi >= 239) return 1;
+  if (eta > 47 && phi <= 247 && phi >= 240) return 1;
   return 0;
   if ((eta == 80 || eta == 81) && phi == 237) return 1;
   if (phi >= 64 && phi <= 72 && eta <= 72 && eta >= 64) return 1;
