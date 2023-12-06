@@ -339,6 +339,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
 
+  TH2D* lowmap[3];
+  lowmap[0] = new TH2D("lowmap0",96,-0.5,95.5,256,-0.5,255.5);
+  lowmap[1] = new TH2D("lowmap1",24,-0.5,23.5,64,-0.5,63.5);
+  lowmap[2] = new TH2D("lowmap2",24,-0.5,23.5,64,-0.5,63.5);
+  
   for(int i=0; i<3; ++i)
     {
       for(int j=0; j<(i==0?96:24); ++j)
@@ -347,6 +352,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      totnhigh[i][j][k]/=sumntot;
 	      totnlow[i][j][k]/=sumntot;
+	      lowmap[i]->SetBinContent(j+1,k+1,totnlow[i][j][k]);
 	    }
 	}
     }
@@ -662,12 +668,15 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       accrms[i] = sqrt(accrms[i]);
     }
   */
-
+  /*
   TFile* hdf = TFile::Open("datatemp/hdm.root");
   TH2D* hdm[3];
   hdm[0] = (TH2D*)hdf->Get("hd0");
   hdm[1] = (TH2D*)hdf->Get("hd1");
   hdm[2] = (TH2D*)hdf->Get("hd2");
+  */
+  
+  
   
   for(int h=0; h<2; ++h)
     {
@@ -705,7 +714,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			  if(calen[h][k][l] < mine) continue;
 			  float eval_unc = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			  if(h==0) dETcentsimunc[k][j]->Fill(etacor[h][k][l],eval_unc/(dETrange*2./dETbins));
-			  if(totnhigh[k][calet[h][k][l]][calph[h][k][l]] > 0.05 || totnlow[k][calet[h][k][l]][calph[h][k][l]] > 0.667 || totnlow[k][calet[h][k][l]][calph[h][k][l]] < 0) continue;
+			  if(totnhigh[k][calet[h][k][l]][calph[h][k][l]] > 0.05 || totnlow[k][calet[h][k][l]][calph[h][k][l]] > 0.5 || totnlow[k][calet[h][k][l]][calph[h][k][l]] < 0) continue;
 			  //if(!hdm[k]->GetBinContent(calet[h][k][l],calph[h][k][l])) continue;
 			  //if(i%toprint[h]==0) cout << accmaps[k]->GetBinContent(calet[h][k][l],calph[h][k][l]) << endl;
 			  //if(check_acc_map(accmaps[k],accavg[k],accrms[k],calet[h][k][l],calph[h][k][l])) continue;
@@ -819,6 +828,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outf->mkdir("deadmap");
   outf->mkdir("zvtx");
   outf->mkdir("nfill");
+  outf->mkdir("hilowmap");
   outf->cd("truthpar");
   gDirectory->WriteObject(truthpar_total_ET,truthpar_total_ET->GetName());
   for(int i=0; i<2; ++i)
@@ -959,6 +969,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       gDirectory->WriteObject(sumev[h], sumev[h]->GetName());
       gDirectory->WriteObject(sumtw[h], sumtw[h]->GetName());
       gDirectory->WriteObject(mbh[h], mbh[h]->GetName());
+    }
+
+  outf->cd("hilowmap");
+  for(int i=0; i<3; ++i)
+    {
+      gDirectory->WriteObject(lowmap[i],lowmap[i]->GetName());
     }
 
   cout << "Done writing hists." << endl;
