@@ -301,6 +301,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 
   for(int i=0; i<outt->GetEntries(); ++i)
     {
+      if(i%1000 == 0) cout << "Getting hot/dead for entry " << i << endl;
       outt->GetEntry(i);
       sumntot += ntot;
       for(int j=0; j<3; ++j)
