@@ -44,6 +44,7 @@ int simtow_check(int nfile)
   tree[1] = new TChain("ttree");
   for(int i=0; i<nfile; ++i)
     {
+      if(i%100 == 0) cout << i << endl;
       try
 	{
 	  tree[1]->Add(("run/output/evt/events_20231207_shuhang_simtow_nouw_mc_cor_"+to_string(i)+".root").c_str());
@@ -55,6 +56,7 @@ int simtow_check(int nfile)
     }
   for(int i=0; i<nfile; ++i)
     {
+      if(i%100 == 0) cout << i << endl;
       try
 	{
 	  tree[0]->Add(("run/output/evt/events_20231207_shuhang_simtow_nomod_mc_cor_"+to_string(i)+".root").c_str());
@@ -112,7 +114,7 @@ int simtow_check(int nfile)
     {
       tree[0]->GetEntry(i);
       tree[1]->GetEntry(i);
-
+      if(i%1000 == 0) cout << "Doing event " << i << endl;
       for(int j=0; j<3; ++j)
 	{
 	  for(int k=0; k<sectors[j]; ++k)
