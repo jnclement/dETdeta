@@ -33,7 +33,7 @@
 
 int simtow_check(int nfile)
 {
-
+  gStyle->SetOptStat(0);
   int sectors[3] = {24576,1536,1536};
   float sime[2][3][24576];
   float cale[2][3][24576];
@@ -127,12 +127,18 @@ int simtow_check(int nfile)
 	}
     }
 
+  string calname[3] = {"EMCal ","IHCal ","OHCal "};
+  string calx[4] = {"Sim Tower Energy from DSTs [GeV]","Sim Tower Energy from DSTs [GeV]","Sim Tower Energies from TowerBuilder [GeV]","Calib Tower Energy from DSTs [GeV]"};
+  string caly[4] = {"Calib Tower Energy from DSTs [GeV]","Sim Tower Energy from TowerBuilder [GeV]","Calib Tower Energy from TowerBuilder [GeV]","Calib Tower Energy from TowerBuilder [GeV]"};
+  
   TCanvas* c1 =  new TCanvas("c1","c1",1000,1000);
   c1->cd();
   for(int i=0; i<4; ++i)
     {
       for(int j=0; j<3; ++j)
 	{
+	  calcor[i][j]->GetXaxis()->SetTitle((calname[j]+calx[i]).c_str());
+	  calcor[i][j]->GetYaxis()->SetTitle((calname[j]+caly[i]).c_str());
 	  calcor[i][j]->Draw("COLZ");
 	  c1->SaveAs(("simtowcheck/calcor"+to_string(i)+to_string(j)+".png").c_str());
 	}
