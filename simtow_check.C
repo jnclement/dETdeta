@@ -132,7 +132,7 @@ int simtow_check(int nfile)
       for(int j=0; j<3; ++j)
 	{
 	  calcor[i][j]->Draw("COLZ");
-	  c1->SaveAs(("simtowcheck/"+calcor[i][j]->GetName()+".png").c_str());
+	  c1->SaveAs(strcat(strcat("simtowcheck/",calcor[i][j]->GetName()),".png"));
 	}
     }
 }
