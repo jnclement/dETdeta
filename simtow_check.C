@@ -135,4 +135,5 @@ int simtow_check(int nfile)
 	  c1->SaveAs(strcat(strcat("simtowcheck/",calcor[i][j]->GetName()),".png"));
 	}
     }
+  return 0;
 }
