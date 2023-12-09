@@ -134,11 +134,13 @@ int simtow_check(int nfile)
   TCanvas* c1 =  new TCanvas("c1","c1",1000,1000);
   c1->cd();
   gPad->SetLeftMargin(0.15);
-  gPad->SetRightMargin(0.1);
+  gPad->SetRightMargin(0.15);
+  gPad->SetLogz();
   for(int i=0; i<4; ++i)
     {
       for(int j=0; j<3; ++j)
 	{
+	  calcor[i][j]->GetZaxis()->SetTitle("Counts");
 	  calcor[i][j]->GetXaxis()->SetTitle((calname[j]+calx[i]).c_str());
 	  calcor[i][j]->GetYaxis()->SetTitle((calname[j]+caly[i]).c_str());
 	  calcor[i][j]->Draw("COLZ");
