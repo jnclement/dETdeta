@@ -68,21 +68,21 @@ int simtow_check(int nfile)
     }
 
   TH2D* calcor[4][3];
-  calcor[0][0] = new TH2D("calcor00","",1000,0,0.1,1000,0,5);
-  calcor[0][1] = new TH2D("calcor01","",1000,0,0.2,1000,0,2);
-  calcor[0][2] = new TH2D("calcor02","",1000,0,0.3,1000,0,10);
+  calcor[0][0] = new TH2D("calcor00","",200,0,0.1,200,0,5);
+  calcor[0][1] = new TH2D("calcor01","",200,0,0.2,200,0,2);
+  calcor[0][2] = new TH2D("calcor02","",200,0,0.3,200,0,10);
 
-  calcor[1][0] = new TH2D("calcor10","",1000,0,0.1,1000,0,0.1);
-  calcor[1][1] = new TH2D("calcor11","",1000,0,0.2,1000,0,0.2);
-  calcor[1][2] = new TH2D("calcor12","",1000,0,0.3,1000,0,0.3);
+  calcor[1][0] = new TH2D("calcor10","",200,0,0.1,200,0,0.1);
+  calcor[1][1] = new TH2D("calcor11","",200,0,0.2,200,0,0.2);
+  calcor[1][2] = new TH2D("calcor12","",200,0,0.3,200,0,0.3);
 
-  calcor[2][0] = new TH2D("calcor20","",1000,0,0.1,1000,0,5);
-  calcor[2][1] = new TH2D("calcor21","",1000,0,0.2,1000,0,2);
-  calcor[2][2] = new TH2D("calcor22","",1000,0,0.3,1000,0,10);
+  calcor[2][0] = new TH2D("calcor20","",200,0,0.1,200,0,5);
+  calcor[2][1] = new TH2D("calcor21","",200,0,0.2,200,0,2);
+  calcor[2][2] = new TH2D("calcor22","",200,0,0.3,200,0,10);
 
-  calcor[3][0] = new TH2D("calcor30","",1000,0,5,1000,0,5);
-  calcor[3][1] = new TH2D("calcor31","",1000,0,2,1000,0,2);
-  calcor[3][2] = new TH2D("calcor32","",1000,0,10,1000,0,10);
+  calcor[3][0] = new TH2D("calcor30","",200,0,5,200,0,5);
+  calcor[3][1] = new TH2D("calcor31","",200,0,2,200,0,2);
+  calcor[3][2] = new TH2D("calcor32","",200,0,10,200,0,10);
 
   tree[0]->SetBranchAddress("emcalen",cale[0][0]);
   tree[0]->SetBranchAddress("ihcalen",cale[0][1]);
