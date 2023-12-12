@@ -549,7 +549,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       params[i] = streams[i].str();
     }
   cout << "Now opening output file..." << endl;
-  string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+tag+"_"+(cor?"cor":"unc")+ ".root";
+  string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+tag+tag2+"_"+(cor?"cor":"unc")+ ".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   float dummy;
   float eval;
