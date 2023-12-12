@@ -180,7 +180,7 @@ int check_acceptance(int eta, int phi)
   std::set<std::tuple<int,int>>::iterator it = emcal_hot_dead_map_23696.begin();
   while(it != emcal_hot_dead_map_23696.end())
     {
-      if(std::get<0>(it->second) == eta && std::get<1>(it->second) == phi) return 1;
+      if(std::get<0>(*it) == eta && std::get<1>(*it) == phi) return 1;
       ++it;
     }
   return 0;
