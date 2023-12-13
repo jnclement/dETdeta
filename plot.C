@@ -434,6 +434,7 @@ void plotsimdat(string options, TCanvas* ca, TH1* dathist, TH1* simhist, int log
 
 void newplot(string options, TCanvas* ca, TH1* hist1, TH1* hist2, int logy, string cal, int run, float zcut, string xlabel, string ylabel,string datleg, string simleg, string raty, int percent0, int percent1, string name, string dir, string subdir, int centbins, int norm, string maintag = "", int rebin = 0)
 {
+  float uwscale[3] = {0.02,0.162,0.0338};
   TH1D* dathist;
   TH1D* simhist;
   if(name == "et_event")
@@ -456,6 +457,12 @@ void newplot(string options, TCanvas* ca, TH1* hist1, TH1* hist2, int logy, stri
       dathist = (TH1D*)hist1;
       simhist = (TH1D*)hist2;
     }
+  /*
+  for(int i=0; i<3; ++i)
+    {
+      if(name == "datareco_detdeta" && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")) simhist->Scale(1./uwscale[i]);
+    }
+  */
   int centrange = 5;
   ca->cd();
   if(logy) gPad->SetLogy();
@@ -539,9 +546,9 @@ void newplot(string options, TCanvas* ca, TH1* hist1, TH1* hist2, int logy, stri
       fakehist->SetMarkerColorAlpha(kRed,0.6);
       fakehist->SetLineColorAlpha(kRed,0.6);
       TLegend* leg2 = new TLegend(0.7,0.85,0.9,0.925);
-      if(maintag == "noupweight")
+      if(maintag == "newdeadnewsim")
 	{
-	  if(maintag == "noupweight")
+	  if(maintag == "newdeadnewsim")
 	    {
 	      rathist->SetLineColor(kBlue);
 	      rathist->SetMarkerColor(kBlue);
@@ -593,9 +600,12 @@ void newplot(string options, TCanvas* ca, TH1* hist1, TH1* hist2, int logy, stri
       ca->SaveAs((dir+"pdf/"+subdir+name+"_zoom_"+maintag+"_"+cal+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
 	}
       gPad->SetLogy(0);
-      if(name == "truthreco_detdeta" && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")) rathist->Scale(1./30.);
-      if(rathist->GetMaximum() > 20) rathist->GetYaxis()->SetRangeUser(0,20);
-      if(name == "truthreco_detdeta" && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")) rathist->GetYaxis()->SetRangeUser(7,10);
+      //if(rathist->GetMaximum() > 20) rathist->GetYaxis()->SetRangeUser(0,20);
+      if(name == "truthreco_detdeta" && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble" || maintag == "newdeaduw" || maintag == "newdeadnewsim"))
+	{
+	  if(cal == "OHCal") rathist->GetYaxis()->SetRangeUser(7,12);
+	  if(cal == "IHCal") rathist->GetYaxis()->SetRangeUser(20,30);
+	}
       rathist->Draw();
       leg2->Draw();
       drawText(toprint.c_str(),0.15,0.96,0,kBlack,0.025);
@@ -615,6 +625,12 @@ void newplot(string options, TCanvas* ca, TH1* hist1, TH1* hist2, int logy, stri
       ca->SaveAs((dir+"png/"+subdir+name+"_"+maintag+"_"+cal+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".png").c_str());
       ca->SaveAs((dir+"pdf/"+subdir+name+"_"+maintag+"_"+cal+"_cent_"+ to_string(centrange*(centbins-percent1)) +"-"+ to_string(centrange*(centbins-percent0))+".pdf").c_str());
     }
+  /*
+  for(int i=0; i<3; ++i)
+    {
+      if(name == "datareco_detdeta" && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")) simhist->Scale(uwscale[i]);
+    }
+  */
 }
 
 int setrebin(int j)
@@ -626,7 +642,7 @@ int setrebin(int j)
 }
 
 
-int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root", string maintag = "", string treename = "ttree", string datdir = "/home/jocl/datatemp/", string plotdir = "/home/jocl/datatemp/plots/")
+int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_0_scale_1.00_zcut_30_run_21615_20231018_nopileup_cor.root", string maintag = "", string rn = "23696", string treename = "outpt", string datdir = "/home/jocl/datatemp/", string plotdir = "/home/jocl/datatemp/plots/")
 {   
   //gSystem->RedirectOutput("test.txt");
   gROOT->SetStyle("Plain");
@@ -694,7 +710,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  for(int k=0; k<(j==0?256:64); ++k)
 	    {
 	      hcalraw[i][j][k] = (TH1D*)histfile->Get(("hcalraw/hcalraw_"+to_string(i)+"_"+to_string(j)+"_"+to_string(k)).c_str());
-	      hcalraw[i][j][k]->Scale((j==0?256.:64.));
+	      hcalraw[i][j][k]->Scale((j==0?1024.:64.));
 	    }
 	}
     }
@@ -774,7 +790,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   tree->SetBranchAddress("frac",frac);
   tree->SetBranchAddress("mine",&mine);
   tree->SetBranchAddress("zcut",&zcut);
-  tree->SetBranchAddress("run",&run);
+  //tree->SetBranchAddress("run",&run);
+  run = 23696;
   tree->GetEvent(0);
   TCanvas* c1 = new TCanvas("c1","c1",1000,1000);
   //cout << "Starting to plot" << endl;
@@ -816,7 +833,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  dETcent[i][j][centbins-1]->SetMarkerColor(kBlack);
 	  dETcent[i][j][centbins-1]->Draw("SAME P");
 	  dETcent[i][j][centbins-1]->SetMarkerSize(2);
-	  drawText("Run 23696 Production 387",0.15,0.96,0,kBlack,0.025);
+	  drawText(("Run "+rn+" 388p004").c_str(),0.15,0.96,0,kBlack,0.025);
 	  sphenixtext();
 	  //cout << "set markers" << endl;
 	  c1->SaveAs(("/home/jocl/datatemp/plots/pdf/all/"+cal[j]+"_strips_"+simdat[i]+".pdf").c_str());
@@ -837,9 +854,9 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  raw2dstrips[i][j]->GetXaxis()->SetTitle("#eta");
 	  raw2dstrips[i][j]->GetZaxis()->SetTitle(("dE^{"+cal[j]+"}_{T}/d#eta").c_str());
 	  gPad->SetRightMargin(0.2);
-	  if(i==0 && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")) raw2dstrips[i][j]->Scale(1./uwscale[j]);
+	  if(i==0 && (maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble" || maintag == "23696_simtow_nouw" || maintag == "23696_simtow_douw")) raw2dstrips[i][j]->Scale(1./uwscale[j]);
 	  raw2dstrips[i][j]->Draw("COLZ");
-	  drawText("Run 23696 Production 387",0.15,0.96,0,kBlack,0.025);
+	  drawText(("Run "+rn+" 388p004").c_str(),0.15,0.96,0,kBlack,0.025);
 	  sphenixtext();
 	  c1->SaveAs(("/home/jocl/datatemp/plots/pdf/all/"+cal[j]+"_raw2d_"+simdat[i]+".pdf").c_str());
 	  c1->SaveAs(("/home/jocl/datatemp/plots/png/all/"+cal[j]+"_raw2d_"+simdat[i]+".png").c_str());
@@ -905,6 +922,10 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       ylabel = cal[j]+" dE_{T}/d#eta [GeV]";
       datleg = "Reco HIJING";
       simleg = "Truth HIJING";
+      for(int i=0; i<3; ++i)
+	{
+	  if((maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble" || maintag == "23696_simtow_nouw" || maintag == "23696_simtow_douw") && j==0) dETcent[0][i][centbins-1]->Scale(1./uwscale[i]);
+	}
       newplot(options, c1,truthpar_et[centbins-1], dETcent[0][j][centbins-1], 0, cal[j], run, zcut, xlabel, ylabel, datleg, simleg, raty, centbins-1, centbins, "truthreco_detdeta", plotdir, "cent/", centbins, norm, maintag);
       datleg = "Data";
       raty = "(Data dE_{T}/d#eta)/(Truth dE_{T}/d#eta)";
@@ -913,6 +934,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
       ylabel = "Raw dE_{T}/d#eta in "+cal[j];
       raty = cal[j]+" (Data dE_{T}/d#eta)/(Reco dE_{T}/d#eta)";
       simleg = "Reco HIJING";
+      
       newplot(options, c1, dETcent[1][j][centbins-1],dETcent[0][j][centbins-1], 0, cal[j], run, zcut, xlabel, ylabel, datleg, simleg, raty, centbins-1, centbins, "datareco_detdeta", plotdir, "cent/", centbins, norm, maintag);
       options = "hist";
       xlabel = "#Sigma #it{E}_{T}^{"+cal[j]+"} [GeV]";
@@ -1006,6 +1028,8 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   gPad->SetRightMargin(0.2);
   gPad->SetLeftMargin(0.15);
   gPad->SetLogx(0);
+  TH1D* datproj = deadmap[1][0][centbins-1]->ProjectionX("datproj");
+  TH1D* simproj = deadmap[0][0][centbins-1]->ProjectionX("simproj");
   for(int i=centbins-1; i<centbins; ++i)
     {
       for(int j=0; j<3; ++j)
@@ -1019,7 +1043,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  deadmap[0][j][i]->GetZaxis()->SetTitle((cal[j] +" <E^{tower}_{HIJING}> [GeV]").c_str());
 	  deadmap[1][j][i]->GetZaxis()->SetLabelSize(0.025);
 	  //deadmap[1][j][i]->GetZaxis()->SetRangeUser(0,2);
-	  texts[2] = "Run 23696 production 387" + to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+"% centrality";
+	  texts[2] = "Run "+rn+" 388p004" + to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+"% centrality";
 	  deadmap[1][j][i]->Draw("COLZ");
 	  sphenixtext();
 	  //multitext(texts,ntext);
@@ -1032,14 +1056,14 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	  deadmap[0][j][i]->GetXaxis()->SetTitle(xlabel.c_str());
 	  deadmap[0][j][i]->GetZaxis()->SetLabelSize(0.025);
 	  //deadmap[0][j][i]->GetZaxis()->SetRangeUser(0,2);
-	  texts[2] = "Run 23696 production 387" + to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+"% centrality";
+	  texts[2] = "Run "+rn+" 388p004" + to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+"% centrality";
 	  deadmap[0][j][i]->Draw("COLZ");
 	  sphenixtext();
 	  multitext(texts,ntext);
 	  c1->SaveAs(("/home/jocl/datatemp/plots/png/cent/sim_deadmap_"+cal[j]+"_" +to_string((centbins-i-1)*(90/centbins))+"-"+to_string((centbins-i)*(90/centbins))+".png").c_str());
 	  deadmap[1][j][i]->Divide(deadmap[0][j][i]);
 	  deadmap[1][j][i]->GetZaxis()->SetTitle((cal[j] +" <E^{tower}_{data}>/<E^{tower}_{HIJING}>").c_str());
-	  deadmap[1][j][i]->GetZaxis()->SetRangeUser(0.5,1.5);
+	  deadmap[1][j][i]->GetZaxis()->SetRangeUser(0,2);
 	  deadmap[1][j][i]->Draw("COLZ");
 	  sphenixtext();
 	  multitext(texts,ntext);
@@ -1047,6 +1071,38 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 
 	}
     }
+
+  TFile* outf = TFile::Open("/home/jocl/datatemp/hdm.root","RECREATE");
+
+  outf->WriteObject(deadmap[1][0][centbins-1],"hd0");
+  outf->WriteObject(deadmap[1][0][centbins-1],"hd1");
+  outf->WriteObject(deadmap[1][0][centbins-1],"hd2");
+
+  outf->Close();
+  
+  TH1D* divproj = deadmap[1][0][centbins-1]->ProjectionX("divproj");
+  TH1D* truediv = new TH1D("truediv","",96,-0.5,95.5);
+  for(int i=8; i<96; ++i)
+    {
+      float ngood = 0;
+      for(int j=0; j<256; ++j)
+	{
+	  if(deadmap[1][0][centbins-1]->GetBinContent(i+1,j+1) > 0) ngood++;
+	}
+      if(ngood == 0) continue;
+      //divproj->SetBinContent(i+1,divproj->GetBinContent(i+1)/(ngood));
+      //datproj->SetBinContent(i+1,datproj->GetBinContent(i+1)/(ngood));
+      //simproj->SetBinContent(i+1,simproj->GetBinContent(i+1)/(ngood));
+    }
+  divproj->Draw();
+  c1->SaveAs("/home/jocl/datatemp/plots/png/all/divproj.png");
+  datproj->Draw();
+  c1->SaveAs("/home/jocl/datatemp/plots/png/all/datproj.png");
+  simproj->Draw();
+  c1->SaveAs("/home/jocl/datatemp/plots/png/all/simproj.png");
+  truediv->Divide(datproj,simproj);
+  truediv->Draw();
+  c1->SaveAs("/home/jocl/datatemp/plots/png/all/trudiv.png");
   /*
   for(int i=0; i<centbins; ++i)
     {
@@ -1119,7 +1175,7 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   star05->Draw("SAME P");
   leg->SetTextSize(0.02);
   leg->Draw();
-  drawText("Run 23696 production 387 0-5% centrality",0.15,0.96,0,kBlack,0.025);
+  drawText(("Run "+rn+" 388p004 0-5% centrality").c_str(),0.15,0.96,0,kBlack,0.025);
   sphenixtext();
   c3->SaveAs("/home/jocl/datatemp/plots/pdf/all/detcomp.pdf");
   c3->SaveAs("/home/jocl/datatemp/plots/png/all/detcomp.png");
@@ -1132,41 +1188,44 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   starbox->SetFillColorAlpha(kGreen,0.3);
   phnxline->SetLineColor(kBlue);
   phnxbox->SetFillColorAlpha(kBlue,0.3);
-  fullcor[0][centbins-1]->GetYaxis()->SetTitle("Fully Corrected dE_{T}/d#eta [GeV]");
-    if(maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble")
+  for(int i=0; i<centbins; ++i)
     {
-  fullcor[0][centbins-1]->Scale(0.02);
-  fullcor[1][centbins-1]->Scale(0.162);
-  fullcor[2][centbins-1]->Scale(0.0338);
+  fullcor[0][i]->GetYaxis()->SetTitle("Fully Corrected dE_{T}/d#eta [GeV]");
+    if(maintag == "upweight" || maintag == "noupweight" || maintag == "nouw_newhit" || maintag == "nodouble" || maintag == "23696_simtow_nouw" || maintag == "23696_simtow_douw")
+    {
+  fullcor[0][i]->Scale(0.02);
+  fullcor[1][i]->Scale(0.162);
+  fullcor[2][i]->Scale(0.0338);
     }
-  fullcor[0][centbins-1]->GetYaxis()->SetRangeUser(550,1100);
-  fullcor[0][centbins-1]->SetMarkerColor(kRed);
-  fullcor[1][centbins-1]->SetMarkerColor(kRed-9);
-  fullcor[2][centbins-1]->SetMarkerColor(kRed+3);
-  fullcor[0][centbins-1]->SetLineColor(kRed);
-  fullcor[1][centbins-1]->SetLineColor(kRed-9);
-  fullcor[2][centbins-1]->SetLineColor(kRed+3);
+    fullcor[0][i]->GetYaxis()->SetRangeUser(min(fullcor[0][i]->GetMinimum()*0.9,(597-35)*0.9),1.1*fullcor[2][i]->GetMaximum());
+  fullcor[0][i]->SetMarkerColor(kRed);
+  fullcor[1][i]->SetMarkerColor(kRed-9);
+  fullcor[2][i]->SetMarkerColor(kRed+3);
+  fullcor[0][i]->SetLineColor(kRed);
+  fullcor[1][i]->SetLineColor(kRed-9);
+  fullcor[2][i]->SetLineColor(kRed+3);
   TLegend* tleg = new TLegend(0.5,0.8,0.9,0.92);
   tleg->SetNColumns(2);
   tleg->SetTextSize(0.02);
-  tleg->AddEntry(fullcor[0][centbins-1],"sPHENIX EMCal","P");
-  tleg->AddEntry(fullcor[1][centbins-1],"sPHENIX IHCal","P");
-  tleg->AddEntry(fullcor[2][centbins-1],"sPHENIX OHCal","P");
+  tleg->AddEntry(fullcor[0][i],"sPHENIX EMCal","P");
+  tleg->AddEntry(fullcor[1][i],"sPHENIX IHCal","P");
+  tleg->AddEntry(fullcor[2][i],"sPHENIX OHCal","P");
   tleg->AddEntry(phnxline,"PHENIX Measurement","L");
   tleg->AddEntry(starline,"STAR Measurement","L");
   tleg->SetFillColorAlpha(0,0);
-  fullcor[0][centbins-1]->Draw();
-  fullcor[1][centbins-1]->Draw("SAME P");
-  fullcor[2][centbins-1]->Draw("SAME P");
+  fullcor[0][i]->Draw();
+  fullcor[1][i]->Draw("SAME P");
+  fullcor[2][i]->Draw("SAME P");
   phnxline->Draw("SAME");
   starline->Draw("SAME");
   starbox->Draw("SAME");
   phnxbox->Draw("SAME");
   tleg->Draw();
-  drawText("Run 23696 production 387 0-5% centrality",0.15,0.96,0,kBlack,0.025);
+  drawText(("Run "+rn+" 388p004 0-5% centrality").c_str(),0.15,0.96,0,kBlack,0.025);
   sphenixtext();
-  c3->SaveAs(("/home/jocl/datatemp/plots/pdf/all/fullcor_all_"+maintag+".pdf").c_str());
-  c3->SaveAs(("/home/jocl/datatemp/plots/png/all/fullcor_all_"+maintag+".png").c_str());
+  c3->SaveAs(("/home/jocl/datatemp/plots/pdf/all/fullcor_all_"+maintag+"_"+to_string(i)+".pdf").c_str());
+  c3->SaveAs(("/home/jocl/datatemp/plots/png/all/fullcor_all_"+maintag+"_"+to_string(i)+".png").c_str());
+    }
   for(int i=0; i<3; i++)
     {
       cout << cal[i] << " mean corrected dET/deta/(0.5*npart): " << fullcor[i][centbins-1]->Integral("width")/(2*175) << endl;
@@ -1174,6 +1233,22 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
   return 0;
 }
 
+int plot_2(string filename1, string filename2, string dirname, string histname, string options, string xlabel, string ylabel, string raty, string cal, string name, string dir, string subdir, string datleg, string simleg, int logy, int percent0, int percent1, int centbins, int norm, string maintag)
+{
+  gROOT->SetStyle("Plain");
+  gStyle->SetOptStat(0);
+  gStyle->SetOptTitle(0);
+  SetsPhenixStyle();
+  TFile* file1 = TFile::Open(("/home/jocl/datatemp/"+filename1).c_str());
+  TFile* file2 = TFile::Open(("/home/jocl/datatemp/"+filename2).c_str());
+  TCanvas* ca = new TCanvas("c1","c1");
+  TH1D* hist1 = (TH1D*)file1->Get((dirname+histname).c_str());
+  if(hist1->GetMaximum() < 200) hist1->Scale(4.);
+  TH1D* hist2 = (TH1D*)file2->Get((dirname+histname).c_str());
+  if(hist2->GetMaximum() < 200) hist2->Scale(4.);
+  newplot(options, ca, hist1, hist2, logy, cal, 0, 0, xlabel, ylabel, datleg, simleg, raty, percent0, percent1, name, dir, subdir, centbins, norm, maintag);
+  return 0;
+}
 
 int plot()
 {
@@ -1203,9 +1278,37 @@ int plot()
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231113_nopileup_nzs_cor.root","newnzs");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231117_nomanshift_nopileup_nzs_cor.root","no_upweight");
   //called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231117_23696_nzs_cor.root","23696");
+  string xlabel = "#eta";
+  string ylabel = "dE_{T}/d#eta";
+  string options = "P";
+  string filename1 = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nzs_cor.root";
+  string filename2 = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nodoublecount_nzs_cor.root";
+  //plot_2(filename1, filename2, "dETcent/", "dETcent10_17", options, xlabel, ylabel, "Ratio", "EMCal", "plot2_dETcent", "/home/jocl/datatemp/plots/", "all/", "Data 1", "Data 2", 0, 0, 1, 18, 0,"doublevsno");
+  filename2 = "savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_21615_data_check_scale_cor.root";
+  //plot_2(filename1, filename2, "dETcent/", "dETcent10_17", options, xlabel, ylabel, "Ratio", "EMCal", "plot2_dETcent", "/home/jocl/datatemp/plots/", "all/", "Data 1", "Data 2", 0, 0, 1, 18, 0,"23696vs21615");
+  filename1 = "savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231129_21615_cor.root";
+  filename2 = "savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231129_23696_cor.root";
+  //plot_2(filename1, filename2, "dETcent/", "dETcent10_17", options, xlabel, ylabel, "Ratio", "EMCal", "plot2_dETcent", "/home/jocl/datatemp/plots/", "all/", "Run 21615", "Run 23696", 0, 17, 18, 18, 0,"23696vs21615");
+  //plot_2(filename1, filename2, "dETcent/", "dETcent10_17", options, xlabel, ylabel, "Ratio", "EMCal", "plot2_dETcent", "/home/jocl/datatemp/plots/", "all/", "Data 1", "Data 2", 0, 0, 1, 18, 0,"doublevsno");
+  //plot_2(filename1, filename2, "dETcent/", "dETcent10_17", options, xlabel, ylabel, "Ratio", "EMCal", "plot2_dETcent", "/home/jocl/datatemp/plots/", "all/", "Data 1", "Data 2", 0, 0, 1, 18, 0,"doublevsno");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nzs_cor.root","noupweight");
   //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nzs_cor.root","upweight");
-  //called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nzs_cor.root","nouw_newhit");
-  called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nodoublecount_nzs_cor.root","nodouble");
+    //called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nzs_cor.root","nouw_newhit");
+    //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_simtow_nouw_nodoublecount_nzs_cor.root","nodouble");
+    //called_plot("savedhists_fracsim_1_fracdat_1_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231127_21615_data_check_scale_cor.root","21615_data_check_scale");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231129_23696_cor.root","23696_new","23696");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231129_21615_cor.root","21615_new","21615");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231203_21615_etc_cor.root","etc","21615");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615emmatest_cor.root","emmatest","21615");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231204_23696_etc_388p004_cor.root","23696_old_sim","23696");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231204_21615_etc_388p004_cor.root","21615_p004","21615");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231204_23696_etc_388p004_cor.root","23696_p004_10","23696");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_20231204_21615_etc_388p004_cor.root","newdeadoldsim","23696");
+  called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_20231211_etc_cor.root","newdeadnewsim","23696");
+  called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_202311211_douw_testfix_cor.root","newdeaduw","23696");
+  filename1 = "savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_20231211_etc_cor.root";
+  filename2 = "savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_202311211_douw_testfix_cor.root";
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231129_simtow_douw_cor.root","23696_simtow_douw");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231129_simtow_nouw_cor.root","23696_simtow_nouw");
   return 0;
 }
