@@ -671,7 +671,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  zcent[h][j]->Fill(z_v[h][2]);
 		  float weight = 1;
 		  if(h==0) weight = zfitf[1]->Eval(z_v[0][2])/zfitf[0]->Eval(z_v[0][2]);
-		  totalweight += weight;
+		  if(h==0) totalweight += weight;
 		  for(int k=0; k<3; ++k)
 		    {
 		      esum = 0;
@@ -824,8 +824,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	{
 	  for(int k=0; k<(j==0?256:64); ++k)
 	    {
-	      //hcalraw[i][j][k]->Divide(nfillcent[i][j][centbins-1]);
-	      hcalraw[i][j][k]->Scale(1./totalweight);
+	      hcalraw[i][j][k]->Divide(nfillcent[i][j][centbins-1]);
+	      //if(i==0) hcalraw[i][j][k]->Scale(1./totalweight);
 	      outf->cd("hcalraw");
 	      gDirectory->WriteObject(hcalraw[i][j][k],hcalraw[i][j][k]->GetName());
 	    }
@@ -838,10 +838,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  outf->cd("nfill");
 	  gDirectory->WriteObject(nfillcent[0][j][i],nfillcent[0][j][i]->GetName());
 	  gDirectory->WriteObject(nfillcent[1][j][i],nfillcent[1][j][i]->GetName());
-	  //dETcent[0][j][i]->Divide(nfillcent[0][j][i]);
-	  //dETcent[1][j][i]->Divide(nfillcent[1][j][i]);
-	  dETcent[0][j][i]->Scale(1./totalweight);
-	  dETcent[1][j][i]->Scale(1./totalweight);
+	  dETcent[0][j][i]->Divide(nfillcent[0][j][i]);
+	  dETcent[1][j][i]->Divide(nfillcent[1][j][i]);
+	  //dETcent[0][j][i]->Scale(1./totalweight);
+	  //dETcent[1][j][i]->Scale(1./totalweight);
 	  if(j==0)
 	    {
 	      dETcent[0][j][i]->Scale(4.);
