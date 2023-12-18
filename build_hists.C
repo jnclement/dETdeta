@@ -558,11 +558,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   float mbsum;
   int toprint[2] = {10000/frac[0],10000/frac[1]};
   
-  cout << "Events for sim:  " << tree[0]->GetEntries()/frac[0] << endl;
-  cout << "Events for data: " << tree[1]->GetEntries()/frac[1] << endl;
+  cout << "Events for sim:  " << tree[0]->GetEntries() << endl;
+  cout << "Events for data: " << tree[1]->GetEntries() << endl;
   cout << "Beginning processing." << endl;
   cout << "Filling MBD sim hist." << endl;
-  for(int i=0; i<tree[0]->GetEntries()/frac[0]; ++i)
+  for(int i=0; i<tree[0]->GetEntries(); ++i)
     {
       if(i%toprint[0] == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
@@ -577,7 +577,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   cout << "Sim MBD histogram entries: " << mbh[0]->GetEntries() << endl;
   cout << "Done filling sim MBD hist." << endl;
   cout << "Filling MBD data hist." << endl;
-  for(int i=0; i<tree[1]->GetEntries()/frac[1]; ++i)
+  for(int i=0; i<tree[1]->GetEntries(); ++i)
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
@@ -649,7 +649,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
-      for(int i=0; i<tree[h]->GetEntries()/frac[h]; ++i)
+      for(int i=0; i<tree[h]->GetEntries(); ++i)
 	{
 	  if(i%toprint[h]==0) cout << "Starting event " << i << endl;
 	  set_em_combined_towers_0(towercomb);
