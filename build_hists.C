@@ -269,7 +269,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int sector[2][3];
   int sectormb;
   int truthpar_n;
-  int dETbins = 20;
+  const int dETbins = 20;
   float truthpar_eta[100000];
   float truthpar_e[100000];
   TH1D* truthpar_et[centbins];
@@ -583,6 +583,16 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       tree[1]->GetEntry(i);
       dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist[1], 0, 1, 1);
     }
+
+  TFitResultPtr zfit[2];
+
+  zfit[0] = zhist[0]->Fit("gaus","S");
+  zfit[1] = zhist[1]->Fit("gaus","S");
+
+  TF1* zfitf[2];
+  zfitf[0] = zhist[0]->GetFunction("gaus");
+  zfitf[1] = zhist[1]->GetFunction("gaus");
+  
   cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
   cout << "Done filling all MBD hists." << endl;
@@ -635,7 +645,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   */
   
   
-  
+  float totalweight;
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
@@ -659,6 +669,8 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  nevtcent[h][j]++;
 		  //if(h==1 && j==17) cout << "j = 17 reached " << z_v[h] << endl;
 		  zcent[h][j]->Fill(z_v[h][2]);
+		  float weight = 1;
+		  if(h==0) weight = zfitf[1]->Eval(z_v[0][2])/zfitf[0]->Eval(z_v[0][2]);
 		  for(int k=0; k<3; ++k)
 		    {
 		      esum = 0;
@@ -666,7 +678,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			{
 			  if(!check_eta_hit(etacor[h][k][l],hits))
 			    {
-			      nfillcent[h][k][j]->Fill(etacor[h][k][l]);
+			      nfillcent[h][k][j]->Fill(etacor[h][k][l],weight);
 			      hits.push_back(etacor[h][k][l]);
 			    }
 			  if(calen[h][k][l] < mine) continue;
@@ -680,6 +692,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 			      eval = scale[h]*get_E_T_em(calen[h][k][l], etacor[h][k][l], subtr);
 			    }
 			  else eval = scale[h]*get_E_T_hc(calen[h][k][l], etacor[h][k][l], subtr);
+
+			  if(h==0)
+			    {
+			      eval *= weight;
+			      totalweight += weight;
+			    }
+			  
 			  {
 			    deadmap[h][k][j]->Fill(calet[h][k][l],calph[h][k][l],calen[h][k][l]);
 			    deadhits[h][k][j]->Fill(calet[h][k][l],calph[h][k][l]);
@@ -745,6 +764,22 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
       cout << "Done." << endl;
     }
+
+  for(int i=0; i<2; ++i)
+    {
+      sumtw[i]->Scale(1./totalweight);
+      for(int j=0; j<3; ++j)
+	{
+	  TW[i][j]->Scale(1./totalweight);
+	  ET[i][j]->Scale(1./totalweight);
+	  for(int k=0; k<centbins; ++k)
+	    {
+	      centtow[i][j][k]->Scale(1./totalweight);
+	      centet[i][j][k]->Scale(1./totalweight);
+	    }
+	}
+    }
+  
   //centet[1][0][17]->Draw();
   //gPad->SaveAs("test.png");
   for(int i=0; i<3; ++i)
