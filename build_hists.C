@@ -363,7 +363,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       meandiff[j] = new TH1D(("md"+to_string(j)).c_str(),"",centbins,0,90);
       for(int i=0; i<2; ++i)
 	{
-	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_strs(),"",centbins,0,90);
+	  meancent[i][j] = new TH1D(("meancent"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  sigmu[i][j] = new TH1D(("sigmu"+to_string(i)+to_string(j)).c_str(),"",centbins,0,90);
 	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",dETbins,-dETrange,dETrange);
 	  for(int k=0; k<centbins; ++k)
