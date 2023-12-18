@@ -864,9 +864,10 @@ int called_plot(string histfilename = "savedhists_fracsim_1_fracdat_1_subtr_0_mi
 	}
       raw2dstrips[2][j]->Divide(raw2dstrips[1][j],raw2dstrips[0][j]);
       raw2dstrips[2][j]->Draw("COLZ");
-      
+      gPad->SetRightMargin(0.2);
       c1->SaveAs(("/home/jocl/datatemp/plots/pdf/all/"+cal[j]+"_raw2d_cor.pdf").c_str());
       c1->SaveAs(("/home/jocl/datatemp/plots/png/all/"+cal[j]+"_raw2d_cor.png").c_str());
+      gPad->SetRightMargin(0.05);
       for(int i=0; i<(j==0?256:64); ++i)
 	{
 	  int flag = 0;
@@ -1304,8 +1305,9 @@ int plot()
   //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231204_21615_etc_388p004_cor.root","21615_p004","21615");
   //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231204_23696_etc_388p004_cor.root","23696_p004_10","23696");
   //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_20231204_21615_etc_388p004_cor.root","newdeadoldsim","23696");
-  called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_20231211_etc_cor.root","newdeadnewsim","23696");
-  called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_202311211_douw_testfix_cor.root","newdeaduw","23696");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_20231211_etc_cor.root","newdeadnewsim","23696");
+  called_plot("savedhists_fracsim_100_fracdat_100_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_20231211_etc_cor.root","testzvtxre","23696");
+  //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_202311211_douw_testfix_cor.root","newdeaduw","23696");
   filename1 = "savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_20231211_etc_cor.root";
   filename2 = "savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231211_23696_etc_388p004_202311211_douw_testfix_cor.root";
   //called_plot("savedhists_fracsim_10_fracdat_10_subtr_0_minE_-10000_scale_1.00_zcut_30_run_21615_20231129_simtow_douw_cor.root","23696_simtow_douw");
