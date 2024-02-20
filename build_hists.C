@@ -517,7 +517,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int nevtcent[2][centbins] = {0};
   frac[0] = simfrac;
   frac[1] = datfrac;
-  //int run = 21615;
+  int run = 23696;
   const int par = 4;
   float parval[par];
   float mult[par];
@@ -978,7 +978,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outpt->Branch("nevt",nevt,"nevt[2]/I");
   outpt->Branch("cbin",&nccb,"cbin/I");
   outpt->Branch("zcut",&zcut,"zcut/F");
-  outpt->Branch("run",&rn,"run/I");
+  outpt->Branch("run",&run,"run/I");
   outpt->Fill();
   outf->WriteObject(outpt,outpt->GetName());
   cout << "Done writing parameters to file" << endl;
