@@ -245,7 +245,7 @@ bool check_eta_hit(float eta, vector<float> hits)
   return false;
 }
 
-int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", string tag2="", int cor = 1)
+int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", string tag2="", int cor = 1, float zlow = -30, float zup = 30)
 {
   cout << "Starting..." << endl;
   //mbd_init();
@@ -566,6 +566,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[0] == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
+      if(z_v[0][2] < zlow || z_v[0][2] > zup) continue;
       /*
       if(abs(z_v[0][2]) == 0) continue;
       //if(abs(z_v[0][2]) > zcut) continue;
@@ -581,6 +582,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
+      if(z_v[1][2] < zlow || z_v[1][2] > zup) continue;
       dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist[1], 0, 1, 1);
     }
 
@@ -660,6 +662,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], zhist[0], 1, 1, 0);
 	  if(mbsum < 0) continue;
+	  if(z_v[h][2] < zlow || z_v[h][2] > zup) continue;
 	  if(h==0 && mbsum < cents[0][centoffs-1]) continue;
 	  for(int j=0; j<centbins; ++j)
 	    {
