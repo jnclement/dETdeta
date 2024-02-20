@@ -566,7 +566,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[0] == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
-      if(z_v[0][2] < zlow || z_v[0][2] > zup) continue;
+      //if(z_v[0][2] < zlow || z_v[0][2] > zup) continue;
       /*
       if(abs(z_v[0][2]) == 0) continue;
       //if(abs(z_v[0][2]) > zcut) continue;
@@ -582,7 +582,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
-      if(z_v[1][2] < zlow || z_v[1][2] > zup) continue;
+      //      if(z_v[1][2] < zlow || z_v[1][2] > zup) continue;
       dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist[1], 0, 1, 1);
     }
 
