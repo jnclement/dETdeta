@@ -517,7 +517,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int nevtcent[2][centbins] = {0};
   frac[0] = simfrac;
   frac[1] = datfrac;
-  int run = 21615;
+  //int run = 21615;
   const int par = 4;
   float parval[par];
   float mult[par];
@@ -549,7 +549,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       params[i] = streams[i].str();
     }
   cout << "Now opening output file..." << endl;
-  string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+tag+tag2+"_"+(cor?"cor":"unc")+"_zloup_"+to_string(zlow)+"_"+to_string(zup)+".root";
+  string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3]+tag+tag2+"_"+(cor?"cor":"unc")+"_zloup_"+to_string((int)zlow)+"_"+to_string((int)zup)+".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   float dummy;
   float eval;
@@ -978,7 +978,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   outpt->Branch("nevt",nevt,"nevt[2]/I");
   outpt->Branch("cbin",&nccb,"cbin/I");
   outpt->Branch("zcut",&zcut,"zcut/F");
-  outpt->Branch("run",&run,"run/I");
+  outpt->Branch("run",&rn,"run/I");
   outpt->Fill();
   outf->WriteObject(outpt,outpt->GetName());
   cout << "Done writing parameters to file" << endl;
