@@ -212,7 +212,7 @@ int check_acceptance(int eta, int phi)
 }
 
 
-int check_acc_map(TH2I* accmap, float mean, float std, int eta, int phi)
+int check_acc_map(TH2D* accmap, float mean, float std, int eta, int phi)
 {
   float accbinc = accmap->GetBinContent(eta,phi);
   if(accbinc < (mean-2*std) || accbinc > (mean-2*std)) return 1;
@@ -245,7 +245,7 @@ bool check_eta_hit(float eta, vector<float> hits)
   return false;
 }
 
-int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", string tag2="", int cor = 1)
+int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", string tag2="", int cor = 1, float zlow = -30, float zup = 30)
 {
   cout << "Starting..." << endl;
   //mbd_init();
@@ -283,7 +283,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   tree[1] = new TChain("ttree");
   outt = new TChain("outt");
   
-  for(int i=0; i<600/datfrac; ++i)
+  for(int i=0; i<1000/datfrac; ++i)
     {
       try
 	{
@@ -295,7 +295,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
 
-  for(int i=0; i<555/simfrac; ++i)
+  for(int i=0; i<1000/simfrac; ++i)
     {
       try
 	{
@@ -307,7 +307,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	}
     }
 
-  for(int i=0; i<600; ++i)
+  for(int i=0; i<1000; ++i)
     {
       try
 	{
@@ -339,7 +339,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* ettotcent[2][centbins];
   TH1D* dET[2][3];
   TH1D* dETcent[2][3][centbins];
-  TH1I* nfillcent[2][3][centbins];
+  TH1D* nfillcent[2][3][centbins];
   TH1D* dETcentrat[3][centbins];
   TH1D* truthparnhist = new TH1D("truthparnhist","",1000,0,10000);
   TH1D* truthparncent[centbins];
@@ -351,7 +351,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   TH1D* meancent[2][3];
   TH2D* deadmap[2][3][centbins];
   TH1D* zcent[2][centbins];
-  TH2I* deadhits[2][3][centbins];
+  TH2D* deadhits[2][3][centbins];
   TH1D* dETcentsimunc[3][centbins];
   int phibins[3] = {256,64,64};
   int etabins[3] = {96,24,24};
@@ -368,13 +368,13 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	  dET[i][j] = new TH1D(("dET"+to_string(i)+to_string(j)).c_str(),"",dETbins,-dETrange,dETrange);
 	  for(int k=0; k<centbins; ++k)
 	    {
-	      nfillcent[i][j][k] = new TH1I(("nfillcent_"+to_string(i)+"_"+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
+	      nfillcent[i][j][k] = new TH1D(("nfillcent_"+to_string(i)+"_"+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      if(i==0) dETcentsimunc[j][k] = new TH1D(("dETcentsimunc_"+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      if(i==0) fullcor[j][k] = new TH1D(("fullcor_"+to_string(j)+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      dETcent[i][j][k] = new TH1D(("dETcent"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      if(i==0) dETcentrat[j][k] = new TH1D(("dETcentrat"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",dETbins,-dETrange,dETrange);
 	      deadmap[i][j][k] = new TH2D(("deadmap"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
-	      deadhits[i][j][k] = new TH2I(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
+	      deadhits[i][j][k] = new TH2D(("deadhits"+to_string(i)+to_string(j)+"_"+to_string(k)).c_str(),"",etabins[j],-0.5,etabins[j]-0.5,phibins[j],-0.5,phibins[j]-0.5);
 	      if(j==0) zcent[i][k] = new TH1D(("zcent"+to_string(i)+"_"+to_string(k)).c_str(),"",120,-30,30);
 	    }
 	}
@@ -517,7 +517,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   int nevtcent[2][centbins] = {0};
   frac[0] = simfrac;
   frac[1] = datfrac;
-  int run = 21615;
+  int run = 23696;
   const int par = 4;
   float parval[par];
   float mult[par];
@@ -538,10 +538,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   precision[3] = 0;
   float test = 0;
   int counter[2][3] = {0};
-  TH2I* accmaps[3];
-  accmaps[0] = new TH2I("accmap0","",96,-0.5,95.5,256,-0.5,255.5);
-  accmaps[1] = new TH2I("accmap1","",24,-0.5,23.5,96,-0.5,95.5);
-  accmaps[2] = new TH2I("accmap2","",24,-0.5,23.5,96,-0.5,95.5);
+  TH2D* accmaps[3];
+  accmaps[0] = new TH2D("accmap0","",96,-0.5,95.5,256,-0.5,255.5);
+  accmaps[1] = new TH2D("accmap1","",24,-0.5,23.5,96,-0.5,95.5);
+  accmaps[2] = new TH2D("accmap2","",24,-0.5,23.5,96,-0.5,95.5);
   
   for(int i=0; i<par; ++i)
     {
@@ -549,7 +549,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       params[i] = streams[i].str();
     }
   cout << "Now opening output file..." << endl;
-  string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3] + "_run_"+to_string(run)+tag+tag2+"_"+(cor?"cor":"unc")+ ".root";
+  string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3]+tag+tag2+"_"+(cor?"cor":"unc")+"_zloup_"+to_string((int)zlow)+"_"+to_string((int)zup)+".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   float dummy;
   float eval;
@@ -566,6 +566,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[0] == 0) cout << "Doing event " << i << endl;
       tree[0]->GetEntry(i);
+      //if(z_v[0][2] < zlow || z_v[0][2] > zup) continue;
       /*
       if(abs(z_v[0][2]) == 0) continue;
       //if(abs(z_v[0][2]) > zcut) continue;
@@ -581,6 +582,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
     {
       if(i%toprint[1] == 0) cout << "Doing event " << i << endl;
       tree[1]->GetEntry(i);
+      //      if(z_v[1][2] < zlow || z_v[1][2] > zup) continue;
       dummy = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, mbh[1], zcut, z_v[1][2], zhist[1], 0, 1, 1);
     }
 
@@ -660,6 +662,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    }
 	  else mbsum = fill_mbd_dat(sectormb, mbenrgy, mbdtype, mbdside, mbdchan, NULL, zcut, z_v[1][2], zhist[0], 1, 1, 0);
 	  if(mbsum < 0) continue;
+	  if(z_v[h][2] < zlow || z_v[h][2] > zup) continue;
 	  if(h==0 && mbsum < cents[0][centoffs-1]) continue;
 	  for(int j=0; j<centbins; ++j)
 	    {
