@@ -592,9 +592,10 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   zfit[1] = zhist[1]->Fit("gaus","S");
 
   TF1* zfitf[2];
-  zfitf[0] = zhist[0]->GetFunction("gaus");
-  zfitf[1] = zhist[1]->GetFunction("gaus");
-  
+  if(zfit[0]) zfitf[0] = zhist[0]->GetFunction("gaus");
+  else zfitf[0] = NULL;
+  if(zfit[1]) zfitf[1] = zhist[1]->GetFunction("gaus");
+  else zfitf[1] = NULL;
   cout << "Data MBD histogram entries: " << mbh[1]->GetEntries() << endl;
   cout << "Done filling data MBD hist." << endl;
   cout << "Done filling all MBD hists." << endl;
@@ -648,6 +649,12 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
   
   
   float totalweight;
+  if(!zfitf[0] || !zfitf[1])
+    {
+      cout << "Fitting zvtx failed; ending." << endl;
+      cerr << "Fitting zvtx failed; ending." << endl;
+      return 1;
+    }
   for(int h=0; h<2; ++h)
     {
       cout << "Doing tree " << h << "." << endl;
@@ -794,6 +801,11 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 	    {
 	      //centet[j][i][k]->Scale(1./centet[j][i][k]->Integral());
 	      TFitResultPtr fit = centet[j][i][k]->Fit("gaus","S");
+	      if(!fit)
+		{
+		  cout << "No fit result for hist centet " << j << " " << i << " " << k << ". Skipping this it." << endl;
+		  continue;
+		}
 	      sigmu[j][i]->SetBinContent(centbins-k,fit->Parameter(2));
 	      sigmu[j][i]->SetBinError(centbins-k,fit->Error(2));
 	      meancent[j][i]->SetBinContent(centbins-k,fit->Parameter(1));
