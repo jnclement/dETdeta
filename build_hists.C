@@ -245,7 +245,7 @@ bool check_eta_hit(float eta, vector<float> hits)
   return false;
 }
 
-int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", string tag2="", int cor = 1, float zlow = -30, float zup = 30)
+int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscale = 1.3, float subtracted = 0, float mine = 0, string tag="", string tag2="", int reweight = 1, float zlow = -30, float zup = 30)
 {
   cout << "Starting..." << endl;
   //mbd_init();
@@ -549,7 +549,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
       params[i] = streams[i].str();
     }
   cout << "Now opening output file..." << endl;
-  string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3]+tag+tag2+"_"+(cor?"cor":"unc")+"_zloup_"+to_string((int)zlow)+"_"+to_string((int)zup)+".root";
+  string outname = "datatemp/savedhists_fracsim_" + to_string(simfrac) + "_fracdat_" + to_string(datfrac) + "_subtr_" + params[1] + "_minE_" + params[2] + "_scale_" + params[0] + "_zcut_" + params[3]+tag+tag2+"_rew_"+to_string(reweight)+"_zloup_"+to_string((int)zlow)+"_"+to_string((int)zup)+".root";
   TFile* outf = TFile::Open(outname.c_str(),"RECREATE");
   float dummy;
   float eval;
@@ -680,7 +680,7 @@ int build_hists(int simfrac = 1, int datfrac = 1, float zcut = 30, float simscal
 		  //if(h==1 && j==17) cout << "j = 17 reached " << z_v[h] << endl;
 		  zcent[h][j]->Fill(z_v[h][2]);
 		  float weight = 1;
-		  if(h==0) weight = zfitf[1]->Eval(z_v[0][2])/zfitf[0]->Eval(z_v[0][2]);
+		  if(reweight) if(h==0) weight = zfitf[1]->Eval(z_v[0][2])/zfitf[0]->Eval(z_v[0][2]);
 		  if(h==0) totalweight += weight;
 		  for(int k=0; k<3; ++k)
 		    {
