@@ -5,9 +5,9 @@ for ZCUT in 30; do #10 30
 	for SUB in 0; do #0 0.018
 	    for MINE in -10; do #0 0.005 0.018
 		for SIM in 1; do
-		    for DAT in 1 10 100; do
-			for TAG in ''; do
-			    for TAG2 in ''; do
+		    for DAT in 1; do
+			for TAG in '_20240226_data_run23696'; do
+			    for TAG2 in '_20240226_nn_run23696'; do
 				for RW in 0 1; do
 				    for ZLO in `seq -15 13`; do
 					ZUP=$(( $LO + 2 ))
