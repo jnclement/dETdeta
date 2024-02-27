@@ -139,11 +139,11 @@ void sphenixtext()
   drawText("#bf{#it{sPHENIX}} Internal", 0.9, 0.96, 1, kBlack, 0.04);
 }
 
-void multitext(string* texts, int ntext, float xp = 0.03, float ytop = 0.1, bool rightalign = 0, int textColor = kBlack, double textsize = 0.025)
+void multitext(string* texts, int ntext, float xp = 0.03, float ytop = 0.1, bool rightalign = 0, int textColor = kBlack, double textsize = 0.025, double textoff = 0)
 {
   for(int i=0; i<ntext; ++i)
     {
-      drawText(texts[i].c_str(), xp, ytop-i*(textsize), rightalign, kBlack, textsize);
+      drawText(texts[i].c_str(), xp, ytop-i*(textsize)-i*textoff, rightalign, kBlack, textsize);
     }
 }
 
