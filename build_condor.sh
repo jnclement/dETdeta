@@ -10,7 +10,7 @@ for ZCUT in 30; do #10 30
 			    for TAG2 in '_20240226_nn_run23696'; do
 				for RW in 0 1; do
 				    for ZLO in `seq -15 13`; do
-					ZUP=$(( $LO + 2 ))
+					ZUP=$(( $ZLO + 2 ))
 					NAME="condor_${ZCUT}${SCALE}${SUB}${MINE}${DAT}${DAT}${TAG}${TAG2}${RW}${ZLO}${ZUP}.sh"
 					echo "#!/bin/bash" > $NAME
 					echo "source /opt/sphenix/core/bin/sphenix_setup.sh -n" >> $NAME
@@ -28,7 +28,7 @@ for ZCUT in 30; do #10 30
 					echo "error                   = run/output/err/error${SUBN}.err" >> $SUBN
 					echo "log = /tmp/jocl_${SUBN}.log" >> $SUBN
 					echo "queue 1" >> $SUBN
-					    condor_submit $SUBN
+					condor_submit $SUBN
 				    done
 				done
 			    done
